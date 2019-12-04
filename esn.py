@@ -10,6 +10,12 @@ from sklearn.metrics import mean_squared_error
 from utils import set_spectral_radius, identity
 
 
+#TODO:make error function
+## transform vectors of shape (x,) into (x,1)
+## TODO: move into error (correct input shape)
+#inputs = np.reshape(inputs, (len(inputs), -1)) if inputs.ndim < 2 else inputs
+#outputs = np.reshape(outputs, (len(outputs), -1)) if outputs.ndim < 2 else outputs
+
 class EchoStateNetwork:
 
     def __init__(self,
@@ -23,11 +29,12 @@ class EchoStateNetwork:
         sparsity: float = 0,
         noise: float = 0,
         leak_rate: float = 1,
+        bias=1,
         input_scaling: Union[float, np.ndarray] = None,
         teacher_forcing: bool = True,
         activation: Callable = np.tanh,
         activation_out: Callable = identity,
-        solver_params: Dict = {
+        regression_params: Dict = {
             "method": "pinv",
             "reg_penalty": None
             },
@@ -64,6 +71,9 @@ class EchoStateNetwork:
         leak_rate: float, optional
             Leaking rate applied to the neurons at each step.
             Default is 1, which is no leaking. 0 would be total leakeage.
+        bias: float, optional
+            Value of the bias neuron, injected at each time step together with input.
+            Default 1.
         input_scaling: float, np.ndarray
             NOT IMPLEMENTED
         teacher_forcing: bool, optional
@@ -74,10 +84,11 @@ class EchoStateNetwork:
             Default tanh.
         activation_out: function, optional
             NOT IMPLEMENTED. Activation function applied to the outputs.
-        solver_params: Dict
+        regression_params: Dict
             Parameters to solve the linear regression to find out outgoing weights.
-            "method": int
+            "method": str, optional
                 One of ["pinv", "ridge"].
+                Default pseudoinverse (pinv).
             "reg_penalty": float, optional
                 Regularization penalty. Only used for Ridge regression.
         n_transient: int, optional
@@ -97,11 +108,12 @@ class EchoStateNetwork:
         self.sparsity = sparsity
         self.noise = noise
         self.leak_rate = leak_rate
+        self.bias = bias
         self.input_scaling = input_scaling
         self.teacher_forcing = teacher_forcing
         self.activation = activation
         self.activation_out = activation_out  #TODO
-        self.solver_params = solver_params
+        self.regression_params = regression_params
         self.n_transient = n_transient
         self.verbose = verbose
         if random_seed:
@@ -110,7 +122,7 @@ class EchoStateNetwork:
 
     def init_incoming_weights(self):
         """Initialize random weights of matrix W_in"""
-        self.W_in = np.random.rand(self.n_reservoir, self.n_inputs) * 2 - 1
+        self.W_in = np.random.rand(self.n_reservoir, self.n_inputs + 1) * 2 - 1  # +1 -> bias
 
     def init_reservoir_weights(self):
         """ Initialize random weights matrix of matrix W"""
@@ -149,7 +161,7 @@ class EchoStateNetwork:
 
     def _solve_W_out(self, full_states, outputs):
         """Solve linear regression model for output weights"""
-        if self.solver_params["method"] == "pinv":
+        if self.regression_params["method"] == "pinv":
             W_out = (np.linalg.pinv(full_states) @ outputs).T
         else:
         #TODO: Ridge regression
@@ -158,18 +170,21 @@ class EchoStateNetwork:
 
     def fit(self, inputs, outputs, inspect=False):
         """ Fit model """
-        # transform vectors of shape (x,) into (x,1)
+        #TODO: remove this -> function to check and throw error
         inputs = np.reshape(inputs, (len(inputs), -1)) if inputs.ndim < 2 else inputs
         outputs = np.reshape(outputs, (len(outputs), -1)) if outputs.ndim < 2 else outputs
 
-        # Collect reservoir states through the given input,output pairs
         n_samples = inputs.shape[0]
+
+        # Append the bias to inputs -> [1; u(t)]  #TODO: check: bias influences the states evolution?
+        bias = np.ones((n_samples, 1)) * self.bias
+        inputs = np.hstack((bias, inputs))
+        # Collect reservoir states through the given input,output pairs
         states = np.zeros((n_samples, self.n_reservoir))
         for step in range(1, n_samples):
             states[step, :] = self._update_state(
                 states[step-1], inputs[step, :], outputs[step-1, :])
-
-        # Extend states matrix with inputs
+        # Extend states matrix with inputs (and bias); i.e., make [1; u(t); x(t)]
         full_states = np.hstack((states, inputs))
         # Solve for W_out using full states and outputs, excluding transient
         self.W_out = self._solve_W_out(
@@ -192,12 +207,17 @@ class EchoStateNetwork:
         """ """
         # Check inputs shape.TODO: move to function (utils)
         inputs = np.reshape(inputs, (len(inputs), -1)) if inputs.ndim < 2 else inputs
+        n_samples = inputs.shape[0]
+
+        # Append the bias to inputs -> [1; u(t)]
+        bias = np.ones((n_samples, 1)) * self.bias
+        inputs = np.hstack((bias, inputs))
+
         # Initialize predictions. If generative mode, begin with last state
         first_input = self.last_input if generative_mode else np.zeros(self.n_inputs)
         first_state = self.last_state if generative_mode else np.zeros(self.n_reservoir)
         first_output = self.last_output if generative_mode else np.zeros(self.n_outputs)
-
-        n_samples = inputs.shape[0]
+        print(first_input)
         inputs = np.vstack([first_input, inputs])
         states = np.vstack([first_state, np.zeros((n_samples, self.n_reservoir))])
         outputs = np.vstack([first_output, np.zeros((n_samples, self.n_outputs))])
