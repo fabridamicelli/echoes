@@ -214,14 +214,15 @@ class EchoStateNetwork:
         inputs = np.hstack((bias, inputs))
 
         # Initialize predictions. If generative mode, begin with last state
-        first_input = self.last_input if generative_mode else np.zeros(self.n_inputs)
+        first_input = self.last_input if generative_mode else np.zeros(self.n_inputs + 1)  # +1 -> bias
+        first_input[0] = self.bias if not generative_mode else 0   # correct first entry
         first_state = self.last_state if generative_mode else np.zeros(self.n_reservoir)
         first_output = self.last_output if generative_mode else np.zeros(self.n_outputs)
-        print(first_input)
+
         inputs = np.vstack([first_input, inputs])
         states = np.vstack([first_state, np.zeros((n_samples, self.n_reservoir))])
         outputs = np.vstack([first_output, np.zeros((n_samples, self.n_outputs))])
-
+        print(inputs)
         # Go through samples (steps) and predict for each of them
         for step in range(1, n_samples):
             states[step, :] = self._update_state(
