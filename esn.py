@@ -36,7 +36,7 @@ class EchoStateNetwork:
         activation_out: Callable = identity,
         regression_params: Dict = {
             "method": "pinv",
-            "reg_penalty": None
+            "regcoef": None
             },
         n_transient: int = None,
         random_seed: int = None,
@@ -89,8 +89,8 @@ class EchoStateNetwork:
             "method": str, optional
                 One of ["pinv", "ridge"].
                 Default pseudoinverse (pinv).
-            "reg_penalty": float, optional
-                Regularization penalty. Only used for Ridge regression.
+            "regcoef": float, optional
+                Regularization coefficient used for Ridge regression.
         n_transient: int, optional
             Number of activity initial steps removed (not considered for training)
             in order to avoid initial instabilities.
@@ -163,12 +163,30 @@ class EchoStateNetwork:
         """Solve linear regression model for output weights"""
         if self.regression_params["method"] == "pinv":
             W_out = (np.linalg.pinv(full_states) @ outputs).T
+        #TODO: add parameters: solver, fit intercept
+        elif self.regression_params["method"] == "ridge":
+            lr = Ridge(alpha=self.regression_params["regcoef"], solver="lsqr", )#fit_intercept=False)
+            lr.fit(full_states, outputs)
+            W_out = lr.coef_
+        elif self.regression_params["method"] == "ridge_formula":
+            Y = outputs.T
+            X = full_states.T
+            X_T = X.T
+            I = np.eye(1 + self.n_inputs + self.n_reservoir)
+            reg = self.regression_params["regcoef"]
+            W_out = np.dot(
+                np.dot(Y, X_T),
+                np.linalg.inv(
+                    np.dot(X, X_T) + reg*np.eye(1+self.n_inputs+ self.n_reservoir)
+                    )
+                )
+
+            print(W_out.shape)
         else:
-        #TODO: Ridge regression
             raise NotImplementedError
         return W_out
 
-    def fit(self, inputs, outputs, inspect=False):
+    def fit(self, inputs, outputs):
         """ Fit model """
         #TODO: remove this -> function to check and throw error
         inputs = np.reshape(inputs, (len(inputs), -1)) if inputs.ndim < 2 else inputs
@@ -204,7 +222,14 @@ class EchoStateNetwork:
         return training_prediction
 
     def predict(self, inputs, mode="generative"):
-        """ """
+        """
+        Predict according to mode.
+        If mode==generative, last training state/input/output is used as initial
+        state/input/output and at each step the output of the network is reinjected
+        as input for next prediction.
+        If mode==predictive, state/output is reinitialized to predict outputs from
+        inputs in the classical sense.
+        """
         # Check inputs shape.TODO: move to function (utils)
         inputs = np.reshape(inputs, (len(inputs), -1)) if inputs.ndim < 2 else inputs
         n_samples = inputs.shape[0]
@@ -227,10 +252,10 @@ class EchoStateNetwork:
             raise ValueError(
                 f"{mode}-> wrong prediction mode; choose 'generative' or 'predictive'")
 
-        print(inputs)
-        print("shape states:", states.shape)
-        print("shape outputs", outputs.shape)
-        print("input shape", inputs.shape)
+        #print(inputs)
+        #print("shape states:", states.shape)
+        #print("shape outputs", outputs.shape)
+        #print("input shape", inputs.shape)
         # Go through samples (steps) and predict for each of them
         for step in range(1, n_samples):
             states[step, :] = self._update_state(
