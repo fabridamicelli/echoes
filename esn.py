@@ -31,7 +31,7 @@ class EchoStateNetwork:
         leak_rate: float = 1,
         bias=1,
         input_scaling: Union[float, np.ndarray] = None,
-        teacher_forcing: bool = True,
+        teacher_forcing: bool = False,
         activation: Callable = np.tanh,
         activation_out: Callable = identity,
         regression_params: Dict = {
@@ -67,7 +67,7 @@ class EchoStateNetwork:
         noise: float, optional
             Magnitud of the noise input added to neurons at each step.
             This is used for regularization purposes and should typically be
-            very small, e.g. 0.0001 or 1e-5.
+            very small, e.g. 0.0001 or 1e-5. Default 0.
         leak_rate: float, optional
             Leaking rate applied to the neurons at each step.
             Default is 1, which is no leaking. 0 would be total leakeage.
@@ -78,7 +78,7 @@ class EchoStateNetwork:
             NOT IMPLEMENTED
         teacher_forcing: bool, optional
             If True, the output signal gets reinjected into the reservoir
-            during training.
+            during training. Default False.
         activation: function, optional
             Non-linear activation function applied to the neurons at each step.
             Default tanh.
@@ -203,7 +203,7 @@ class EchoStateNetwork:
 
         return training_prediction
 
-    def predict(self, inputs, generative_mode=True):
+    def predict(self, inputs, mode="generative"):
         """ """
         # Check inputs shape.TODO: move to function (utils)
         inputs = np.reshape(inputs, (len(inputs), -1)) if inputs.ndim < 2 else inputs
@@ -213,16 +213,24 @@ class EchoStateNetwork:
         bias = np.ones((n_samples, 1)) * self.bias
         inputs = np.hstack((bias, inputs))
 
-        # Initialize predictions. If generative mode, begin with last state
-        first_input = self.last_input if generative_mode else np.zeros(self.n_inputs + 1)  # +1 -> bias
-        first_input[0] = self.bias if not generative_mode else 0   # correct first entry
-        first_state = self.last_state if generative_mode else np.zeros(self.n_reservoir)
-        first_output = self.last_output if generative_mode else np.zeros(self.n_outputs)
+        # Initialize predictions. If generative mode, begin with last state,
+        # otherwise use input (with bias) as first state
+        if mode == "generative":
+            inputs = np.vstack([self.last_input, inputs])
+            states = np.vstack([self.last_state, np.zeros((n_samples, self.n_reservoir))])
+            outputs = np.vstack([self.last_output, np.zeros((n_samples, self.n_outputs))])
+        elif mode == "predictive":
+            # Inputs array is already defined above
+            states = np.zeros((n_samples, self.n_reservoir))
+            outputs = np.zeros((n_samples, self.n_outputs))
+        else:
+            raise ValueError(
+                f"{mode}-> wrong prediction mode; choose 'generative' or 'predictive'")
 
-        inputs = np.vstack([first_input, inputs])
-        states = np.vstack([first_state, np.zeros((n_samples, self.n_reservoir))])
-        outputs = np.vstack([first_output, np.zeros((n_samples, self.n_outputs))])
         print(inputs)
+        print("shape states:", states.shape)
+        print("shape outputs", outputs.shape)
+        print("input shape", inputs.shape)
         # Go through samples (steps) and predict for each of them
         for step in range(1, n_samples):
             states[step, :] = self._update_state(
@@ -230,4 +238,6 @@ class EchoStateNetwork:
             full_states = np.concatenate([states[step, :], inputs[step, :]])
             outputs[step, :] = self.W_out @ full_states
 
-        return outputs[1:]
+        if mode == "generative":
+            return outputs[1:]
+        return outputs
