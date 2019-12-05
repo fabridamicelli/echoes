@@ -187,16 +187,16 @@ class EchoStateNetwork:
     def _update_state(self, state, inputs, outputs):
         """
         Update reservoir states one time step with the following equations.
-        There are two cases, 1) without and 2) with teacher forcing (feedback):
+        There are two cases, a) without and b) with teacher forcing (feedback):
 
-        1)  x'(t) = f(W x(t-1) + W_in [1; u(t)]) + e
+        a.1)    x'(t) = f(W x(t-1) + W_in [1; u(t)]) + e
 
-            x(t) = (1-a) * x(t-1) + a * x(t)'
+        a.2)    x(t) = (1-a) * x(t-1) + a * x(t)'
 
 
-        2)  x'(t) = f(W x(t-1) + W_in [1; u(t)] + W_feedb y(t-1)) + e
+        b.1)    x'(t) = f(W x(t-1) + W_in [1; u(t)] + W_feedb y(t-1)) + e
 
-            x(t) = (1-a) * x(t-1) + a * x(t)'
+        b.2)    x(t) = (1-a) * x(t-1) + a * x(t)'
 
         Where
             x(t): states vector at time t
@@ -220,6 +220,11 @@ class EchoStateNetwork:
           to the described update equations. This is actually handled automa-
           tically (see fit and predict functions), so you don't have to worry
           about it.
+
+        Returns
+        -------
+        states: 2D np.ndarray of shape (1, n_reservoir)
+            Reservoir states vector after update.
         """
         if self.teacher_forcing:
             state_preac = self.W @ state + self.W_in @ inputs + self.W_feedb @ outputs
@@ -235,8 +240,25 @@ class EchoStateNetwork:
 
     def _solve_W_out(self, full_states, outputs):
         """
-        Solve linear regression model for output weights.
-        Return outgoing weights matrix W_out used later for prediction.
+        Solve for outgoing weights with linear regression, i.e., the equation:
+                W_out = Y X.T inv(X X.T)
+
+        Solution is achieved according to the parameters in regression_params.
+
+        Parameters
+        ----------
+        full_states: 2D np.ndarray of shape (n_samples, n_reservoir + n_inputs + 1)
+            Extended states of reservoir, i.e., the X which accumulates [x(t); 1; u(t)]
+            for all times t during training. Where x are reservoir neurons states,
+            1 is the bias and u are the inputs.
+        outputs: 2D np.ndarray of shape (n_samples, n_outputs)
+            Target output of the training set, i.e., [y(t)] for all t during training.
+
+        Returns
+        -------
+        W_out: 2D np.ndarray of shape (1, n_reservoir + n_outputs + 1)
+            Outgoing weights matrix.
+            Second dimension matches the reservoir neurons, n_outputs and bias.
         """
         if self.regression_params["method"] == "pinv":
             W_out = (np.linalg.pinv(full_states) @ outputs).T
@@ -268,7 +290,8 @@ class EchoStateNetwork:
 
     def fit(self, inputs, outputs):
         """
-        Fit Echo State model.
+        Fit Echo State model, i.e., find outgoing weights matrix (W_out) for later
+        prediction.
 
         Parameters
         ----------
@@ -280,7 +303,6 @@ class EchoStateNetwork:
         Returns
         -------
         self: returns an instance of self.
-
 
         Notes
         -----
@@ -321,12 +343,26 @@ class EchoStateNetwork:
 
     def predict(self, inputs, mode="generative"):
         """
-        Predict according to mode.
-        If mode==generative, last training state/input/output is used as initial
-        state/input/output and at each step the output of the network is reinjected
-        as input for next prediction.
-        If mode==predictive, state/output is reinitialized to predict outputs from
-        inputs in the classical sense.
+        Predict according to inputs and mode.
+
+        Parameters
+        ----------
+        inputs: 2D np.ndarray of shape (n_samples, n_inputs)
+            Testing input, i.e., X, the features.
+        mode: str, "predictive" or "generative"
+            If generative, last training state/input/output is used as initial test
+            state/input/output and at each step the output of the network is reinjected
+            as input for next prediction.
+            If predictive, state/output is reinitialized to predict test outputs from
+            inputs as a typical predictive model. Since the reservoir states are
+            reinitialized, an initial transient, unstable phase will occur, so you
+            might want to cut off those steps to test performance (as done by the
+            parameter n_transient during training).
+
+        Returns
+        -------
+        outputs: 2D np.ndarray of shape (n_samples, n_outputs)
+            Predicted outputs.
         """
         # Check inputs shape.TODO: move to function (utils)
         inputs = np.reshape(inputs, (len(inputs), -1)) if inputs.ndim < 2 else inputs
