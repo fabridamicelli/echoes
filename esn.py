@@ -7,14 +7,8 @@ import numpy as np
 from sklearn.linear_model import Ridge
 from sklearn.metrics import mean_squared_error
 
-from utils import set_spectral_radius, identity
+from utils import set_spectral_radius, identity, check_arrays_dimensions
 
-
-# TODO:make error function
-# transform vectors of shape (x,) into (x,1)
-# TODO: move into error (correct input shape)
-#inputs = np.reshape(inputs, (len(inputs), -1)) if inputs.ndim < 2 else inputs
-#outputs = np.reshape(outputs, (len(outputs), -1)) if outputs.ndim < 2 else outputs
 
 class EchoStateNetwork:
 
@@ -292,6 +286,7 @@ class EchoStateNetwork:
         """
         Fit Echo State model, i.e., find outgoing weights matrix (W_out) for later
         prediction.
+        Bias is appended automatically to the inputs.
 
         Parameters
         ----------
@@ -303,18 +298,12 @@ class EchoStateNetwork:
         Returns
         -------
         self: returns an instance of self.
-
-        Notes
-        -----
-        Bias is appended automatically to the inputs.
         """
-        #TODO: remove this -> function to check and throw error
-        inputs = np.reshape(inputs, (len(inputs), -1)) if inputs.ndim < 2 else inputs
-        outputs = np.reshape(outputs, (len(outputs), -1)) if outputs.ndim < 2 else outputs
+        check_arrays_dimensions(inputs, outputs)
 
         n_samples = inputs.shape[0]
 
-        # Append the bias to inputs -> [1; u(t)]  #TODO: check: bias influences the states evolution?
+        # Append the bias to inputs -> [1; u(t)]
         bias = np.ones((n_samples, 1)) * self.bias
         inputs = np.hstack((bias, inputs))
         # Collect reservoir states through the given input,output pairs
@@ -364,8 +353,8 @@ class EchoStateNetwork:
         outputs: 2D np.ndarray of shape (n_samples, n_outputs)
             Predicted outputs.
         """
-        # Check inputs shape.TODO: move to function (utils)
-        inputs = np.reshape(inputs, (len(inputs), -1)) if inputs.ndim < 2 else inputs
+        check_arrays_dimensions(inputs)
+
         n_samples = inputs.shape[0]
 
         # Append the bias to inputs -> [1; u(t)]
