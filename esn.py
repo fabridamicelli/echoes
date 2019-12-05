@@ -10,9 +10,9 @@ from sklearn.metrics import mean_squared_error
 from utils import set_spectral_radius, identity
 
 
-#TODO:make error function
-## transform vectors of shape (x,) into (x,1)
-## TODO: move into error (correct input shape)
+# TODO:make error function
+# transform vectors of shape (x,) into (x,1)
+# TODO: move into error (correct input shape)
 #inputs = np.reshape(inputs, (len(inputs), -1)) if inputs.ndim < 2 else inputs
 #outputs = np.reshape(outputs, (len(outputs), -1)) if outputs.ndim < 2 else outputs
 
@@ -36,7 +36,9 @@ class EchoStateNetwork:
         activation_out: Callable = identity,
         regression_params: Dict = {
             "method": "pinv",
-            "regcoef": None
+            "solver": "lsqr",
+            "fit_intercept": False,
+            "regcoef": None,
             },
         n_transient: int = None,
         random_seed: int = None,
@@ -87,13 +89,25 @@ class EchoStateNetwork:
         regression_params: Dict
             Parameters to solve the linear regression to find out outgoing weights.
             "method": str, optional
-                One of ["pinv", "ridge"].
-                Default pseudoinverse (pinv).
-            "regcoef": float, optional
+                One of ["pinv", "ridge", "ridge_formula"]. Default pseudoinverse (pinv).
+            "solver": str, optional
+                Solver to use in the Ridge regression. Default least squares (lsqr).
+                Valid options are the ones included in sklearn Ridge:
+                   [‘auto’, ‘svd’, ‘cholesky’, ‘lsqr’, ‘sparse_cg’, ‘sag’, ‘saga’]
+                Check sklearn.linear_model.Ridge documentation for details.
+            "fit_intercept": bool, optional
+                If True, intercept is fit in Ridge regression. Default False.
+            "regcoef": float
                 Regularization coefficient used for Ridge regression.
+                Default is None to make sure one deliberately sets this since it is
+                a crucial parameter.
+                # TODO: recommend sensible range of values to try out depending on the
+                task.
         n_transient: int, optional
             Number of activity initial steps removed (not considered for training)
             in order to avoid initial instabilities.
+            Default is 0, but this is something one definitely might want to tweak.
+            # TODO: recommend sensible range of values depending on the task.
         random_seed: int, optional
             Random seed fixed at the beginning for reproducibility of results.
         verbose: bool = True
@@ -160,14 +174,21 @@ class EchoStateNetwork:
         return new_state
 
     def _solve_W_out(self, full_states, outputs):
-        """Solve linear regression model for output weights"""
+        """
+        Solve linear regression model for output weights.
+        Return outgoing weights matrix W_out used later for prediction.
+        """
         if self.regression_params["method"] == "pinv":
             W_out = (np.linalg.pinv(full_states) @ outputs).T
-        #TODO: add parameters: solver, fit intercept
         elif self.regression_params["method"] == "ridge":
-            lr = Ridge(alpha=self.regression_params["regcoef"], solver="lsqr", )#fit_intercept=False)
+            lr = Ridge(
+                alpha=self.regression_params["regcoef"],
+                solver=self.regression_params["solver"],
+                fit_intercept=self.regression_params["fit_intercept"]
+            )
             lr.fit(full_states, outputs)
             W_out = lr.coef_
+        # TODO: test formula/write more clearly. Current one is copied from Mantas code.
         elif self.regression_params["method"] == "ridge_formula":
             Y = outputs.T
             X = full_states.T
@@ -180,8 +201,6 @@ class EchoStateNetwork:
                     np.dot(X, X_T) + reg*np.eye(1+self.n_inputs+ self.n_reservoir)
                     )
                 )
-
-            print(W_out.shape)
         else:
             raise NotImplementedError
         return W_out
