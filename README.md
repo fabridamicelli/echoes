@@ -28,13 +28,20 @@ Bioinspired, Pythonic Echo State Networks
    - input scaling and shifting
    - bias neuron - clear impact on prediction
    - prediction modes: continous/input-based
-
+   - regression parameters:
+     - method: pinv, ridge, ridge-formula
+     - solver: sklearn Ridge solvers
+    pinv, ridge, ridge_formula 
 
 ## Tasks
    - memory capacity
      - evolution of RMSE in (test) time
    - recall task
    - furthest accurate prediction (epsilon, steps on test set (thesis is pretty short)
+   - sin -> cos
+   - narma
+   - perturbation dacy in time
+   - frequency generator
 
 ## Tests - we need unit tests!
    - different types of input (generative, non generative mode)
@@ -45,10 +52,10 @@ Bioinspired, Pythonic Echo State Networks
    - different activation functions
    - mypy:
 	- utils functions
-
+   - arbitrary input matrices -> adjust spectral radius.
+   - TODO: check: bias influences the states evolution?
 
 # Resources
   - pyESN: adaptation (pythonic, modular, features, etc.)
   - easyesn
   - nathaniel??
-
