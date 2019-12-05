@@ -93,7 +93,7 @@ class EchoStateNetwork:
             "solver": str, optional
                 Solver to use in the Ridge regression. Default least squares (lsqr).
                 Valid options are the ones included in sklearn Ridge:
-                   [‘auto’, ‘svd’, ‘cholesky’, ‘lsqr’, ‘sparse_cg’, ‘sag’, ‘saga’]
+                   ["auto", "svd", "cholesky", "lsqr", "sparse_cg", "sag", "saga"]
                 Check sklearn.linear_model.Ridge documentation for details.
             "fit_intercept": bool, optional
                 If True, intercept is fit in Ridge regression. Default False.
@@ -111,6 +111,13 @@ class EchoStateNetwork:
         random_seed: int, optional
             Random seed fixed at the beginning for reproducibility of results.
         verbose: bool = True
+
+        Attributes
+        ----------
+        W_out_ : array of shape (n_outputs, n_inputs+n_reservoir+1)
+            Outgoing weights after fitting linear regression model to predict outputs.
+        training_prediction_: array of shape (n_samples, n_outputs)
+            Predicted output on training data.
         """
         self.n_inputs = n_inputs
         self.n_reservoir = n_reservoir
@@ -135,37 +142,90 @@ class EchoStateNetwork:
         self.init_all_weights()
 
     def init_incoming_weights(self):
-        """Initialize random weights of matrix W_in"""
+        """
+        Initialize random incoming weights of matrix W_in (stored in self.W_in).
+        Shape (n_reservoir, n_inputs+1), where +1 corresponds to bias column.
+        Note: bias and input weights are not initialized separately.
+        # TODO: initialize bias weights separately, as we might want bias to have
+                a different contribution than the inputs.
+        """
         self.W_in = np.random.rand(self.n_reservoir, self.n_inputs + 1) * 2 - 1  # +1 -> bias
 
     def init_reservoir_weights(self):
-        """ Initialize random weights matrix of matrix W"""
+        """
+        Initialize random weights matrix of matrix W (stored in self.W).
+        Shape (n_reservoir, n_reservoir).
+        Spectral radius and sparsity are adjusted.
+        """
         # Init random matrix centered around zero with desired spectral radius
         W = np.random.rand(self.n_reservoir, self.n_reservoir) - 0.5
         W[np.random.rand(*W.shape) < self.sparsity] = 0
         self.W = set_spectral_radius(W, self.spectral_radius)
 
     def init_feedback_weights(self):
-        """Initialize teacher weights W_feedb"""
+        """
+        Initialize teacher feedback weights (stored inW_feedb).
+        Shape (n_reservoir, n_outputs).
+        """
         # random feedback (teacher forcing) weights:
         self.W_feedb = np.random.rand(self.n_reservoir, self.n_outputs) * 2 - 1
 
     def init_all_weights(self):
-        #TODO: set spectral radius for arbitrary input matrices
+        """
+        Wrapper function to initialize all weight matrices at once.
+        Even with user defined reservoir matrix W, the spectral radius is adjusted.
+        """
         if self.W is None:
             self.init_reservoir_weights()
+        else:
+            self.W = set_spectral_radius(self.W, self.spectral_radius)
         if self.W_in is None:
             self.init_incoming_weights()
         if self.W_feedb is None:
             self.init_feedback_weights()
 
     def _update_state(self, state, inputs, outputs):
-        """Update reservoir states one time step"""
+        """
+        Update reservoir states one time step with the following equations.
+        There are two cases, 1) without and 2) with teacher forcing (feedback):
+
+        1)  x'(t) = f(W x(t-1) + W_in [1; u(t)]) + e
+
+            x(t) = (1-a) * x(t-1) + a * x(t)'
+
+
+        2)  x'(t) = f(W x(t-1) + W_in [1; u(t)] + W_feedb y(t-1)) + e
+
+            x(t) = (1-a) * x(t-1) + a * x(t)'
+
+        Where
+            x(t): states vector at time t
+            x'(t): states at time t before applying leakeage
+            a: leakeage rate (1 is no leakeage, 0 is complete leakeage)
+            f: activation function
+            e: random noise applied to neurons (regularization)
+            W: reservoir weights matrix
+            W_in: incoming weights matrix
+            W_feedb: feedback (teaching) matrix
+            u(t): inputs vector at time t
+            y(t): outputs vector at time t
+            1: bias input.
+
+        Notes
+        -----
+        It is asssumed that:
+          - inputs already include bias.
+          - states and outputs already correpond to time = t-1, while inputs
+          correspond to time = t so that the code implementation corresponds
+          to the described update equations. This is actually handled automa-
+          tically (see fit and predict functions), so you don't have to worry
+          about it.
+        """
         if self.teacher_forcing:
             state_preac = self.W @ state + self.W_in @ inputs + self.W_feedb @ outputs
         else:
             state_preac = self.W @ state + self.W_in @ inputs
-        new_state = (np.tanh(state_preac)
+        new_state = (self.activation(state_preac)
                      + self.noise * (np.random.rand(self.n_reservoir) - 0.5))
         # Apply leakage
         if self.leak_rate < 1:
@@ -181,13 +241,13 @@ class EchoStateNetwork:
         if self.regression_params["method"] == "pinv":
             W_out = (np.linalg.pinv(full_states) @ outputs).T
         elif self.regression_params["method"] == "ridge":
-            lr = Ridge(
+            linreg = Ridge(
                 alpha=self.regression_params["regcoef"],
                 solver=self.regression_params["solver"],
                 fit_intercept=self.regression_params["fit_intercept"]
             )
-            lr.fit(full_states, outputs)
-            W_out = lr.coef_
+            linreg.fit(full_states, outputs)
+            W_out = linreg.coef_
         # TODO: test formula/write more clearly. Current one is copied from Mantas code.
         elif self.regression_params["method"] == "ridge_formula":
             Y = outputs.T
@@ -202,11 +262,30 @@ class EchoStateNetwork:
                     )
                 )
         else:
-            raise NotImplementedError
+            raise ValueError(
+                "regression_params['method'] must be one of pinv, ridge, ridge_formula")
         return W_out
 
     def fit(self, inputs, outputs):
-        """ Fit model """
+        """
+        Fit Echo State model.
+
+        Parameters
+        ----------
+        inputs: 2D np.ndarray of shape (n_samples, n_inputs)
+            Training input, i.e., X, the features.
+        outputs: 2D np.ndarray of shape (n_smaples, n_outputs)
+            Training output, i.e., y, the target.
+
+        Returns
+        -------
+        self: returns an instance of self.
+
+
+        Notes
+        -----
+        Bias is appended automatically to the inputs.
+        """
         #TODO: remove this -> function to check and throw error
         inputs = np.reshape(inputs, (len(inputs), -1)) if inputs.ndim < 2 else inputs
         outputs = np.reshape(outputs, (len(outputs), -1)) if outputs.ndim < 2 else outputs
@@ -224,10 +303,10 @@ class EchoStateNetwork:
         # Extend states matrix with inputs (and bias); i.e., make [1; u(t); x(t)]
         full_states = np.hstack((states, inputs))
         # Solve for W_out using full states and outputs, excluding transient
-        self.W_out = self._solve_W_out(
+        self.W_out_ = self._solve_W_out(
             full_states[self.n_transient:, :], outputs[self.n_transient:, :])
         # Predict for training set
-        training_prediction = full_states @ self.W_out.T
+        self.training_prediction_ = full_states @ self.W_out_.T
 
         # Keep last state for later
         self.last_state = states[-1, :]
@@ -236,9 +315,9 @@ class EchoStateNetwork:
 
         if self.verbose:
             print("training RMSE:",
-                  np.sqrt(mean_squared_error(training_prediction, outputs)))
+                  np.sqrt(mean_squared_error(self.training_prediction_, outputs)))
 
-        return training_prediction
+        return self
 
     def predict(self, inputs, mode="generative"):
         """
@@ -271,16 +350,12 @@ class EchoStateNetwork:
             raise ValueError(
                 f"{mode}-> wrong prediction mode; choose 'generative' or 'predictive'")
 
-        #print(inputs)
-        #print("shape states:", states.shape)
-        #print("shape outputs", outputs.shape)
-        #print("input shape", inputs.shape)
         # Go through samples (steps) and predict for each of them
         for step in range(1, n_samples):
             states[step, :] = self._update_state(
                 states[step-1, :], inputs[step, :], outputs[step-1, :])
             full_states = np.concatenate([states[step, :], inputs[step, :]])
-            outputs[step, :] = self.W_out @ full_states
+            outputs[step, :] = self.W_out_ @ full_states
 
         if mode == "generative":
             return outputs[1:]
