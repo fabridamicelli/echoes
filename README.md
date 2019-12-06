@@ -1,38 +1,35 @@
 # echoes
-Bioinspired, Pythonic Echo State Networks
+Pythonic Echo State Networks (work in progress!)
+
+## Examples
+   - [Mackey-Glass-t17](add figure and link to notebook)
+   - [sin -> cos](add)
+   - shifted sequences
+   - frequency generator
+
 
 ## Requirements
    - numpy
    - sklearn
+   - Tests:
+     - mypy
+     - pytest 
 
-# TODO
-## ESN implementation
-   - add docstrings
-   - add annotations
-
-## Notes
-   - weights explote with OLS fitting
-   - regularization: noisy input to x(t), ridge or both noise
-   - mind huge regularization effect of noisy input
 ## Features
-   - linear regression options
-   - sparsity? reservoir links to delete
-   - arbitrary reservoir matrix
-   - arbitrary dynamical regime
+   - prediction modes: generative, predictive
+   - sparsity of reservoir 
    - arbitrary activation function
-   - arbitrary readout function
-   - main parameters:
-     - spectral radius, reservoir size
-   - later on: accelerate with numba (collect states)
    - leakeage rate
-   - input scaling and shifting
-   - bias neuron - clear impact on prediction
-   - prediction modes: continous/input-based
+   - arbitrary bias 
    - regression parameters:
      - method: pinv, ridge, ridge-formula
      - solver: sklearn Ridge solvers
-    pinv, ridge, ridge_formula 
-
+   - TODO
+     - input scaling and shifting
+     - arbitrary readout function
+     - arbitrary reservoir matrix
+     - arbitrary dynamical regime
+     - accelerate with numba?
 ## Tasks
    - memory capacity
      - evolution of RMSE in (test) time
@@ -40,22 +37,34 @@ Bioinspired, Pythonic Echo State Networks
    - furthest accurate prediction (epsilon, steps on test set (thesis is pretty short)
    - sin -> cos
    - narma
-   - perturbation dacy in time
+   - perturbation decay in time
    - frequency generator
 
-## Tests - we need unit tests!
-   - different types of input (generative, non generative mode)
-   - input with multiple dimensions
-   - output with multiple dimensions
-   - assert shapes of arrays
-   - with and without continuation
-   - different activation functions
-   - mypy:
-	- utils functions
-   - arbitrary input matrices -> adjust spectral radius.
-   - TODO: check: bias influences the states evolution?
+## Tests 
+Run tests with 
+```
+make test
+```
+
+### TODO - we need more unit tests!
+ - different types of input (generative, non generative mode)
+ - input with multiple dimensions
+ - output with multiple dimensions
+ - assert shapes of arrays
+ - with and without continuation
+ - different activation functions
+ - mypy:
+   - esn
+   - utils functions
+ - arbitrary input matrices -> adjust spectral radius.
+ - TODO: check: bias influences the states evolution?
 
 # Resources
+## Literature
+  - Mantas
+  - scholarpedia Herbert Jaeger
+## Python implementations [](add links)
   - pyESN: adaptation (pythonic, modular, features, etc.)
   - easyesn
-  - nathaniel??
+  - nathaniel
+  - mantas
