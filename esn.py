@@ -282,7 +282,7 @@ class EchoStateNetwork:
                 "regression_params['method'] must be one of pinv, ridge, ridge_formula")
         return W_out
 
-    def fit(self, inputs, outputs):
+    def fit(self, inputs=None, outputs=None):
         """
         Fit Echo State model, i.e., find outgoing weights matrix (W_out) for later
         prediction.
@@ -290,8 +290,11 @@ class EchoStateNetwork:
 
         Parameters
         ----------
-        inputs: 2D np.ndarray of shape (n_samples, n_inputs)
+        inputs: None or 2D np.ndarray of shape (n_samples, n_inputs)
             Training input, i.e., X, the features.
+            If None, it is assumed that only the teaching sequence matters (outputs)
+            and simply a sequence of zeros will be fed in - matching the len(outputs).
+            This is to be used in the case of generative mode.
         outputs: 2D np.ndarray of shape (n_smaples, n_outputs)
             Training output, i.e., y, the target.
 
@@ -299,6 +302,11 @@ class EchoStateNetwork:
         -------
         self: returns an instance of self.
         """
+        # If no inputs, make a sequence of zeros matching n_samples in outputs
+        if inputs is None:
+            check_arrays_dimensions(None, outputs)  # check that outputs is acually 2D
+            inputs = np.zeros(shape=(outputs.shape[0], self.n_inputs))
+
         check_arrays_dimensions(inputs, outputs)
 
         n_samples = inputs.shape[0]
@@ -330,14 +338,17 @@ class EchoStateNetwork:
 
         return self
 
-    def predict(self, inputs, mode="generative"):
+    def predict(self, inputs, mode="generative", n_steps=None):
         """
         Predict according to inputs and mode.
 
         Parameters
         ----------
-        inputs: 2D np.ndarray of shape (n_samples, n_inputs)
+        inputs: None or  2D np.ndarray of shape (n_samples, n_inputs)
             Testing input, i.e., X, the features.
+            If it is None, mode must be generative and simply a sequence of zeros of
+            length n_steps will be fed in for generative predictions (as in fit method).
+
         mode: str, "predictive" or "generative"
             If generative, last training state/input/output is used as initial test
             state/input/output and at each step the output of the network is reinjected
@@ -348,11 +359,24 @@ class EchoStateNetwork:
             might want to cut off those steps to test performance (as done by the
             parameter n_transient during training).
 
+        n_steps: int, optional
+            Number of generative steps to predict.
+            Only necessary if inputs is None and mode generative.
+
         Returns
         -------
         outputs: 2D np.ndarray of shape (n_samples, n_outputs)
             Predicted outputs.
         """
+        if inputs is None:
+            assert mode == "generative" and n_steps is not None, \
+                    "wrong parameters: if no inputs, mode must be generative and"\
+                    "n_steps must be specified"
+            inputs = np.zeros(shape=(n_steps, self.n_inputs))
+        else:
+            if n_steps is not None:
+                print("Warning: n_steps ignored for prediciton because inputs given")
+
         check_arrays_dimensions(inputs)
 
         n_samples = inputs.shape[0]

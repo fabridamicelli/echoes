@@ -13,18 +13,19 @@ def set_spectral_radius(matrix: np.ndarray, target_radius: float) -> np.ndarray:
     return matrix
 
 
-def check_arrays_dimensions(inputs: np.ndarray, outputs: np.ndarray = None) -> None:
+def check_arrays_dimensions(inputs: np.ndarray = None, outputs: np.ndarray = None) -> None:
     """check that input and/or outputs shape is 2D"""
-    if inputs.ndim < 2:
-        raise ValueError("""
-            Input must be 2D array, got 1D array instead.
-            If n_inputs is one reshape your data to (n_samples, 1).
-            """)
+    if inputs is not None:
+        if inputs.ndim < 2:
+            raise ValueError("""
+                Input must be 2D array, got 1D array instead.
+                If n_inputs is one reshape your data with .reshape(-1, 1).
+                """)
     if outputs is not None:
         if outputs.ndim < 2:
             raise ValueError("""
                 Output must be 2D array, got 1D array instead.
-                If your n_outputs is one, reshape your data to (n_samples, 1).
+                If your n_outputs is one, reshape your data with .reshape(-1, 1).
                 """)
 
 def identity(x: Union[float, np.ndarray]) -> Union[float, np.ndarray]:
