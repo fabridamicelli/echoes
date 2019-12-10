@@ -25,6 +25,7 @@ class EchoStateNetwork:
         leak_rate: float = 1,
         bias=1,
         input_scaling: Union[float, np.ndarray] = None,
+        input_shift: Union[float, np.ndarray] = None,
         teacher_forcing: bool = False,
         activation: Callable = np.tanh,
         activation_out: Callable = identity,
@@ -70,8 +71,16 @@ class EchoStateNetwork:
         bias: float, optional
             Value of the bias neuron, injected at each time step together with input.
             Default 1.
-        input_scaling: float, np.ndarray
-            NOT IMPLEMENTED
+        input_scaling: float or np.ndarray of length n_inputs
+            Scalar to multiply each input before feeding it to the network.
+            If float, all inputs get multiplied by same value.
+            If array, it must match n_inputs length, specifying the scaling factor for
+            each input.
+        input_shift: float or np.ndarray of length n_inputs
+            Scalar to add to each input before feeding it to the network.
+            If float, multiplied same value is added to all inputs.
+            If array, it must match n_inputs length, specifying the value to add to
+            each input.
         teacher_forcing: bool, optional
             If True, the output signal gets reinjected into the reservoir
             during training. Default False.
@@ -125,6 +134,7 @@ class EchoStateNetwork:
         self.leak_rate = leak_rate
         self.bias = bias
         self.input_scaling = input_scaling
+        self.input_shift = input_shift
         self.teacher_forcing = teacher_forcing
         self.activation = activation
         self.activation_out = activation_out  #TODO
@@ -177,6 +187,33 @@ class EchoStateNetwork:
             self.init_incoming_weights()
         if self.W_feedb is None:
             self.init_feedback_weights()
+
+    # TODO check input scaling and shifting
+    # TODO maybe move to utils
+    def scale_shift_inputs(self, inputs):
+        """
+        Scale first and then shift inputs vector/matrix.
+        """
+        assert isinstance(inputs, np.ndarray), "wrong inputs type; must be np.ndarray"
+        if self.input_scaling is not None:
+            if isinstance(self.input_scaling, (float, int)):
+                inputs *= self.input_scaling
+            elif isinstance(self.input_scaling, np.ndarray):
+                assert len(self.input_scaling) == self.n_inputs, "wrong input scaling"
+                inputs *= self.input_scaling[:, None]  # broadcast column-wise
+            else:
+                raise ValueError("wrong input scaling type")
+
+        if self.input_shift is not None:
+            if isinstance(self.input_shift, (float, int)):
+                inputs += self.input_shift
+            elif isinstance(self.input_scaling, np.ndarray):
+                assert len(self.input_shift) == self.n_inputs, "wrong input shift"
+                inputs += self.input_scaling[:, None]  # broadcast column-wise
+            else:
+                raise ValueError("wrong input scaling type")
+
+        return inputs
 
     def _update_state(self, state, inputs, outputs):
         """
@@ -308,8 +345,10 @@ class EchoStateNetwork:
             inputs = np.zeros(shape=(outputs.shape[0], self.n_inputs))
 
         check_arrays_dimensions(inputs, outputs)
-
         n_samples = inputs.shape[0]
+
+        # Scale and shift inputs
+        inputs = self.scale_shift_inputs(inputs)
 
         # Append the bias to inputs -> [1; u(t)]
         bias = np.ones((n_samples, 1)) * self.bias
@@ -375,10 +414,9 @@ class EchoStateNetwork:
             inputs = np.zeros(shape=(n_steps, self.n_inputs))
         else:
             if n_steps is not None:
-                print("Warning: n_steps ignored for prediciton because inputs given")
+                print("Warning: n_steps ignored for prediction because inputs are given")
 
         check_arrays_dimensions(inputs)
-
         n_samples = inputs.shape[0]
 
         # Append the bias to inputs -> [1; u(t)]
@@ -388,10 +426,15 @@ class EchoStateNetwork:
         # Initialize predictions. If generative mode, begin with last state,
         # otherwise use input (with bias) as first state
         if mode == "generative":
+        # TODO: input scaling must be handled differently for generative and predictive
+        # mode. Generative must be done for each step
+        # TODO: split generative and predictive??
             inputs = np.vstack([self.last_input, inputs])
             states = np.vstack([self.last_state, np.zeros((n_samples, self.n_reservoir))])
             outputs = np.vstack([self.last_output, np.zeros((n_samples, self.n_outputs))])
         elif mode == "predictive":
+            # Scale and shift inputs
+            inputs = self.scale_shift_inputs(inputs)
             # Inputs array is already defined above
             states = np.zeros((n_samples, self.n_reservoir))
             outputs = np.zeros((n_samples, self.n_outputs))
