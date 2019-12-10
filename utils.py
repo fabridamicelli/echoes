@@ -16,6 +16,8 @@ def set_spectral_radius(matrix: np.ndarray, target_radius: float) -> np.ndarray:
 def check_arrays_dimensions(inputs: np.ndarray = None, outputs: np.ndarray = None) -> None:
     """check that input and/or outputs shape is 2D"""
     if inputs is not None:
+        assert isinstance(inputs, np.ndarray), \
+            "wrong inputs type; must be np.ndarray or None"
         if inputs.ndim < 2:
             raise ValueError("""
                 Input must be 2D array, got 1D array instead.

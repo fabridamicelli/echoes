@@ -194,7 +194,6 @@ class EchoStateNetwork:
         """
         Scale first and then shift inputs vector/matrix.
         """
-        assert isinstance(inputs, np.ndarray), "wrong inputs type; must be np.ndarray"
         if self.input_scaling is not None:
             if isinstance(self.input_scaling, (float, int)):
                 inputs *= self.input_scaling
@@ -407,6 +406,8 @@ class EchoStateNetwork:
         outputs: 2D np.ndarray of shape (n_samples, n_outputs)
             Predicted outputs.
         """
+        if mode == "generative":
+            assert self.teacher_forcing == True, "generative mode requires teacher forcing"
         if inputs is None:
             assert mode == "generative" and n_steps is not None, \
                     "wrong parameters: if no inputs, mode must be generative and"\
@@ -419,6 +420,9 @@ class EchoStateNetwork:
         check_arrays_dimensions(inputs)
         n_samples = inputs.shape[0]
 
+        # Scale and shift inputs
+        inputs = self.scale_shift_inputs(inputs)
+
         # Append the bias to inputs -> [1; u(t)]
         bias = np.ones((n_samples, 1)) * self.bias
         inputs = np.hstack((bias, inputs))
@@ -426,15 +430,10 @@ class EchoStateNetwork:
         # Initialize predictions. If generative mode, begin with last state,
         # otherwise use input (with bias) as first state
         if mode == "generative":
-        # TODO: input scaling must be handled differently for generative and predictive
-        # mode. Generative must be done for each step
-        # TODO: split generative and predictive??
             inputs = np.vstack([self.last_input, inputs])
             states = np.vstack([self.last_state, np.zeros((n_samples, self.n_reservoir))])
             outputs = np.vstack([self.last_output, np.zeros((n_samples, self.n_outputs))])
         elif mode == "predictive":
-            # Scale and shift inputs
-            inputs = self.scale_shift_inputs(inputs)
             # Inputs array is already defined above
             states = np.zeros((n_samples, self.n_reservoir))
             outputs = np.zeros((n_samples, self.n_outputs))
