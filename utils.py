@@ -1,9 +1,11 @@
 """
 Auxiliar functions
 """
-from typing import Union
+from typing import Union, Callable
 
 import numpy as np
+
+from esn import EchoStateNetwork
 
 
 def set_spectral_radius(matrix: np.ndarray, target_radius: float) -> np.ndarray:
@@ -32,3 +34,11 @@ def check_arrays_dimensions(inputs: np.ndarray = None, outputs: np.ndarray = Non
 
 def identity(x: Union[float, np.ndarray]) -> Union[float, np.ndarray]:
     return x
+
+def check_func_inverse(func: Callable, inv_func: Callable) -> None:
+    """check that func and inv_func are indeed inverse of each other"""
+    x = np.linspace(-2, 2, 10)
+    y = func(x)
+    mismatch = np.where(inv_func(y) != x)[0]
+    assert np.isclose(inv_func(y), x).all(),\
+        f"function {inv_func.__name__} is not the inverse of {func.__name__}"

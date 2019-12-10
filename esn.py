@@ -7,8 +7,11 @@ import numpy as np
 from sklearn.linear_model import Ridge
 from sklearn.metrics import mean_squared_error
 
-from utils import set_spectral_radius, identity, check_arrays_dimensions
+from utils import (
+    set_spectral_radius, identity, check_arrays_dimensions, check_func_inverse
+)
 
+# TODO: scale/unscale teacher
 
 class EchoStateNetwork:
 
@@ -29,6 +32,7 @@ class EchoStateNetwork:
         teacher_forcing: bool = False,
         activation: Callable = np.tanh,
         activation_out: Callable = identity,
+        inv_activation_out: Callable = identity,
         regression_params: Dict = {
             "method": "pinv",
             "solver": "lsqr",
@@ -88,7 +92,13 @@ class EchoStateNetwork:
             Non-linear activation function applied to the neurons at each step.
             Default tanh.
         activation_out: function, optional
-            NOT IMPLEMENTED. Activation function applied to the outputs.
+            Activation function applied to the outputs. In other words, it is assumed
+            that targets = f(outputs). So the output produced must be transformed.
+            Default identity.
+        inv_activation_out: function, optional.
+            Inverse of acivation function applied to the outputs. This is used to first
+            transform targets to teacher (during training).
+            Default identity.
         regression_params: Dict
             Parameters to solve the linear regression to find out outgoing weights.
             "method": str, optional
@@ -122,6 +132,8 @@ class EchoStateNetwork:
         training_prediction_: array of shape (n_samples, n_outputs)
             Predicted output on training data.
         """
+        check_func_inverse(activation_out, inv_activation_out)
+
         self.n_inputs = n_inputs
         self.n_reservoir = n_reservoir
         self.n_outputs = n_outputs
@@ -137,7 +149,8 @@ class EchoStateNetwork:
         self.input_shift = input_shift
         self.teacher_forcing = teacher_forcing
         self.activation = activation
-        self.activation_out = activation_out  #TODO
+        self.activation_out = activation_out
+        self.inv_activation_out = inv_activation_out
         self.regression_params = regression_params
         self.n_transient = n_transient
         self.verbose = verbose
@@ -348,6 +361,8 @@ class EchoStateNetwork:
 
         # Scale and shift inputs
         inputs = self.scale_shift_inputs(inputs)
+        # Inverse transform outputs (map them into inner, latent space
+        outputs = self.inv_activation_out(outputs)
 
         # Append the bias to inputs -> [1; u(t)]
         bias = np.ones((n_samples, 1)) * self.bias
@@ -362,8 +377,8 @@ class EchoStateNetwork:
         # Solve for W_out using full states and outputs, excluding transient
         self.W_out_ = self._solve_W_out(
             full_states[self.n_transient:, :], outputs[self.n_transient:, :])
-        # Predict for training set
-        self.training_prediction_ = full_states @ self.W_out_.T
+        # Predict for training set (map them back to original space with activation)
+        self.training_prediction_ = self.activation_out(full_states @ self.W_out_.T)
 
         # Keep last state for later
         self.last_state = states[-1, :]
@@ -454,6 +469,8 @@ class EchoStateNetwork:
             full_states = np.concatenate([states[step, :], inputs[step, :]])
             outputs[step, :] = self.W_out_ @ full_states
 
+        # Map outputs to actual target space
+        outputs = self.activation_out(outputs)
         if mode == "generative":
             return outputs[1:]
         return outputs
