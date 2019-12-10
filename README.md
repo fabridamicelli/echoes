@@ -30,6 +30,7 @@ Pythonic Echo State Networks (work in progress!)
      - arbitrary reservoir matrix
      - arbitrary dynamical regime
      - accelerate with numba?
+     - teacher scaling and shift
 ## Tasks
    - memory capacity
      - evolution of RMSE in (test) time

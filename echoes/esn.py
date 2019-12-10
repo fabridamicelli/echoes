@@ -7,7 +7,7 @@ import numpy as np
 from sklearn.linear_model import Ridge
 from sklearn.metrics import mean_squared_error
 
-from utils import (
+from .utils import (
     set_spectral_radius, identity, check_arrays_dimensions, check_func_inverse
 )
 

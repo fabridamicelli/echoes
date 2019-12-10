@@ -5,8 +5,6 @@ from typing import Union, Callable
 
 import numpy as np
 
-from esn import EchoStateNetwork
-
 
 def set_spectral_radius(matrix: np.ndarray, target_radius: float) -> np.ndarray:
     """Rescale weights matrix to match target spectral radius"""
