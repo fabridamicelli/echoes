@@ -185,7 +185,7 @@ class EchoStateNetwork:
             self.W = set_spectral_radius(self.W, self.spectral_radius)
         if self.W_in is None:
             self.init_incoming_weights()
-        if self.W_feedb is None:
+        if self.W_feedb is None and self.teacher_forcing:
             self.init_feedback_weights()
 
     # TODO check input scaling and shifting
@@ -416,6 +416,12 @@ class EchoStateNetwork:
         else:
             if n_steps is not None:
                 print("Warning: n_steps ignored for prediction because inputs are given")
+            if mode == "generative" and not np.all(inputs == 0):
+                print(
+                "Warning: you are passing a non-zero inputs vector for prediction"\
+                "which might lead to unexpected results (prediction) if you did't pass" \
+                "that exact vector during training, since you are establishing different"\
+                "biases. You might just prefer passing None as inputs for generative mode.")
 
         check_arrays_dimensions(inputs)
         n_samples = inputs.shape[0]
