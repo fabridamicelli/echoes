@@ -2,44 +2,46 @@
 Pythonic Echo State Networks (work in progress!)
 
 ## Examples
-   - [Mackey-Glass-t17](add figure and link to notebook)
-   - [sin -> cos](add)
-   - shifted sequences
-   - frequency generator
-
+ - [Mackey-Glass-t17](https://github.com/fabridamicelli/echoes/blob/master/examples/MackeyGlass-t17.ipynb)
+![Alt Text](https://github.com/fabridamicelli/echoes/blob/master/examples/mackeyglasst17.png)
 
 ## Requirements
    - numpy
    - sklearn
-   - Tests:
+   - examples:
+     - matplotlib
+     - seaborn
+   - tests:
      - mypy
      - pytest 
 
 ## Features
-   - prediction modes: generative, predictive
-   - sparsity of reservoir 
-   - arbitrary activation function
-   - leakeage rate
-   - arbitrary bias 
-   - regression parameters:
-     - method: pinv, ridge, ridge-formula
-     - solver: sklearn Ridge solvers
-   - TODO
-     - input scaling and shifting
-     - arbitrary readout function
-     - arbitrary reservoir matrix
-     - arbitrary dynamical regime
-     - accelerate with numba?
-     - teacher scaling and shift
-## Tasks
-   - memory capacity
-     - evolution of RMSE in (test) time
-   - recall task
-   - furthest accurate prediction (epsilon, steps on test set (thesis is pretty short)
-   - sin -> cos
-   - narma
-   - perturbation decay in time
-   - frequency generator
+ - input scaling and shift
+ - prediction modes: 
+   - predictive
+   - generative
+ - reservoir sparsity
+ - leakeage rate
+ - input noise (regularization)
+ - arbitrary:
+   - activation function
+   - bias 
+   - readout function
+   - reservoir matrix
+   - input matrix
+   - feedback matrix
+   - dynamical regime
+ - regression parameters:
+   - method: 
+     - pinv
+     - ridge 
+     - ridge-formula
+   - sklearn Ridge solvers
+
+TODO:
+ - teacher scaling and shift
+ - accelerate with numba?
+
 
 ## Tests 
 Run tests with 
@@ -47,25 +49,7 @@ Run tests with
 make test
 ```
 
-### TODO - we need more unit tests!
- - different types of input (generative, non generative mode)
- - input with multiple dimensions
- - output with multiple dimensions
- - assert shapes of arrays
- - with and without continuation
- - different activation functions
- - mypy:
-   - esn
-   - utils functions
- - arbitrary input matrices -> adjust spectral radius.
- - TODO: check: bias influences the states evolution?
-
-# Resources
-## Literature
-  - Mantas
-  - scholarpedia Herbert Jaeger
-## Python implementations [](add links)
-  - pyESN: adaptation (pythonic, modular, features, etc.)
-  - easyesn
-  - nathaniel
-  - mantas
+## References
+  - [Reservoir computing approaches to recurrent neural network training, Mantas & Jaeger, 2009](https://www.sciencedirect.com/science/article/pii/S1574013709000173)
+  - [A Practical Guide to Applying Echo State Networks, Mantas, 2012](https://link.springer.com/chapter/10.1007/978-3-642-35289-8_36)
+  - [Echo state network (scholarpedia), Jaeger](http://www.scholarpedia.org/article/Echo_state_network)

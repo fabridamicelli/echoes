@@ -1,4 +1,4 @@
 test:
-	mypy esn.py --ignore-missing-imports
-	mypy utils.py --ignore-missing-imports
-	mypy datasets.py --ignore-missing-imports
+	mypy echoes/esn.py --ignore-missing-imports
+	mypy echoes/utils.py --ignore-missing-imports
+	mypy echoes/datasets.py --ignore-missing-imports
