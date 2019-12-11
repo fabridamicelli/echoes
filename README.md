@@ -5,6 +5,7 @@ Pythonic Echo State Networks (work in progress!)
  - [Mackey-Glass-t17 (generative mode)](https://github.com/fabridamicelli/echoes/blob/master/examples/MackeyGlass-t17.ipynb)
 ![Alt Text](https://github.com/fabridamicelli/echoes/blob/master/examples/mackeyglasst17.png)
 
+---
  - [sin-cos (predictive mode)](https://github.com/fabridamicelli/echoes/blob/master/examples/sin-cos.ipynb)
 ![Alt Text](https://github.com/fabridamicelli/echoes/blob/master/examples/sin-cos.png)
 
