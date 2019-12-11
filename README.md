@@ -2,7 +2,7 @@
 Pythonic Echo State Networks (work in progress!)
 
 ## Examples
- - [Mackey-Glass-t17 (generative mode) (notebook)](https://github.com/fabridamicelli/echoes/blob/master/examples/MackeyGlass-t17.ipynb)
+ - Mackey-Glass-t17 (generative mode) [(notebook)](https://github.com/fabridamicelli/echoes/blob/master/examples/MackeyGlass-t17.ipynb)
 
 ```python
 
@@ -18,6 +18,7 @@ sns.set(context="notebook", style="whitegrid", font_scale=1.4,
         rc={'grid.linestyle': '--', 
             'grid.linewidth': 0.8,})
 
+# Instantiate the model: several parameter choices here are rather arbitrary and even not so conventional (e.g., spectral radius > 1), but this is just for the sake of the example. Many other constellations produce also satisfactory results, so feel free to play around with them.
 esn = EchoStateNetwork(
     n_inputs=1,
     n_outputs=1,
@@ -66,7 +67,7 @@ plt.legend(fontsize='small')
 ![Alt Text](https://github.com/fabridamicelli/echoes/blob/master/examples/mackeyglasst17.png)
 
 ---
- - [sin-cos (predictive mode) (notebook)](https://github.com/fabridamicelli/echoes/blob/master/examples/sin-cos.ipynb)
+ - sin-cos (predictive mode) [(notebook)](https://github.com/fabridamicelli/echoes/blob/master/examples/sin-cos.ipynb)
 
 ```python
 
