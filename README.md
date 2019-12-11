@@ -152,7 +152,7 @@ Then cd to directory and pip install:
 cd echoes
 pip install .
 ```
-Recommendation: install the package in a separate virtual environment created with , e.g., [(mini)conda](https://conda.io/docs/user-guide/install/index.html).
+Recommendation: install the package in a separate virtual environment, e.g., created with [(mini)conda](https://conda.io/docs/user-guide/install/index.html).
 
 
 ## Features
