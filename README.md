@@ -18,12 +18,15 @@ sns.set(context="notebook", style="whitegrid", font_scale=1.4,
         rc={'grid.linestyle': '--', 
             'grid.linewidth': 0.8,})
 
-# Instantiate the model: several parameter choices here are rather arbitrary and even not so conventional (e.g., spectral radius > 1), but this is just for the sake of the example. Many other constellations produce also satisfactory results, so feel free to play around with them.
+# Instantiate the model: several parameter choices here are rather arbitrary and 
+# even not so conventional (e.g., spectral radius > 1), but this is just for the 
+# sake of the example. Many other constellations produce also satisfactory results, 
+# so feel free to play around with them.
 esn = EchoStateNetwork(
     n_inputs=1,
     n_outputs=1,
     n_reservoir=200,
-    spectral_radius=1.25,   
+    spectral_radius=1.25,
     teacher_forcing=True,
     leak_rate=.4,
     regression_params={
@@ -38,13 +41,12 @@ data = load_mackeyglasst17().reshape(-1, 1)
 trainlen, testlen = 2000, 2000
 totallen = trainlen + testlen
 # Fit the model. Inputs is None because we only have the target time series
-esn.fit(None, data[:trainlen]);   
+esn.fit(None, data[:trainlen]);
 
 # Input is None because we will use the generative mode, were only the feedback 
 # is needed to compute the next states and predict outputs
 prediction = esn.predict(None, mode="generative", n_steps=testlen)
-print("test RSME:", np.sqrt(mean_squared_error(prediction.flatten(), 
-                                               data[trainlen: totallen])))
+
 # Plot test
 plt.figure(figsize=(22, 5))
 plt.subplot(1, 4, (1, 3))
@@ -112,10 +114,8 @@ esn = EchoStateNetwork(
 ).fit(inputs_train, outputs_train)
 
 prediction_test = esn.predict(inputs_test, mode="predictive")
-print("test RSME:", 
-      np.sqrt(mean_squared_error(prediction_test.flatten()[esn.n_transient:], # discard same transient as in training
-                                 outputs_test[esn.n_transient:])))
 
+# Plot test (discarding same initial transient as for training)
 plt.figure(figsize=(15, 4))
 plt.subplot(1, 3, (1,2))
 plt.plot(outputs_test[esn.n_transient:], label='target signal',
@@ -131,6 +131,7 @@ plt.legend(fontsize=("small"), loc=2)
 
 
 ## Requirements
+The code has been tested with Python 3.7 on Ubuntu 18.04.3 LTS.
    - numpy
    - sklearn
    - examples:
@@ -139,6 +140,20 @@ plt.legend(fontsize=("small"), loc=2)
    - tests:
      - mypy
      - pytest 
+
+## Installation
+[Download](https://github.com/fabridamicelli/echoes/archive/master.zip) or clone repo like this:
+```sh
+git clone https://github.com/fabridamicelli/echoes
+```
+
+Then cd to directory and pip install:
+```sh
+cd echoes
+pip install .
+```
+Recommendation: install the package in a separate virtual environment created with , e.g., [(mini)conda](https://conda.io/docs/user-guide/install/index.html).
+
 
 ## Features
  - input scaling and shift
