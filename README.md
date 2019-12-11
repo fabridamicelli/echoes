@@ -7,6 +7,8 @@ Pythonic Echo State Networks (work in progress!)
 
 ---
  - [sin-cos (predictive mode)](https://github.com/fabridamicelli/echoes/blob/master/examples/sin-cos.ipynb)
+
+
 ![Alt Text](https://github.com/fabridamicelli/echoes/blob/master/examples/sin-cos.png)
 
 ## Requirements
