@@ -177,6 +177,8 @@ Recommendation: install the package in a separate virtual environment, e.g., cre
      - ridge 
      - ridge-formula
    - sklearn Ridge solvers
+ - fit only states (fit outgoing weights without inputs and bias)
+
 
 TODO:
  - teacher scaling and shift

@@ -33,6 +33,7 @@ class EchoStateNetwork:
         activation: Callable = np.tanh,
         activation_out: Callable = identity,
         inv_activation_out: Callable = identity,
+        fit_only_states: bool = False,
         regression_params: Dict = {
             "method": "pinv",
             "solver": "lsqr",
@@ -99,6 +100,10 @@ class EchoStateNetwork:
             Inverse of acivation function applied to the outputs. This is used to first
             transform targets to teacher (during training).
             Default identity.
+        fit_only_states: bool
+            If True, outgoing weights (W_out) are computed fitting only the reservoir
+            states. Inputs and bias are still use to drive reservoir activity, but
+            ignored for fitting W_out, both in the training and prediction phase.
         regression_params: Dict
             Parameters to solve the linear regression to find out outgoing weights.
             "method": str, optional
@@ -151,6 +156,7 @@ class EchoStateNetwork:
         self.activation = activation
         self.activation_out = activation_out
         self.inv_activation_out = inv_activation_out
+        self.fit_only_states = fit_only_states
         self.regression_params = regression_params
         self.n_transient = n_transient
         self.verbose = verbose
@@ -294,12 +300,15 @@ class EchoStateNetwork:
             Extended states of reservoir, i.e., the X which accumulates [x(t); 1; u(t)]
             for all times t during training. Where x are reservoir neurons states,
             1 is the bias and u are the inputs.
+            If fit_only_states is True, the shape of full_states should be
+            (n_samples, n_reservoir).
         outputs: 2D np.ndarray of shape (n_samples, n_outputs)
             Target output of the training set, i.e., [y(t)] for all t during training.
 
         Returns
         -------
-        W_out: 2D np.ndarray of shape (1, n_reservoir + n_outputs + 1)
+        W_out: 2D np.ndarray of shape (1, n_reservoir + n_outputs + 1).
+               If fit_only_states is True, shape is (1, n_reservoir + n_outputs).
             Outgoing weights matrix.
             Second dimension matches the reservoir neurons, n_outputs and bias.
         """
@@ -372,8 +381,13 @@ class EchoStateNetwork:
         for step in range(1, n_samples):
             states[step, :] = self._update_state(
                 states[step-1], inputs[step, :], outputs[step-1, :])
-        # Extend states matrix with inputs (and bias); i.e., make [1; u(t); x(t)]
-        full_states = np.hstack((states, inputs))
+
+        if self.fit_only_states:
+            full_states = states
+        else:
+            # Extend states matrix with inputs (and bias); i.e., make [1; u(t); x(t)]
+            full_states = np.hstack((states, inputs))
+
         # Solve for W_out using full states and outputs, excluding transient
         self.W_out_ = self._solve_W_out(
             full_states[self.n_transient:, :], outputs[self.n_transient:, :])
@@ -401,7 +415,6 @@ class EchoStateNetwork:
             Testing input, i.e., X, the features.
             If it is None, mode must be generative and simply a sequence of zeros of
             length n_steps will be fed in for generative predictions (as in fit method).
-
         mode: str, "predictive" or "generative"
             If generative, last training state/input/output is used as initial test
             state/input/output and at each step the output of the network is reinjected
@@ -411,7 +424,6 @@ class EchoStateNetwork:
             reinitialized, an initial transient, unstable phase will occur, so you
             might want to cut off those steps to test performance (as done by the
             parameter n_transient during training).
-
         n_steps: int, optional
             Number of generative steps to predict.
             Only necessary if inputs is None and mode generative.
@@ -466,7 +478,12 @@ class EchoStateNetwork:
         for step in range(1, n_samples):
             states[step, :] = self._update_state(
                 states[step-1, :], inputs[step, :], outputs[step-1, :])
-            full_states = np.concatenate([states[step, :], inputs[step, :]])
+
+            if self.fit_only_states:
+                full_states = states[step, :]
+            else:
+                full_states = np.concatenate([states[step, :], inputs[step, :]])
+
             outputs[step, :] = self.W_out_ @ full_states
 
         # Map outputs to actual target space
