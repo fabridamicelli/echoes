@@ -144,7 +144,7 @@ plt.legend(fontsize=("small"), loc=2)
 
 
 ## Requirements
-The code has been tested with Python 3.7 on Ubuntu 18.04.3 LTS.
+The code has been tested with Python 3.7 on Ubuntu 18.04.
    - numpy
    - sklearn
    - examples:
