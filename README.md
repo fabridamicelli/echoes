@@ -1,6 +1,19 @@
 # echoes
 Pythonic Echo State Networks (work in progress!)
 
+## Installation
+[Download](https://github.com/fabridamicelli/echoes/archive/master.zip) or clone repo like this:
+```sh
+git clone https://github.com/fabridamicelli/echoes
+```
+
+Then cd to directory and pip install:
+```sh
+cd echoes
+pip install .
+```
+Recommendation: install the package in a separate virtual environment, e.g., created with [(mini)conda](https://conda.io/docs/user-guide/install/index.html).
+
 ## Examples
  - Mackey-Glass-t17 (generative mode) [(notebook)](https://github.com/fabridamicelli/echoes/blob/master/examples/MackeyGlass-t17.ipynb)
 
@@ -140,19 +153,6 @@ The code has been tested with Python 3.7 on Ubuntu 18.04.3 LTS.
    - tests:
      - mypy
      - pytest 
-
-## Installation
-[Download](https://github.com/fabridamicelli/echoes/archive/master.zip) or clone repo like this:
-```sh
-git clone https://github.com/fabridamicelli/echoes
-```
-
-Then cd to directory and pip install:
-```sh
-cd echoes
-pip install .
-```
-Recommendation: install the package in a separate virtual environment, e.g., created with [(mini)conda](https://conda.io/docs/user-guide/install/index.html).
 
 
 ## Features

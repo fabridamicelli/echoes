@@ -8,7 +8,8 @@ from sklearn.linear_model import Ridge
 from sklearn.metrics import mean_squared_error
 
 from .utils import (
-    set_spectral_radius, identity, check_arrays_dimensions, check_func_inverse
+    set_spectral_radius, identity, check_arrays_dimensions, check_func_inverse,
+    check_model_params
 )
 
 # TODO: scale/unscale teacher
@@ -49,46 +50,59 @@ class EchoStateNetwork:
         ----------
         n_inputs: int
             Number of input neurons.
+            Default None.
         n_reservoir: int
             Number of reservoir neurons.
+            Default None.
         n_outputs: int
             Number of output neurons.
-        W: np.ndarray, optional
+            Default None.
+        W: np.ndarray of shape (n_reservoir, n_reservoir), optional.
             Reservoir weights matrix. If None, random weights are used.
+            Be careful with the distribution of W values. Wrong W initialization
+            might drastically affect test performance (even with reasonable good
+            training fit).
+            Default None.
         spectral_radius: float
             Spectral radius of the reservoir weights matrix (W).
-        W_in: np.ndarray, optional
+        W_in: np.ndarray of shape (n_reservoir, 1+n_inputs) (1->bias), optional
             Input weights matrix by which input signal is multiplied.
-            If None, random weights are used. Default None.
-        W_feedb: np.ndarray, optional
+            If None, random weights are used.
+            Default None.
+        W_feedb: np.ndarray of shape(n_reservoir, n_outputs), optional
             Feedback weights matrix by which teaching signal is multiplied in
-            case of teaching force. Default None.
+            case of teaching force.
+            Default None.
         sparsity: float, optional
             Proportion of the reservoir matrix weights forced to be zero.
             Default 0.
         noise: float, optional
             Magnitud of the noise input added to neurons at each step.
             This is used for regularization purposes and should typically be
-            very small, e.g. 0.0001 or 1e-5. Default 0.
+            very small, e.g. 0.0001 or 1e-5.
+            Default 0.
         leak_rate: float, optional
             Leaking rate applied to the neurons at each step.
             Default is 1, which is no leaking. 0 would be total leakeage.
         bias: float, optional
             Value of the bias neuron, injected at each time step together with input.
             Default 1.
-        input_scaling: float or np.ndarray of length n_inputs
+        input_scaling: float or np.ndarray of length n_inputs.
             Scalar to multiply each input before feeding it to the network.
             If float, all inputs get multiplied by same value.
             If array, it must match n_inputs length, specifying the scaling factor for
             each input.
-        input_shift: float or np.ndarray of length n_inputs
+            Default None.
+        input_shift: float or np.ndarray of length n_inputs.
             Scalar to add to each input before feeding it to the network.
             If float, multiplied same value is added to all inputs.
             If array, it must match n_inputs length, specifying the value to add to
             each input.
+            Default None.
         teacher_forcing: bool, optional
             If True, the output signal gets reinjected into the reservoir
-            during training. Default False.
+            during training.
+            Default False.
         activation: function, optional
             Non-linear activation function applied to the neurons at each step.
             Default tanh.
@@ -104,6 +118,7 @@ class EchoStateNetwork:
             If True, outgoing weights (W_out) are computed fitting only the reservoir
             states. Inputs and bias are still use to drive reservoir activity, but
             ignored for fitting W_out, both in the training and prediction phase.
+            Default False.
         regression_params: Dict
             Parameters to solve the linear regression to find out outgoing weights.
             "method": str, optional
@@ -128,7 +143,10 @@ class EchoStateNetwork:
             # TODO: recommend sensible range of values depending on the task.
         random_seed: int, optional
             Random seed fixed at the beginning for reproducibility of results.
-        verbose: bool = True
+            Default None.
+        verbose: bool, optional
+            Print training prediction.
+            Default True.
 
         Attributes
         ----------
@@ -137,8 +155,6 @@ class EchoStateNetwork:
         training_prediction_: array of shape (n_samples, n_outputs)
             Predicted output on training data.
         """
-        check_func_inverse(activation_out, inv_activation_out)
-
         self.n_inputs = n_inputs
         self.n_reservoir = n_reservoir
         self.n_outputs = n_outputs
@@ -163,6 +179,8 @@ class EchoStateNetwork:
         if random_seed:
             np.random.seed(random_seed)
         self.init_all_weights()
+
+        check_model_params(self.__dict__)
 
     def init_incoming_weights(self):
         """
