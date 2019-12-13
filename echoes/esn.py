@@ -8,7 +8,7 @@ from sklearn.linear_model import Ridge
 from sklearn.metrics import mean_squared_error
 
 from .utils import (
-    set_spectral_radius, identity, check_arrays_dimensions
+    set_spectral_radius, identity, check_arrays_dimensions, check_model_params
 )
 
 # TODO: scale/unscale teacher
@@ -57,7 +57,8 @@ class EchoStateNetwork:
             Number of output neurons.
             Default None.
         W: np.ndarray of shape (n_reservoir, n_reservoir), optional.
-            Reservoir weights matrix. If None, random weights are used.
+            Reservoir weights matrix. If None, random weights are used (uniformly
+            distributed around 0, ie., in [-0.5, 0.5).
             Be careful with the distribution of W values. Wrong W initialization
             might drastically affect test performance (even with reasonable good
             training fit).
@@ -74,6 +75,8 @@ class EchoStateNetwork:
             Default None.
         sparsity: float, optional
             Proportion of the reservoir matrix weights forced to be zero.
+            Note that with default W (centered around 0), the actual sparsity will
+            be slightly more than the specified.
             Default 0.
         noise: float, optional
             Magnitud of the noise input added to neurons at each step.
