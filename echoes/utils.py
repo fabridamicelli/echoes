@@ -23,6 +23,9 @@ def check_arrays_dimensions(inputs: np.ndarray = None, outputs: np.ndarray = Non
                 Input must be 2D array, got 1D array instead.
                 If n_inputs is one reshape your data with .reshape(-1, 1).
                 """)
+        if outputs is not None:
+            assert inputs.shape[0] == outputs.shape[0], \
+                    "inputs and outputs must have same length"
     if outputs is not None:
         if outputs.ndim < 2:
             raise ValueError("""
