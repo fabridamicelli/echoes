@@ -1,4 +1,5 @@
-# echoes (work in progress!)
+# echoes 
+(work in progress!)
 
 Python module for Echo State Networks (ESN).
 
