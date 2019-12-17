@@ -1,5 +1,16 @@
-# echoes
-Pythonic Echo State Networks (work in progress!)
+# echoes (work in progress!)
+
+Python module for Echo State Networks (ESN).
+
+The goal is a handy high level API that makes machine learnign with ESN's easy.
+
+In order to keep things intuitive and easy to use, the design attempts to be as
+"scikit-learny" as possible.
+
+As intended for research purposes as well, several typical benchmark tasks, datasets
+and plotting functionalities are also included and very straight forward to run, 
+thus saving boiler plate code and allowing the user to quickly test the ESN on those.
+
 
 ## Installation
 [Download](https://github.com/fabridamicelli/echoes/archive/master.zip) or clone repo like this:
@@ -145,23 +156,24 @@ plt.legend(fontsize=("small"), loc=2)
 
 ## Requirements
 The code has been tested with Python 3.7 on Ubuntu 18.04.
+### Dependencies
    - numpy
    - sklearn
-   - examples:
-     - matplotlib
-     - seaborn
+   - matplotlib
+   - seaborn
    - tests:
      - mypy
      - pytest 
 
 
 ## Features
+###ESN's hyperparameters
  - input scaling and shift
  - prediction modes: 
    - predictive
    - generative
  - reservoir sparsity
- - leakeage rate
+ - leakage rate
  - input noise (regularization)
  - arbitrary:
    - activation function
@@ -179,8 +191,18 @@ The code has been tested with Python 3.7 on Ubuntu 18.04.
    - sklearn Ridge solvers
  - fit only states (fit outgoing weights without inputs and bias)
 
+### Plotting
+ - True vs predicted time series.
+ - Task related plots (e.g, forgetting curve)
 
-TODO:
+### Tasks 
+ - Memory capacity
+
+### Datasets
+ - Mackey-Glass-t17 
+
+
+### TODO
  - teacher scaling and shift
  - accelerate with numba?
 
@@ -195,3 +217,4 @@ make test
   - [Reservoir computing approaches to recurrent neural network training, Mantas & Jaeger, 2009](https://www.sciencedirect.com/science/article/pii/S1574013709000173)
   - [A Practical Guide to Applying Echo State Networks, Mantas, 2012](https://link.springer.com/chapter/10.1007/978-3-642-35289-8_36)
   - [Echo state network (scholarpedia), Jaeger](http://www.scholarpedia.org/article/Echo_state_network)
+  - [Short Term Memory in Echo State Networks, Jaeger, 2001](http://publica.fraunhofer.de/eprints/urn_nbn_de_0011-b-731310.pdf)
