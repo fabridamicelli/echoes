@@ -58,8 +58,6 @@ def plot_predicted_ts(
         ts_true = ts_true.values
     if isinstance(ts_pred, pd.Series):
         ts_pred = ts_pred.values
-    if ax and figsize:
-        print("Warning: figsize will be ignored, since ax is given")
     if ax is None:
         fig, ax = plt.subplots(figsize=figsize)
 

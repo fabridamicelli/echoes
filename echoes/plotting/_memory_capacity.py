@@ -82,6 +82,7 @@ def plot_mc_predicted_ts(
             end=end,
             title=f"lag = {lag}",
             ax=ax,
+            legend=False,
         )
 
     handles, labels = ax.get_legend_handles_labels()
@@ -97,4 +98,3 @@ def plot_mc_predicted_ts(
     if n_lags % 2 != 0:
         fig.delaxes(axes.flat[-1])
     fig.tight_layout()
-    return fig
