@@ -2,7 +2,7 @@
 
 Python module for Echo State Networks (ESN).
 
-The goal is a handy high level API that makes machine learnign with ESN's easy.
+The goal is a handy high level API that makes machine learning with ESN's easy.
 
 In order to keep things intuitive and easy to use, the design attempts to be as
 "scikit-learny" as possible.
@@ -155,7 +155,6 @@ plt.legend(fontsize=("small"), loc=2)
 
 
 ## Requirements
-The code has been tested with Python 3.7 on Ubuntu 18.04.
 ### Dependencies
    - numpy
    - sklearn
@@ -165,9 +164,10 @@ The code has been tested with Python 3.7 on Ubuntu 18.04.
      - mypy
      - pytest 
 
+The code has been tested with Python 3.7 on Ubuntu 18.04.
 
 ## Features
-###ESN's hyperparameters
+### ESN hyperparameters
  - input scaling and shift
  - prediction modes: 
    - predictive
