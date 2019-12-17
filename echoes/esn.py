@@ -8,14 +8,18 @@ from sklearn.linear_model import Ridge
 from sklearn.metrics import mean_squared_error
 
 from .utils import (
-    set_spectral_radius, identity, check_arrays_dimensions, check_model_params
+    set_spectral_radius,
+    identity,
+    check_arrays_dimensions,
+    check_model_params,
 )
 
 # TODO: scale/unscale teacher
 
-class EchoStateNetwork:
 
-    def __init__(self,
+class EchoStateNetwork:
+    def __init__(
+        self,
         n_inputs: int = None,
         n_reservoir: int = None,
         n_outputs: int = None,
@@ -39,11 +43,11 @@ class EchoStateNetwork:
             "solver": "lsqr",
             "fit_intercept": False,
             "regcoef": None,
-            },
+        },
         n_transient: int = None,
         random_seed: int = None,
-        verbose: bool = True
-        ) -> None:
+        verbose: bool = True,
+    ) -> None:
         """
         Parameters
         ----------
@@ -192,7 +196,9 @@ class EchoStateNetwork:
         # TODO: initialize bias weights separately, as we might want bias to have
                 a different contribution than the inputs.
         """
-        self.W_in = np.random.rand(self.n_reservoir, self.n_inputs + 1) * 2 - 1  # +1 -> bias
+        self.W_in = (
+            np.random.rand(self.n_reservoir, self.n_inputs + 1) * 2 - 1
+        )  # +1 -> bias
 
     def init_reservoir_weights(self):
         """
@@ -299,11 +305,12 @@ class EchoStateNetwork:
             state_preac = self.W @ state + self.W_in @ inputs + self.W_feedb @ outputs
         else:
             state_preac = self.W @ state + self.W_in @ inputs
-        new_state = (self.activation(state_preac)
-                     + self.noise * (np.random.rand(self.n_reservoir) - 0.5))
+        new_state = self.activation(state_preac) + self.noise * (
+            np.random.rand(self.n_reservoir) - 0.5
+        )
         # Apply leakage
         if self.leak_rate < 1:
-            new_state = self.leak_rate * new_state + (1-self.leak_rate) * state
+            new_state = self.leak_rate * new_state + (1 - self.leak_rate) * state
 
         return new_state
 
@@ -338,7 +345,7 @@ class EchoStateNetwork:
             linreg = Ridge(
                 alpha=self.regression_params["regcoef"],
                 solver=self.regression_params["solver"],
-                fit_intercept=self.regression_params["fit_intercept"]
+                fit_intercept=self.regression_params["fit_intercept"],
             )
             linreg.fit(full_states, outputs)
             W_out = linreg.coef_
@@ -352,12 +359,13 @@ class EchoStateNetwork:
             W_out = np.dot(
                 np.dot(Y, X_T),
                 np.linalg.inv(
-                    np.dot(X, X_T) + reg*np.eye(1+self.n_inputs+ self.n_reservoir)
-                    )
-                )
+                    np.dot(X, X_T) + reg * np.eye(1 + self.n_inputs + self.n_reservoir)
+                ),
+            )
         else:
             raise ValueError(
-                "regression_params['method'] must be one of pinv, ridge, ridge_formula")
+                "regression_params['method'] must be one of pinv, ridge, ridge_formula"
+            )
         return W_out
 
     def fit(self, inputs=None, outputs=None):
@@ -400,7 +408,8 @@ class EchoStateNetwork:
         states = np.zeros((n_samples, self.n_reservoir))
         for step in range(1, n_samples):
             states[step, :] = self._update_state(
-                states[step-1], inputs[step, :], outputs[step-1, :])
+                states[step - 1], inputs[step, :], outputs[step - 1, :]
+            )
 
         if self.fit_only_states:
             full_states = states
@@ -410,7 +419,8 @@ class EchoStateNetwork:
 
         # Solve for W_out using full states and outputs, excluding transient
         self.W_out_ = self._solve_W_out(
-            full_states[self.n_transient:, :], outputs[self.n_transient:, :])
+            full_states[self.n_transient :, :], outputs[self.n_transient :, :]
+        )
         # Predict for training set (map them back to original space with activation)
         self.training_prediction_ = self.activation_out(full_states @ self.W_out_.T)
 
@@ -420,8 +430,10 @@ class EchoStateNetwork:
         self.last_output = outputs[-1, :]
 
         if self.verbose:
-            print("training RMSE:",
-                  np.sqrt(mean_squared_error(self.training_prediction_, outputs)))
+            print(
+                "training RMSE:",
+                np.sqrt(mean_squared_error(self.training_prediction_, outputs)),
+            )
 
         return self
 
@@ -454,21 +466,27 @@ class EchoStateNetwork:
             Predicted outputs.
         """
         if mode == "generative":
-            assert self.teacher_forcing == True, "generative mode requires teacher forcing"
+            assert (
+                self.teacher_forcing == True
+            ), "generative mode requires teacher forcing"
         if inputs is None:
-            assert mode == "generative" and n_steps is not None, \
-                    "wrong parameters: if no inputs, mode must be generative and"\
-                    "n_steps must be specified"
+            assert mode == "generative" and n_steps is not None, (
+                "wrong parameters: if no inputs, mode must be generative and"
+                "n_steps must be specified"
+            )
             inputs = np.zeros(shape=(n_steps, self.n_inputs))
         else:
             if n_steps is not None:
-                print("Warning: n_steps ignored for prediction because inputs are given")
+                print(
+                    "Warning: n_steps ignored for prediction because inputs are given"
+                )
             if mode == "generative" and not np.all(inputs == 0):
                 print(
-                "Warning: you are passing a non-zero inputs vector for prediction"\
-                "which might lead to unexpected results (prediction) if you did't pass" \
-                "that exact vector during training, since you are establishing different"\
-                "biases. You might just prefer passing None as inputs for generative mode.")
+                    "Warning: you are passing a non-zero inputs vector for prediction"
+                    "which might lead to unexpected results (prediction) if you did't pass"
+                    "that exact vector during training, since you are establishing different"
+                    "biases. You might just prefer passing None as inputs for generative mode."
+                )
 
         check_arrays_dimensions(inputs)
         n_samples = inputs.shape[0]
@@ -484,20 +502,26 @@ class EchoStateNetwork:
         # otherwise use input (with bias) as first state
         if mode == "generative":
             inputs = np.vstack([self.last_input, inputs])
-            states = np.vstack([self.last_state, np.zeros((n_samples, self.n_reservoir))])
-            outputs = np.vstack([self.last_output, np.zeros((n_samples, self.n_outputs))])
+            states = np.vstack(
+                [self.last_state, np.zeros((n_samples, self.n_reservoir))]
+            )
+            outputs = np.vstack(
+                [self.last_output, np.zeros((n_samples, self.n_outputs))]
+            )
         elif mode == "predictive":
             # Inputs array is already defined above
             states = np.zeros((n_samples, self.n_reservoir))
             outputs = np.zeros((n_samples, self.n_outputs))
         else:
             raise ValueError(
-                f"{mode}-> wrong prediction mode; choose 'generative' or 'predictive'")
+                f"{mode}-> wrong prediction mode; choose 'generative' or 'predictive'"
+            )
 
         # Go through samples (steps) and predict for each of them
         for step in range(1, n_samples):
             states[step, :] = self._update_state(
-                states[step-1, :], inputs[step, :], outputs[step-1, :])
+                states[step - 1, :], inputs[step, :], outputs[step - 1, :]
+            )
 
             if self.fit_only_states:
                 full_states = states[step, :]
