@@ -6,7 +6,7 @@ The class wraps the EchoStateNetwork class and initializes the echo state networ
 instance to run the task. Thus, only the init parameters of EchoStateNetwork are
 necessary.
 """
-from typing import Callable, Dict
+from typing import Callable, Dict, List, Union
 
 import numpy as np
 
@@ -66,7 +66,7 @@ class MemoryCapacity:
         self.esn_params = esn_params
 
     def _make_lagged_inputs(
-        self, inputs: np.ndarray, lags: iter, cut: int = 0
+        self, inputs: np.ndarray, lags: Union[List, np.ndarray], cut: int = 0
     ) -> np.ndarray:
         """
         Generate delayed versions of inputs sequence.
@@ -77,6 +77,9 @@ class MemoryCapacity:
         inputs: np.ndarray
             Signal to lag. It will be flattened before lagging,
             as it is supposed to be only one input chanel.
+        lags: np.ndarray
+            Delays to be evaluated (memory capacity).
+            For example: np.arange(1, 31, 5).
         cut: int, optional
             Number of initial steps to cut out.
             Make be at least larger than max(lags) if you want to avoid circle sequence.

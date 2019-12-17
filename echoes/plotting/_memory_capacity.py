@@ -1,7 +1,7 @@
 """
 Plotting functions related to the Memory Capacity task.
 """
-from typing import Dict, Iterable, Union
+from typing import Dict, List, Union
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -10,7 +10,7 @@ from ._core import plot_predicted_ts
 
 
 def plot_forgetting_curve(
-    lags: Union[Iterable, np.ndarray],
+    lags: Union[List, np.ndarray],
     forgetting_curve: np.ndarray,
     ax: plt.Axes = None,
     **kwargs: Dict,
@@ -20,7 +20,7 @@ def plot_forgetting_curve(
 
     Parameters
     ----------
-    lags: np.ndarray or Iterable
+    lags: np.ndarray or List
         Sequence of lags used in the memory capacity task.
     forgetting_curve: np.ndarray
         Sequence of results from the memory task.
@@ -37,7 +37,7 @@ def plot_forgetting_curve(
 
 
 def plot_mc_predicted_ts(
-    lags: Union[Iterable, np.ndarray],
+    lags: Union[List, np.ndarray],
     outputs_true: np.ndarray,
     outputs_pred: np.ndarray,
     start: int = None,
@@ -49,7 +49,7 @@ def plot_mc_predicted_ts(
 
     Parameters
     ----------
-    lags: np.ndarray or Iterable
+    lags: np.ndarray or List
         Delays to be evaluated (memory capacity).
         For example: np.arange(1, 31, 5).
     ouputs_true: np.ndarray of shape (len(ts), len(n_lags))
