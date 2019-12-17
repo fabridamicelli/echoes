@@ -6,7 +6,7 @@ Python module for Echo State Networks (ESN).
 The goal is a handy high level API that makes machine learning with ESN's easy.
 
 In order to keep things intuitive and easy to use, the design attempts to be as
-"scikit-learny" as possible.
+"scikit-learny" as possible. Everything is generously documented and type annotated.
 
 As intended for research purposes as well, several typical benchmark tasks, datasets
 and plotting functionalities are also included and very straight forward to run, 
