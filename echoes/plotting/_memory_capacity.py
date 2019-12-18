@@ -1,7 +1,7 @@
 """
 Plotting functions related to the Memory Capacity task.
 """
-from typing import Dict, List, Union
+from typing import List, Union, Any
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -13,7 +13,7 @@ def plot_forgetting_curve(
     lags: Union[List, np.ndarray],
     forgetting_curve: np.ndarray,
     ax: plt.Axes = None,
-    **kwargs: Dict,
+    **kwargs: Any,
 ) -> None:
     """
     Plot forgetting curve, ie, memory capacity (MC) vs lag.
@@ -26,7 +26,7 @@ def plot_forgetting_curve(
         Sequence of results from the memory task.
     ax: plt.Axes, optional
         If given plot will use this axes.
-    kwargs: Dict, optional
+    kwargs: mapping, optional
         Plotting args passed to ax.plot.
     """
     if ax is None:

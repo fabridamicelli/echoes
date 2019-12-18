@@ -6,7 +6,9 @@ Python module for Echo State Networks (ESN).
 The goal is a handy high level API that makes machine learning with ESN's easy.
 
 In order to keep things intuitive and easy to use, the design attempts to be as
-"scikit-learny" as possible. Everything is generously documented and type annotated.
+"scikit-learny" as possible. Documentation, type annotations and examples are all over
+the place.
+
 
 As intended for research purposes as well, several typical benchmark tasks, datasets
 and plotting functionalities are also included and very straight forward to run, 
@@ -27,7 +29,7 @@ pip install .
 Recommendation: install the package in a separate virtual environment, e.g., created with [(mini)conda](https://conda.io/docs/user-guide/install/index.html).
 
 ## Examples
- - Mackey-Glass-t17 (generative mode) [(notebook)](https://github.com/fabridamicelli/echoes/blob/master/examples/MackeyGlass-t17.ipynb)
+ - Mackey-Glass-t17 (generative mode) [(notebook)](https://nbviewer.jupyter.org/github/fabridamicelli/echoes/blob/master/examples/notebooks/mackeyglasst17.ipynb)
 
 ```python
 
@@ -91,11 +93,10 @@ plt.ylabel("oscillator")
 plt.xlabel('time')
 plt.legend(fontsize='small')
 ```
-![Alt Text](https://github.com/fabridamicelli/echoes/blob/master/examples/mackeyglasst17.png)
+![Alt Text](https://github.com/fabridamicelli/echoes/blob/master/examples/figs/mackeyglasst17.png)
 
 ---
- - sin-cos (predictive mode) [(notebook)](https://github.com/fabridamicelli/echoes/blob/master/examples/sin-cos.ipynb)
-
+ - sin-cos (predictive mode) [(notebook)](https://nbviewer.jupyter.org/github/fabridamicelli/echoes/blob/master/examples/notebooks/sincos.ipynb)
 ```python
 
 from matplotlib import pyplot as plt
@@ -152,8 +153,55 @@ plt.xlabel('time')
 plt.legend(fontsize=("small"), loc=2)
 
 ```
-![Alt Text](https://github.com/fabridamicelli/echoes/blob/master/examples/sin-cos.png)
+![Alt Text](https://github.com/fabridamicelli/echoes/blob/master/examples/figs/sincos.png)
 
+---
+ - Memory capacity [(notebook)](https://nbviewer.jupyter.org/github/fabridamicelli/echoes/blob/master/examples/notebooks/memory_capacity.ipynb)
+
+```python
+import numpy as np
+
+from echoes.tasks import MemoryCapacity
+from echoes.plotting import plot_forgetting_curve, set_mystyle
+set_mystyle() # make nicer plots, can be removed
+
+# Echo state network parameters (after Jaeger)
+n_reservoir = 20
+W = np.random.choice([0, .47, -.47], p=[.8, .1, .1], size=(n_reservoir, n_reservoir))
+W_in = np.random.choice([.1, -.1], p=[.5, .5], size=(n_reservoir, 2))
+
+# Task parameters (after Jaeger)
+inputs_func=np.random.uniform
+inputs_params={"low":-.5, "high":.5, "size":200}
+lags = [1, 2, 5, 10, 15, 20, 25, 30]
+
+esn_params = dict(
+    n_inputs=1,
+    n_outputs=len(lags),  # automatically decided based on lags
+    n_reservoir=20,
+    W=W,
+    W_in=W_in,
+    spectral_radius=.9,
+    bias=0,
+    n_transient=100,
+    regression_params={
+        "method": "pinv"
+    },
+    random_seed=42,
+    verbose=False
+)
+
+# Initialize the task object
+mc = MemoryCapacity(
+    inputs_func=inputs_func,
+    inputs_params=inputs_params,
+    esn_params=esn_params,
+    lags=lags
+).fit_predict()  # Run the task
+
+plot_forgetting_curve(mc.lags, mc.forgetting_curve_)
+```
+![Alt Text](https://github.com/fabridamicelli/echoes/blob/master/examples/figs/memory_capacity.png)
 
 ## Requirements
 ### Dependencies

@@ -6,7 +6,7 @@ The class wraps the EchoStateNetwork class and initializes the echo state networ
 instance to run the task. Thus, only the init parameters of EchoStateNetwork are
 necessary.
 """
-from typing import Callable, Dict, List, Union
+from typing import Callable, Dict, List, Union, Tuple
 
 import numpy as np
 
@@ -156,7 +156,7 @@ class MemoryCapacity:
             inputs_lagged[:, col] = np.roll(inputs, lag)
         return inputs_lagged[cut:, :]
 
-    def forgetting(self, y_true, y_pred):
+    def forgetting(self, y_true: np.ndarray, y_pred: np.ndarray) -> Tuple:
         """
         Return forgetting curve (MC(k) for all k) and Memory capacity
         (sum over all values of the curve).
