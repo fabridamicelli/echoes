@@ -2,6 +2,7 @@
 Echo State Network class
 """
 from typing import Union, Callable, Dict
+import warnings
 
 import numpy as np
 from sklearn.linear_model import Ridge
@@ -477,15 +478,13 @@ class EchoStateNetwork:
             inputs = np.zeros(shape=(n_steps, self.n_inputs))
         else:
             if n_steps is not None:
-                print(
-                    "Warning: n_steps ignored for prediction because inputs are given"
-                )
+                warnings.warn("n_steps ignored for prediction because inputs are given")
             if mode == "generative" and not np.all(inputs == 0):
-                print(
-                    "Warning: you are passing a non-zero inputs vector for prediction"
-                    "which might lead to unexpected results (prediction) if you did't pass"
-                    "that exact vector during training, since you are establishing different"
-                    "biases. You might just prefer passing None as inputs for generative mode."
+                warnings.warn(
+                    "Passing a non-zero inputs vector for prediction might lead to "
+                    "unexpected predictions if you did't pass same vector during training,"
+                    "since you are establishing different biases. You might just prefer"
+                    "passing None as inputs for generative mode."
                 )
 
         check_arrays_dimensions(inputs)

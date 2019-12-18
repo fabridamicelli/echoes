@@ -159,6 +159,7 @@ plt.legend(fontsize=("small"), loc=2)
 ### Dependencies
    - numpy
    - sklearn
+   - pandas
    - matplotlib
    - seaborn
    - tests:

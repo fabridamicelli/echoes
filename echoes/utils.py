@@ -2,6 +2,7 @@
 Auxiliar functions
 """
 from typing import Union, Callable, Dict
+import warnings
 
 import numpy as np
 
@@ -100,6 +101,6 @@ def check_model_params(params: Dict) -> None:
 
     # Warnings
     if params["leak_rate"] == 0:
-        print(
-            "Warning: leak_rate == 0 is total leakeage, you probably meant 1. See documentation."
+        warnings.warn(
+            "leak_rate == 0 is total leakeage, you probably meant 1. See documentation."
         )

@@ -22,7 +22,10 @@ class MemoryCapacity:
     ----------
     inputs_func: Callable
         Function to generate inputs. Should return a 1D np.ndarray.
-        For example, np.random.uniform
+        For example, np.random.uniform.
+        This function will receive kwargs params passed in inputs_params, so you want
+        to make sure that your inputs_func receives kwargs. If it does not, you can
+        simply wrap it up into one that does.
     inputs_params: Dict
         Parameters to pass to inputs_func.
         For example, {"low":-.5,
@@ -43,12 +46,52 @@ class MemoryCapacity:
         Forgetting curve MC(k) for each k in lags.
     memory_capacity_: float
         Sum over all values of the forgetting curve.
+    forgetting_curve_train: np.ndarray
+        Training forgetting curve MC(k) for each k in lags.
+        This is kept for inspection, but it is not what you usually want to evaluate
+        your model (ie., test performance stored in forgetting_curve_).
+    memory_capacity_train: float
+        Training sum over all values of the forgetting curve.
+        This is kept for inspection, but it is not what you usually want to evaluate
+        your model (ie., test performance stored in memory_capacity_train).
     outputs_test_: np.ndarray
         Target sequence used for testing.
         Stored for visualization (compare to prediction).
     outputs_pred_: np.ndarray
         Predicted target sequence (test).
         Stored for visualization (compare to prediction).
+
+    Examples
+    --------
+    >>> n_reservoir = 20
+    >>> lags = [1, 2, 5, 10, 15]
+
+    >>> esn_params = dict(
+            n_inputs=1,
+            n_outputs=len(lags),    # one output neuron for each lag
+            n_reservoir=n_reservoir,
+            W=np.random.choice([0, .47, -.47], p=[.8, .1, .1], size=(n_reservoir, n_reservoir)),
+            W_in=np.random.choice([.1, -.1], p=[.5, .5], size=(n_reservoir, 2)),
+            spectral_radius=.9,
+            bias=0,
+            n_transient=100,
+            regression_params={
+                "method": "pinv"
+            },
+        )
+
+    >>> mc = MemoryCapacity(
+            inputs_func=np.random.uniform,
+            inputs_params={"low":-.5, "high":.5, "size":200},
+            esn_params=esn_params,
+            lags=lags
+        ).fit_predict()
+
+    >>> print(mc.forgetting_curve_)
+    [0.986, 0.986, 0.975, 0.833, 0.123]
+    >>> mc.memory_capacity_
+    3.903
+    >>>
     """
 
     def __init__(
@@ -138,7 +181,11 @@ class MemoryCapacity:
         # Training data
         inputs = self.inputs_func(**self.inputs_params).reshape(-1, 1)
         outputs = self._make_lagged_inputs(inputs, self.lags)
+        # Instantiate estimator and fit
         self.esn_ = EchoStateNetwork(**self.esn_params).fit(inputs, outputs)
+        self.forgetting_curve_train, self.memory_capacity_train = self.forgetting(
+            outputs, self.esn_.predict(inputs, mode="predictive")
+        )
 
     def _predict(self):
         """
@@ -154,11 +201,14 @@ class MemoryCapacity:
             self.outputs_true_, self.outputs_pred_
         )
 
-    def run_task(self):
+    def fit_predict(self):
         """
         Run memory capacity task.
+        Prediction is made on *test* data, ie., unseen data coming from same
+        distribution as for training, automatically generated.
         Store results in self.forgetting_curve_, self.memory_capacity_.
-        Train and test data are automatically generated.
+        Performance on training set is stored under self.forgetting_curve_train and
+        self.memory_capacity_train.
         """
         self._fit()
         self._predict()
