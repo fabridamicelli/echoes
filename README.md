@@ -97,8 +97,8 @@ plt.legend(fontsize='small')
 
 ---
  - sin-cos (predictive mode) [(notebook)](https://nbviewer.jupyter.org/github/fabridamicelli/echoes/blob/master/examples/notebooks/sincos.ipynb)
+                                          
 ```python
-
 from matplotlib import pyplot as plt
 import numpy as np
 
@@ -254,7 +254,6 @@ The code has been tested with Python 3.7 on Ubuntu 18.04.
 
 ### TODO
  - teacher scaling and shift
- - accelerate with numba?
 
 
 ## Tests 
