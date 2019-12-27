@@ -46,6 +46,8 @@ class EchoStateNetwork:
             "regcoef": None,
         },
         n_transient: int = None,
+        store_states_train: bool = False,
+        store_states_pred: bool = False,
         random_seed: int = None,
         verbose: bool = True,
     ) -> None:
@@ -151,16 +153,30 @@ class EchoStateNetwork:
         random_seed: int, optional
             Random seed fixed at the beginning for reproducibility of results.
             Default None.
+        store_states_train: bool, optional
+            If True, time series series of reservoir nodes during training are stored
+            in the object attribute states_train_.
+        store_states_pred: bool, optional
+            If True, time series series of reservoir nodes during prediction are stored
+            in the object attribute states_pred_.
         verbose: bool, optional
             Print training prediction.
             Default True.
 
         Attributes
         ----------
-        W_out_ : array of shape (n_outputs, n_inputs+n_reservoir+1)
+        W_out_ : array of shape (n_outputs, n_inputs + n_reservoir + 1)
             Outgoing weights after fitting linear regression model to predict outputs.
         training_prediction_: array of shape (n_samples, n_outputs)
             Predicted output on training data.
+        states_train_: array of shape (n_samples, n_reservoir)
+            If store_states_train is True, states matrix is stored for visualizing
+            reservoir nodes activity during training.
+            Default False.
+        states_pred_: array of shape (n_samples, n_reservoir)
+            If store_states_pred is True, states matrix is stored for visualizing
+            reservoir nodes activity during prediction (test).
+            Default False.
         """
         self.n_inputs = n_inputs
         self.n_reservoir = n_reservoir
@@ -182,6 +198,8 @@ class EchoStateNetwork:
         self.fit_only_states = fit_only_states
         self.regression_params = regression_params
         self.n_transient = n_transient
+        self.store_states_train = store_states_train
+        self.store_states_pred = store_states_pred
         self.verbose = verbose
         if random_seed:
             np.random.seed(random_seed)
@@ -430,6 +448,10 @@ class EchoStateNetwork:
         self.last_input = inputs[-1, :]
         self.last_output = outputs[-1, :]
 
+        # Store reservoir activity
+        if self.store_states_train:
+            self.states_train_ = states
+
         if self.verbose:
             print(
                 "training RMSE:",
@@ -516,6 +538,10 @@ class EchoStateNetwork:
                 f"{mode}-> wrong prediction mode; choose 'generative' or 'predictive'"
             )
 
+        # Prepare for storing activity in case it is requested
+        if self.store_states_pred:
+            self.states_pred_ = np.empty((n_samples, self.n_reservoir))
+
         # Go through samples (steps) and predict for each of them
         for step in range(1, n_samples):
             states[step, :] = self._update_state(
@@ -526,8 +552,12 @@ class EchoStateNetwork:
                 full_states = states[step, :]
             else:
                 full_states = np.concatenate([states[step, :], inputs[step, :]])
-
+            # Predict
             outputs[step, :] = self.W_out_ @ full_states
+
+            # Store reservoir activity
+            if self.store_states_pred:
+                self.states_pred_[step, :] = states[step, :]
 
         # Map outputs to actual target space
         outputs = self.activation_out(outputs)
