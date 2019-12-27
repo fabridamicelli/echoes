@@ -154,10 +154,10 @@ class EchoStateNetwork:
             Random seed fixed at the beginning for reproducibility of results.
             Default None.
         store_states_train: bool, optional
-            If True, time series series of reservoir nodes during training are stored
+            If True, time series series of reservoir neurons during training are stored
             in the object attribute states_train_.
         store_states_pred: bool, optional
-            If True, time series series of reservoir nodes during prediction are stored
+            If True, time series series of reservoir neurons during prediction are stored
             in the object attribute states_pred_.
         verbose: bool, optional
             Print training prediction.
@@ -171,11 +171,11 @@ class EchoStateNetwork:
             Predicted output on training data.
         states_train_: array of shape (n_samples, n_reservoir)
             If store_states_train is True, states matrix is stored for visualizing
-            reservoir nodes activity during training.
+            reservoir neurons activity during training.
             Default False.
         states_pred_: array of shape (n_samples, n_reservoir)
             If store_states_pred is True, states matrix is stored for visualizing
-            reservoir nodes activity during prediction (test).
+            reservoir neurons activity during prediction (test).
             Default False.
         """
         self.n_inputs = n_inputs
@@ -562,5 +562,6 @@ class EchoStateNetwork:
         # Map outputs to actual target space
         outputs = self.activation_out(outputs)
         if mode == "generative":
-            return outputs[1:]
+            self.states_pred_ = self.states_pred_[1:, :]
+            return outputs[1:, :]
         return outputs
