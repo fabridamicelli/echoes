@@ -209,9 +209,6 @@ plot_forgetting_curve(mc.lags, mc.forgetting_curve_)
 
 ```python
 import numpy as np
-from matplotlib import pyplot as plt
-from sklearn.metrics import mean_squared_error
-import seaborn as sns
 
 from echoes.esn import EchoStateNetwork
 from echoes.datasets import load_mackeyglasst17
@@ -241,8 +238,9 @@ esn = EchoStateNetwork(
 ).fit(None, data[: trainlen])  # fit the model 
 
 prediction = esn.predict(None, mode="generative", n_steps=testlen)
-                  
-neurons_to_plot = sorted(np.random.randint(0, esn.n_reservoir, size=9))   # pick 9 neurons at random to plot
+
+# Pick 9 neurons at random to plot
+neurons_to_plot = sorted(np.random.randint(0, esn.n_reservoir, size=9))
 
 plot_reservoir_activity(esn,
                         neurons_to_plot,
