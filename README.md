@@ -291,7 +291,8 @@ The code has been tested with Python 3.7 on Ubuntu 18.04.
 
 ### Plotting
  - True vs predicted time series.
- - Task related plots (e.g, forgetting curve)
+ - Task related plots (e.g, forgetting curve).
+ - Reservoir neurons activity.
 
 ### Tasks 
  - Memory capacity

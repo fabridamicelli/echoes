@@ -91,6 +91,9 @@ def plot_reservoir_activity(
     figsize: Tuple = (15, 9)
 ):
     """
+    Plot the activity, ie time series of states, of the reservoir
+    neurons.
+
     esn: EchoStateNetwork
         Instances of ESN after fitting and/or prediction.
     neurons: np.ndarray or List
@@ -126,7 +129,7 @@ def plot_reservoir_activity(
         ax = axes.flat[neuron_idx]
 
         ax.plot(ts[start:end, neuron], color=".52", linewidth=3)
-        ax.set_ylabel("activity")
+        ax.set_ylabel("state")
         ax.set_xlabel("time")
         ax.set_title(f"reservoir neuron # {neuron}")
 

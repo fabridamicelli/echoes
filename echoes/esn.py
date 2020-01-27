@@ -49,7 +49,7 @@ class EchoStateNetwork:
         store_states_train: bool = False,
         store_states_pred: bool = False,
         random_seed: int = None,
-        verbose: bool = True,
+        verbose: bool = False,
     ) -> None:
         """
         Parameters
@@ -161,7 +161,7 @@ class EchoStateNetwork:
             in the object attribute states_pred_.
         verbose: bool, optional
             Print training prediction.
-            Default True.
+            Default False.
 
         Attributes
         ----------
@@ -562,6 +562,7 @@ class EchoStateNetwork:
         # Map outputs to actual target space
         outputs = self.activation_out(outputs)
         if mode == "generative":
-            self.states_pred_ = self.states_pred_[1:, :]
+            if self.store_states_pred:
+                self.states_pred_ = self.states_pred_[1:, :]
             return outputs[1:, :]
         return outputs
