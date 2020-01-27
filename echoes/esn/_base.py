@@ -1,24 +1,23 @@
 """
-Echo State Network class
+Echo State Network base class. It implements common code for predictive and generative
+ESN's. It should not be instanciated, use ESNGenerative and ESNPredictive instead.
 """
 from typing import Union, Callable, Dict
-import warnings
 
 import numpy as np
 from sklearn.linear_model import Ridge
-from sklearn.metrics import mean_squared_error
 
-from .utils import (
+from ._generative import ESNGenerative
+from ..utils import (
     set_spectral_radius,
     identity,
     check_arrays_dimensions,
     check_model_params,
 )
 
+
 # TODO: scale/unscale teacher
-
-
-class EchoStateNetwork:
+class ESNBase:
     def __init__(
         self,
         n_inputs: int = None,
@@ -31,7 +30,7 @@ class EchoStateNetwork:
         sparsity: float = 0,
         noise: float = 0,
         leak_rate: float = 1,
-        bias=1,
+        bias: Union[int, float] = 1,
         input_scaling: Union[float, np.ndarray] = None,
         input_shift: Union[float, np.ndarray] = None,
         teacher_forcing: bool = False,
@@ -49,7 +48,6 @@ class EchoStateNetwork:
         store_states_train: bool = False,
         store_states_pred: bool = False,
         random_seed: int = None,
-        verbose: bool = False,
     ) -> None:
         """
         Parameters
@@ -159,9 +157,6 @@ class EchoStateNetwork:
         store_states_pred: bool, optional
             If True, time series series of reservoir neurons during prediction are stored
             in the object attribute states_pred_.
-        verbose: bool, optional
-            Print training prediction.
-            Default False.
 
         Attributes
         ----------
@@ -200,7 +195,6 @@ class EchoStateNetwork:
         self.n_transient = n_transient
         self.store_states_train = store_states_train
         self.store_states_pred = store_states_pred
-        self.verbose = verbose
         if random_seed:
             np.random.seed(random_seed)
         self.init_all_weights()
@@ -252,7 +246,7 @@ class EchoStateNetwork:
         if self.W_feedb is None and self.teacher_forcing:
             self.init_feedback_weights()
 
-    # TODO check input scaling and shifting
+    # TODO test input scaling and shifting
     # TODO maybe move to utils
     def scale_shift_inputs(self, inputs):
         """
@@ -407,19 +401,20 @@ class EchoStateNetwork:
         -------
         self: returns an instance of self.
         """
-        # If no inputs, make a sequence of zeros matching n_samples in outputs
-        if inputs is None:
-            check_arrays_dimensions(None, outputs)  # check that outputs is acually 2D
+        esn_type = "generative" if isinstance(self, ESNGenerative) else "predictive"
+        if esn_type == "predictive":
+            assert inputs is not None, "inputs must be specified for predictive ESN"
+        # If generative mode, make inputs zero, ignoring the possibly given ones
+        if esn_type == "generative":
             inputs = np.zeros(shape=(outputs.shape[0], self.n_inputs))
 
-        check_arrays_dimensions(inputs, outputs)
-        n_samples = inputs.shape[0]
-
-        # Scale and shift inputs
-        inputs = self.scale_shift_inputs(inputs)
-        # Inverse transform outputs (map them into inner, latent space
+        # Scale and shift inputs (only for predictive case)
+        inputs = self.scale_shift_inputs(inputs) if esn_type == "predictive" else inputs
+        # Inverse transform outputs (map them into inner, latent space)
         outputs = self.inv_activation_out(outputs)
+        check_arrays_dimensions(inputs, outputs)  # sanity check of dimensions
 
+        n_samples = inputs.shape[0]
         # Append the bias to inputs -> [1; u(t)]
         bias = np.ones((n_samples, 1)) * self.bias
         inputs = np.hstack((bias, inputs))
@@ -430,139 +425,24 @@ class EchoStateNetwork:
                 states[step - 1], inputs[step, :], outputs[step - 1, :]
             )
 
-        if self.fit_only_states:
-            full_states = states
-        else:
-            # Extend states matrix with inputs (and bias); i.e., make [1; u(t); x(t)]
-            full_states = np.hstack((states, inputs))
+        # Extend states matrix with inputs (and bias); i.e., make [1; u(t); x(t)]
+        full_states = states if self.fit_only_states else np.hstack((states, inputs))
 
         # Solve for W_out using full states and outputs, excluding transient
         self.W_out_ = self._solve_W_out(
             full_states[self.n_transient :, :], outputs[self.n_transient :, :]
         )
-        # Predict for training set (map them back to original space with activation)
+        # Predict on training set (map them back to original space with activation)
         self.training_prediction_ = self.activation_out(full_states @ self.W_out_.T)
 
-        # Keep last state for later
-        self.last_state = states[-1, :]
-        self.last_input = inputs[-1, :]
-        self.last_output = outputs[-1, :]
+        # Keep last state for later (only generative case)
+        if esn_type == "generative":
+            self.last_state = states[-1, :]
+            self.last_input = inputs[-1, :]
+            self.last_output = outputs[-1, :]
 
         # Store reservoir activity
         if self.store_states_train:
             self.states_train_ = states
 
-        if self.verbose:
-            print(
-                "training RMSE:",
-                np.sqrt(mean_squared_error(self.training_prediction_, outputs)),
-            )
-
         return self
-
-    def predict(self, inputs, mode="generative", n_steps=None):
-        """
-        Predict according to inputs and mode.
-
-        Parameters
-        ----------
-        inputs: None or  2D np.ndarray of shape (n_samples, n_inputs)
-            Testing input, i.e., X, the features.
-            If it is None, mode must be generative and simply a sequence of zeros of
-            length n_steps will be fed in for generative predictions (as in fit method).
-        mode: str, "predictive" or "generative"
-            If generative, last training state/input/output is used as initial test
-            state/input/output and at each step the output of the network is reinjected
-            as input for next prediction.
-            If predictive, state/output is reinitialized to predict test outputs from
-            inputs as a typical predictive model. Since the reservoir states are
-            reinitialized, an initial transient, unstable phase will occur, so you
-            might want to cut off those steps to test performance (as done by the
-            parameter n_transient during training).
-        n_steps: int, optional
-            Number of generative steps to predict.
-            Only necessary if inputs is None and mode generative.
-
-        Returns
-        -------
-        outputs: 2D np.ndarray of shape (n_samples, n_outputs)
-            Predicted outputs.
-        """
-        if mode == "generative":
-            assert (
-                self.teacher_forcing == True
-            ), "generative mode requires teacher forcing"
-        if inputs is None:
-            assert mode == "generative" and n_steps is not None, (
-                "wrong parameters: if no inputs, mode must be generative and"
-                "n_steps must be specified"
-            )
-            inputs = np.zeros(shape=(n_steps, self.n_inputs))
-        else:
-            if n_steps is not None:
-                warnings.warn("n_steps ignored for prediction because inputs are given")
-            if mode == "generative" and not np.all(inputs == 0):
-                warnings.warn(
-                    "Passing a non-zero inputs vector for prediction might lead to "
-                    "unexpected predictions if you did't pass same vector during training,"
-                    "since you are establishing different biases. You might just prefer"
-                    "passing None as inputs for generative mode."
-                )
-
-        check_arrays_dimensions(inputs)
-        n_samples = inputs.shape[0]
-
-        # Scale and shift inputs
-        inputs = self.scale_shift_inputs(inputs)
-
-        # Append the bias to inputs -> [1; u(t)]
-        bias = np.ones((n_samples, 1)) * self.bias
-        inputs = np.hstack((bias, inputs))
-
-        # Initialize predictions. If generative mode, begin with last state,
-        # otherwise use input (with bias) as first state
-        if mode == "generative":
-            inputs = np.vstack([self.last_input, inputs])
-            states = np.vstack(
-                [self.last_state, np.zeros((n_samples, self.n_reservoir))]
-            )
-            outputs = np.vstack(
-                [self.last_output, np.zeros((n_samples, self.n_outputs))]
-            )
-        elif mode == "predictive":
-            # Inputs array is already defined above
-            states = np.zeros((n_samples, self.n_reservoir))
-            outputs = np.zeros((n_samples, self.n_outputs))
-        else:
-            raise ValueError(
-                f"{mode}-> wrong prediction mode; choose 'generative' or 'predictive'"
-            )
-
-        # Prepare for storing activity in case it is requested
-        if self.store_states_pred:
-            self.states_pred_ = np.empty((n_samples, self.n_reservoir))
-
-        # Go through samples (steps) and predict for each of them
-        for step in range(1, n_samples):
-            states[step, :] = self._update_state(
-                states[step - 1, :], inputs[step, :], outputs[step - 1, :]
-            )
-
-            if self.fit_only_states:
-                full_states = states[step, :]
-            else:
-                full_states = np.concatenate([states[step, :], inputs[step, :]])
-            # Predict
-            outputs[step, :] = self.W_out_ @ full_states
-
-            # Store reservoir activity
-            if self.store_states_pred:
-                self.states_pred_[step, :] = states[step, :]
-
-        # Map outputs to actual target space
-        outputs = self.activation_out(outputs)
-        if mode == "generative":
-            if self.store_states_pred:
-                self.states_pred_ = self.states_pred_[1:, :]
-            return outputs[1:, :]
-        return outputs
