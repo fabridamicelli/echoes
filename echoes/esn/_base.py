@@ -1,18 +1,17 @@
 """
-Echo State Network base class. It implements common code for predictive and generative
-ESN's. It should not be instanciated, use ESNGenerative and ESNPredictive instead.
+Echo State Network (ESN) base class. It implements common code for predictive and generative ESN's. It should not be instanciated, use ESNGenerative and ESNPredictive instead.
 """
 from typing import Union, Callable, Dict
 
 import numpy as np
 from sklearn.linear_model import Ridge
 
-from ._generative import ESNGenerative
 from ..utils import (
     set_spectral_radius,
     identity,
     check_arrays_dimensions,
     check_model_params,
+    get_esn_type
 )
 
 
@@ -199,7 +198,7 @@ class ESNBase:
             np.random.seed(random_seed)
         self.init_all_weights()
 
-        check_model_params(self.__dict__)
+        check_model_params(self.__dict__, get_esn_type(self))
 
     def init_incoming_weights(self):
         """
@@ -401,18 +400,18 @@ class ESNBase:
         -------
         self: returns an instance of self.
         """
-        esn_type = "generative" if isinstance(self, ESNGenerative) else "predictive"
+        esn_type = get_esn_type(self)
         if esn_type == "predictive":
             assert inputs is not None, "inputs must be specified for predictive ESN"
         # If generative mode, make inputs zero, ignoring the possibly given ones
         if esn_type == "generative":
             inputs = np.zeros(shape=(outputs.shape[0], self.n_inputs))
 
+        check_arrays_dimensions(inputs, outputs)  # sanity check
         # Scale and shift inputs (only for predictive case)
         inputs = self.scale_shift_inputs(inputs) if esn_type == "predictive" else inputs
         # Inverse transform outputs (map them into inner, latent space)
         outputs = self.inv_activation_out(outputs)
-        check_arrays_dimensions(inputs, outputs)  # sanity check of dimensions
 
         n_samples = inputs.shape[0]
         # Append the bias to inputs -> [1; u(t)]
@@ -425,7 +424,7 @@ class ESNBase:
                 states[step - 1], inputs[step, :], outputs[step - 1, :]
             )
 
-        # Extend states matrix with inputs (and bias); i.e., make [1; u(t); x(t)]
+        # Extend states matrix with inputs (and bias); i.e., make [x(t); 1; u(t)]
         full_states = states if self.fit_only_states else np.hstack((states, inputs))
 
         # Solve for W_out using full states and outputs, excluding transient
@@ -442,7 +441,5 @@ class ESNBase:
             self.last_output = outputs[-1, :]
 
         # Store reservoir activity
-        if self.store_states_train:
-            self.states_train_ = states
-
+        if self.store_states_train: self.states_train_ = states
         return self

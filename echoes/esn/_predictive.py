@@ -8,10 +8,6 @@ from ..utils import check_arrays_dimensions
 
 
 class ESNPredictive(ESNBase):
-    def __init__(self):
-        # TODO: check dimensions of shift and scaling matching input dimensions
-        #
-        pass
 
     def predict(self, inputs):
         """
@@ -32,7 +28,6 @@ class ESNPredictive(ESNBase):
         outputs: 2D np.ndarray of shape (n_samples, n_outputs)
             Predicted outputs.
         """
-        check_arrays_dimensions(inputs)
         n_samples = inputs.shape[0]
 
         # Scale and shift inputs
@@ -42,10 +37,10 @@ class ESNPredictive(ESNBase):
         bias = np.ones((n_samples, 1)) * self.bias
         inputs = np.hstack((bias, inputs))
 
-        # Initialize predictions. Use input (with bias) as first state
-        # Inputs array is already defined above
+        # Initialize predictions
         states = np.zeros((n_samples, self.n_reservoir))
         outputs = np.zeros((n_samples, self.n_outputs))
+        check_arrays_dimensions(inputs)  # sanity check
 
         # Go through samples (steps) and predict for each of them
         for step in range(1, n_samples):
@@ -61,8 +56,7 @@ class ESNPredictive(ESNBase):
             outputs[step, :] = self.W_out_ @ full_states
 
         # Store reservoir activity
-        if self.store_states_pred:
-            self.states_pred_ = states
+        if self.store_states_pred: self.states_pred_ = states
 
         # Map outputs back to actual target space with activation function
         outputs = self.activation_out(outputs)
