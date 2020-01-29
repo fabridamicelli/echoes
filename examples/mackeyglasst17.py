@@ -6,7 +6,7 @@ from matplotlib import pyplot as plt
 from sklearn.metrics import mean_squared_error
 import seaborn as sns
 
-from echoes.esn import EchoStateNetwork
+from echoes import ESNGenerative
 from echoes.datasets import load_mackeyglasst17
 
 sns.set(context="notebook", style="whitegrid", font_scale=1.4,
@@ -17,7 +17,7 @@ sns.set(context="notebook", style="whitegrid", font_scale=1.4,
 # even not so conventional (e.g., spectral radius > 1), but this is just for the
 # sake of the example. Many other constellations produce also satisfactory results,
 # so feel free to play around with them.
-esn = EchoStateNetwork(
+esn = ESNGenerative(
     n_inputs=1,
     n_outputs=1,
     n_reservoir=200,
@@ -40,7 +40,7 @@ esn.fit(None, data[:trainlen]);
 
 # Input is None because we will use the generative mode, were only the feedback
 # is needed to compute the next states and predict outputs
-prediction = esn.predict(None, mode="generative", n_steps=testlen)
+prediction = esn.predict(n_steps=testlen)
 
 # Plot test
 plt.figure(figsize=(22, 5))

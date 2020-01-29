@@ -94,7 +94,7 @@ def plot_reservoir_activity(
     Plot the activity, ie time series of states, of the reservoir
     neurons.
 
-    esn: EchoStateNetwork
+    esn: ESNPredictive, ESNGenerative
         Instances of ESN after fitting and/or prediction.
     neurons: np.ndarray or List
         List of reservoir neurons indices whose time series will be plotted.

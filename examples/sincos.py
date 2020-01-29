@@ -7,7 +7,7 @@ import numpy as np
 import seaborn as sns
 from sklearn.metrics import mean_squared_error
 
-from echoes.esn import EchoStateNetwork
+from echoes import ESNPredictive
 
 sns.set(context="notebook", style="whitegrid", font_scale=1.4,
         rc={'grid.linestyle': '--',
@@ -27,7 +27,7 @@ outputs_train = outputs[: traininglen]
 inputs_test= inputs[traininglen:]
 outputs_test = outputs[traininglen:]
 
-esn = EchoStateNetwork(
+esn = ESNPredictive(
     n_inputs=1,
     n_outputs=1,
     n_reservoir=20,
@@ -41,7 +41,7 @@ esn = EchoStateNetwork(
     random_seed=42
 ).fit(inputs_train, outputs_train)
 
-prediction_test = esn.predict(inputs_test, mode="predictive")
+prediction_test = esn.predict(inputs_test)
 
 # Plot test (discarding same initial transient as for training)
 plt.figure(figsize=(15, 4))

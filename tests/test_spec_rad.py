@@ -1,6 +1,6 @@
 import numpy as np
 
-from echoes.esn import EchoStateNetwork
+from echoes.esn import ESNGenerative, ESNPredictive
 from echoes.datasets import load_mackeyglasst17
 
 
@@ -10,7 +10,21 @@ def test_spec_rad():
     radia = np.linspace(.5, 2.5).round(decimals=decimals)
 
     for radius in radia:
-        esn = EchoStateNetwork(
+        esn = ESNPredictive(
+            n_inputs=1,
+            n_outputs=1,
+            n_reservoir=100,
+            spectral_radius=radius,
+            teacher_forcing=True,
+            regression_params={
+                "method": "pinv"
+            },
+        )
+
+        assert (np.max(np.abs(np.linalg.eigvals(esn.W))).round(decimals=decimals)
+                == np.round(radius, decimals=decimals))
+
+        esn = ESNGenerative(
             n_inputs=1,
             n_outputs=1,
             n_reservoir=100,
@@ -34,7 +48,22 @@ def test_spec_rad_inputW():
         for _ in range(10):
             W = np.random.rand(n_reservoir, n_reservoir)
 
-            esn = EchoStateNetwork(
+            esn = ESNGenerative(
+                n_inputs=1,
+                n_outputs=1,
+                n_reservoir=n_reservoir,
+                W=W,
+                spectral_radius=radius,
+                teacher_forcing=True,
+                regression_params={
+                    "method": "pinv"
+                },
+            )
+
+            assert (np.max(np.abs(np.linalg.eigvals(esn.W))).round(decimals=decimals)
+                    == np.round(radius, decimals=decimals))
+
+            esn = ESNPredictive(
                 n_inputs=1,
                 n_outputs=1,
                 n_reservoir=n_reservoir,

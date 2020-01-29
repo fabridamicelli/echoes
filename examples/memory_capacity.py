@@ -32,7 +32,6 @@ esn_params = dict(
         "method": "pinv"
     },
     random_seed=42,
-    verbose=False
 )
 
 # Initialize the task object

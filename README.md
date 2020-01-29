@@ -3,16 +3,13 @@
 
 Python module for Echo State Networks (ESN).
 
-The goal is a handy high level API that makes machine learning with ESN's easy.
-
-In order to keep things intuitive and easy to use, the design attempts to be as
-"scikit-learny" as possible. Documentation, type annotations and examples are all over
-the place.
-
+High level API for machine learning with Echo State Networks.
+The design attempts to follow the intuitions from standard packages, eg scikit-learn,
+as much as possible. Documentation, type annotations and examples are all over the place.
 
 As intended for research purposes as well, several typical benchmark tasks, datasets
-and plotting functionalities are also included and very straight forward to run, 
-thus saving boiler plate code and allowing the user to quickly test the ESN on those.
+and plotting functionalities are also included and straight forward to run, thus 
+saving boiler plate code and allowing the user to quickly test the ESN.
 
 
 ## Installation
@@ -29,7 +26,7 @@ pip install .
 Recommendation: install the package in a separate virtual environment, e.g., created with [(mini)conda](https://conda.io/docs/user-guide/install/index.html).
 
 ## Examples
- - Mackey-Glass-t17 (generative mode) [(notebook)](https://nbviewer.jupyter.org/github/fabridamicelli/echoes/blob/master/examples/notebooks/mackeyglasst17.ipynb)
+ - Mackey-Glass-t17 (generative ESN) [(notebook)](https://nbviewer.jupyter.org/github/fabridamicelli/echoes/blob/master/examples/notebooks/mackeyglasst17.ipynb)
 
 ```python
 
@@ -38,7 +35,7 @@ from matplotlib import pyplot as plt
 from sklearn.metrics import mean_squared_error
 import seaborn as sns
 
-from echoes.esn import EchoStateNetwork
+from echoes import ESNGenerative
 from echoes.datasets import load_mackeyglasst17
 
 sns.set(context="notebook", style="whitegrid", font_scale=1.4, 
@@ -49,7 +46,7 @@ sns.set(context="notebook", style="whitegrid", font_scale=1.4,
 # even not so conventional (e.g., spectral radius > 1), but this is just for the 
 # sake of the example. Many other constellations produce also satisfactory results, 
 # so feel free to play around with them.
-esn = EchoStateNetwork(
+esn = ESNGenerative(
     n_inputs=1,
     n_outputs=1,
     n_reservoir=200,
@@ -60,7 +57,6 @@ esn = EchoStateNetwork(
         "method": "pinv"  
     },
     random_seed=42,
-    verbose=True
 )
 
 # Load data and define train/test length
@@ -72,7 +68,7 @@ esn.fit(None, data[:trainlen]);
 
 # Input is None because we will use the generative mode, were only the feedback 
 # is needed to compute the next states and predict outputs
-prediction = esn.predict(None, mode="generative", n_steps=testlen)
+prediction = esn.predict(n_steps=testlen)
 
 # Plot test
 plt.figure(figsize=(22, 5))
@@ -96,7 +92,7 @@ plt.legend(fontsize='small')
 ![Alt Text](https://github.com/fabridamicelli/echoes/blob/master/examples/figs/mackeyglasst17.png)
 
 ---
- - sin-cos (predictive mode) [(notebook)](https://nbviewer.jupyter.org/github/fabridamicelli/echoes/blob/master/examples/notebooks/sincos.ipynb)
+ - sin-cos (predictive ESN) [(notebook)](https://nbviewer.jupyter.org/github/fabridamicelli/echoes/blob/master/examples/notebooks/sincos.ipynb)
                                           
 ```python
 from matplotlib import pyplot as plt
@@ -105,7 +101,7 @@ import numpy as np
 import seaborn as sns
 from sklearn.metrics import mean_squared_error
 
-from echoes.esn import EchoStateNetwork
+from echoes import ESNPredictive
 
 sns.set(context="notebook", style="whitegrid", font_scale=1.4, 
         rc={'grid.linestyle': '--', 
@@ -125,7 +121,7 @@ outputs_train = outputs[: traininglen]
 inputs_test= inputs[traininglen:]
 outputs_test = outputs[traininglen:]
 
-esn = EchoStateNetwork(
+esn = ESNPredictive(
     n_inputs=1,
     n_outputs=1,
     n_reservoir=20,
@@ -139,7 +135,7 @@ esn = EchoStateNetwork(
     random_seed=42
 ).fit(inputs_train, outputs_train)
 
-prediction_test = esn.predict(inputs_test, mode="predictive")
+prediction_test = esn.predict(inputs_test)
 
 # Plot test (discarding same initial transient as for training)
 plt.figure(figsize=(15, 4))
@@ -188,7 +184,6 @@ esn_params = dict(
         "method": "pinv"
     },
     random_seed=42,
-    verbose=False
 )
 
 # Initialize the task object
@@ -210,7 +205,7 @@ plot_forgetting_curve(mc.lags, mc.forgetting_curve_)
 ```python
 import numpy as np
 
-from echoes.esn import EchoStateNetwork
+from echoes import ESNGenerative
 from echoes.datasets import load_mackeyglasst17
 from echoes.plotting import set_mystyle, plot_reservoir_activity, plot_predicted_ts
 
@@ -223,7 +218,7 @@ trainlen, testlen = 2000, 2000
 totallen = trainlen + testlen
 
 # Instantiate model
-esn = EchoStateNetwork(
+esn = ESNGenerative(
     n_inputs=1,
     n_outputs=1,
     n_reservoir=200,
@@ -237,7 +232,7 @@ esn = EchoStateNetwork(
     random_seed=42,
 ).fit(None, data[: trainlen])  # fit the model 
 
-prediction = esn.predict(None, mode="generative", n_steps=testlen)
+prediction = esn.predict(n_steps=testlen)
 
 # Pick 9 neurons at random to plot
 neurons_to_plot = sorted(np.random.randint(0, esn.n_reservoir, size=9))
@@ -267,7 +262,7 @@ The code has been tested with Python 3.7 on Ubuntu 18.04.
 ## Features
 ### ESN hyperparameters
  - input scaling and shift
- - prediction modes: 
+ - ESN types:
    - predictive
    - generative
  - reservoir sparsity
@@ -299,7 +294,6 @@ The code has been tested with Python 3.7 on Ubuntu 18.04.
 
 ### Datasets
  - Mackey-Glass-t17 
-
 
 ### TODO
  - teacher scaling and shift

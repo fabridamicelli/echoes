@@ -2,15 +2,15 @@
 MemoryCapacity class to run such a task as in defined by H. Jaeger in
 "Short Term Memory in Echo State Networks" (2001).
 
-The class wraps the EchoStateNetwork class and initializes the echo state network
-instance to run the task. Thus, only the init parameters of EchoStateNetwork are
+The class wraps the ESNPredictive class and initializes the echo state network
+instance to run the task. Thus, only the init parameters of ESNPredictive are
 necessary.
 """
 from typing import Callable, Dict, List, Union, Tuple
 
 import numpy as np
 
-from echoes.esn import EchoStateNetwork
+from echoes.esn import ESNPredictive
 
 
 class MemoryCapacity:
@@ -36,11 +36,11 @@ class MemoryCapacity:
         For example: np.arange(1, 31, 5).
     esn_params: Dict
         Parameters to generate the Echo State Network.
-        See EchoStateNetwork class for details.
+        See ESNPredictive class for details.
 
     Attributes
     ----------
-    esn_: EchoStateNetwork
+    esn_: ESNPredictive
         Fitted Echo State Network instance.
     forgetting_curve_: np.ndarray
         Forgetting curve MC(k) for each k in lags.
@@ -182,9 +182,9 @@ class MemoryCapacity:
         inputs = self.inputs_func(**self.inputs_params).reshape(-1, 1)
         outputs = self._make_lagged_inputs(inputs, self.lags)
         # Instantiate estimator and fit
-        self.esn_ = EchoStateNetwork(**self.esn_params).fit(inputs, outputs)
+        self.esn_ = ESNPredictive(**self.esn_params).fit(inputs, outputs)
         self.forgetting_curve_train, self.memory_capacity_train = self.forgetting(
-            outputs, self.esn_.predict(inputs, mode="predictive")
+            outputs, self.esn_.predict(inputs)
         )
 
     def _predict(self):
@@ -195,7 +195,7 @@ class MemoryCapacity:
         # Test data
         inputs_test = self.inputs_func(**self.inputs_params).reshape(-1, 1)
         self.outputs_true_ = self._make_lagged_inputs(inputs_test, self.lags)
-        self.outputs_pred_ = self.esn_.predict(inputs_test, mode="predictive")
+        self.outputs_pred_ = self.esn_.predict(inputs_test)
 
         self.forgetting_curve_, self.memory_capacity_ = self.forgetting(
             self.outputs_true_, self.outputs_pred_
