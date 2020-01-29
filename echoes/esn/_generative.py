@@ -1,14 +1,13 @@
 """
-Generative Echo State Network class.
+Generative Echo State Network.
 """
-import warnings
-
 import numpy as np
 
 from ._base import ESNBase
-from ..utils import check_arrays_dimensions
+from echoes.utils import check_arrays_dimensions, check_model_params
 
 
+# TODO: test initialization of inputs (should be zero)
 class ESNGenerative(ESNBase):
 
     def predict(self, n_steps=None):
@@ -43,8 +42,6 @@ class ESNGenerative(ESNBase):
         inputs = np.vstack([self.last_input, inputs])
         states = np.vstack([self.last_state, np.zeros((n_steps, self.n_reservoir))])
         outputs = np.vstack([self.last_output, np.zeros((n_steps, self.n_outputs))])
-
-        assert np.all(inputs == 0), "wrong inputs initialization"
 
         # Go through samples (steps) and predict for each of them
         for step in range(1, n_steps):

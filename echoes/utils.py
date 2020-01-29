@@ -6,22 +6,12 @@ import warnings
 
 import numpy as np
 
-from .esn import ESNPredictive, ESNGenerative
-from .plotting import plot_predicted_ts
-
 
 def set_spectral_radius(matrix: np.ndarray, target_radius: float) -> np.ndarray:
     """Rescale weights matrix to match target spectral radius"""
     current_radius = np.max(np.abs(np.linalg.eigvals(matrix)))
     matrix *= target_radius / current_radius
     return matrix
-
-
-def get_esn_type(esn):
-    if isinstance(esn, ESNGenerative): return "generative"
-    if isinstance(esn, ESNPredictive): return "predictive"
-    raise ValueError("unknown esn type")
-
 
 def check_arrays_dimensions(
     inputs: np.ndarray = None, outputs: np.ndarray = None
@@ -105,7 +95,7 @@ def check_model_params(params: Dict, esn_type: str) -> None:
     if isinstance(input_shift, np.ndarray):
         assert len(input_shift) == n_inputs, "length of input_shift must equal n_inputs"
 
-    if esn_type == "generative":
+    if esn_type == "ESNGenerative":
         assert teacher_forcing == True, "generative ESN requires teacher forcing"
 
     # Warnings
@@ -113,7 +103,7 @@ def check_model_params(params: Dict, esn_type: str) -> None:
         warnings.warn(
             "leak_rate == 0 is total leakeage, you probably meant 1. See documentation."
         )
-    if esn_type == "generative":
+    if esn_type == "ESNGenerative":
         if input_scaling is not None:
             warnings.warn("input scaling will be ignored, since it is a generative ESN")
         if input_shift is not None:

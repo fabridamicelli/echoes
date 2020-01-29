@@ -4,7 +4,7 @@ Predictive Echo State Network.
 import numpy as np
 
 from ._base import ESNBase
-from ..utils import check_arrays_dimensions
+from echoes.utils import check_arrays_dimensions, check_model_params
 
 
 class ESNPredictive(ESNBase):
@@ -56,7 +56,8 @@ class ESNPredictive(ESNBase):
             outputs[step, :] = self.W_out_ @ full_states
 
         # Store reservoir activity
-        if self.store_states_pred: self.states_pred_ = states
+        if self.store_states_pred:
+            self.states_pred_ = states
 
         # Map outputs back to actual target space with activation function
         outputs = self.activation_out(outputs)

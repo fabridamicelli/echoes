@@ -1,17 +1,20 @@
 """
-Echo State Network (ESN) base class. It implements common code for predictive and generative ESN's. It should not be instanciated, use ESNGenerative and ESNPredictive instead.
+Echo State Network (ESN) base class.
+It implements common code for predictive and generative ESN's.
+It should not be instanciated, use ESNGenerative and ESNPredictive instead.
 """
+import warnings
+
 from typing import Union, Callable, Dict
 
 import numpy as np
 from sklearn.linear_model import Ridge
 
-from ..utils import (
+from echoes.utils import (
     set_spectral_radius,
     identity,
     check_arrays_dimensions,
     check_model_params,
-    get_esn_type
 )
 
 
@@ -197,8 +200,9 @@ class ESNBase:
         if random_seed:
             np.random.seed(random_seed)
         self.init_all_weights()
+        self._esn_type = self.__class__.__name__
 
-        check_model_params(self.__dict__, get_esn_type(self))
+        check_model_params(self.__dict__, self._esn_type)
 
     def init_incoming_weights(self):
         """
@@ -395,21 +399,28 @@ class ESNBase:
             This is to be used in the case of generative mode.
         outputs: 2D np.ndarray of shape (n_smaples, n_outputs)
             Training output, i.e., y, the target.
+        esn_type: str
+            Type of ESN network. Either "generative" or "predictive"
 
         Returns
         -------
         self: returns an instance of self.
         """
-        esn_type = get_esn_type(self)
-        if esn_type == "predictive":
+        if self._esn_type == "ESNPredictive":
             assert inputs is not None, "inputs must be specified for predictive ESN"
         # If generative mode, make inputs zero, ignoring the possibly given ones
-        if esn_type == "generative":
+        if self._esn_type == "ESNGenerative":
+            if inputs is not None:
+                warnings.warn("inputs will be ignored in generative ESN. Use None instead")
             inputs = np.zeros(shape=(outputs.shape[0], self.n_inputs))
 
         check_arrays_dimensions(inputs, outputs)  # sanity check
         # Scale and shift inputs (only for predictive case)
-        inputs = self.scale_shift_inputs(inputs) if esn_type == "predictive" else inputs
+        inputs = (
+            self.scale_shift_inputs(inputs)
+            if self._esn_type == "ESNPredictive"
+            else inputs
+        )
         # Inverse transform outputs (map them into inner, latent space)
         outputs = self.inv_activation_out(outputs)
 
@@ -435,11 +446,12 @@ class ESNBase:
         self.training_prediction_ = self.activation_out(full_states @ self.W_out_.T)
 
         # Keep last state for later (only generative case)
-        if esn_type == "generative":
+        if self._esn_type == "ESNGenerative":
             self.last_state = states[-1, :]
             self.last_input = inputs[-1, :]
             self.last_output = outputs[-1, :]
 
         # Store reservoir activity
-        if self.store_states_train: self.states_train_ = states
+        if self.store_states_train:
+            self.states_train_ = states
         return self
