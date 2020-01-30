@@ -260,22 +260,21 @@ plot_reservoir_activity(esn,
 The code has been tested with Python 3.7 on Ubuntu 18.04.
 
 ## Features
+### ESN types
+ - predictive
+ - generative
 ### ESN hyperparameters
  - input scaling and shift
- - ESN types:
-   - predictive
-   - generative
  - reservoir sparsity
  - leakage rate
  - input noise (regularization)
  - arbitrary:
    - activation function
    - bias 
-   - readout function
+   - activation_out function
    - reservoir matrix
    - input matrix
    - feedback matrix
-   - dynamical regime
  - regression parameters:
    - method: 
      - pinv
@@ -297,6 +296,8 @@ The code has been tested with Python 3.7 on Ubuntu 18.04.
 
 ### TODO
  - teacher scaling and shift
+ - neuron models 
+ - numba acceleration
 
 
 ## Tests 
