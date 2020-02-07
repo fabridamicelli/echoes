@@ -139,12 +139,11 @@ class ESNBase:
                 Check sklearn.linear_model.Ridge documentation for details.
             "fit_intercept": bool, optional
                 If True, intercept is fit in Ridge regression. Default False.
-            "regcoef": float
+            "regcoef": float, ndarray of shape (n_outputs,)
                 Regularization coefficient used for Ridge regression.
                 Default is None to make sure one deliberately sets this since it is
                 a crucial parameter.
-                # TODO: recommend sensible range of values to try out depending on the
-                task.
+                # TODO: recommend sensible range of values depending on the task.
         n_transient: int, optional
             Number of activity initial steps removed (not considered for training)
             in order to avoid initial instabilities.

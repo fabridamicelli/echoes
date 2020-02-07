@@ -36,6 +36,7 @@ def check_arrays_dimensions(
                 "Output must be 2D array, got 1D array instead."
                 "If your n_outputs is one, reshape your data with .reshape(-1, 1)."
             )
+    # TODO: assert dimensions inputs match n_inputs and dimensions output matchs n_outputs
 
 
 def identity(x: Union[float, np.ndarray]) -> Union[float, np.ndarray]:

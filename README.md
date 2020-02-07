@@ -298,7 +298,8 @@ The code has been tested with Python 3.7 on Ubuntu 18.04.
  - teacher scaling and shift
  - neuron models 
  - numba acceleration
-
+ - add Tasks 
+ - add Datasets
 
 ## Tests 
 Run tests with 
