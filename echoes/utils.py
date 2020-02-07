@@ -13,6 +13,7 @@ def set_spectral_radius(matrix: np.ndarray, target_radius: float) -> np.ndarray:
     matrix *= target_radius / current_radius
     return matrix
 
+
 def check_arrays_dimensions(
     inputs: np.ndarray = None, outputs: np.ndarray = None
 ) -> None:
@@ -99,6 +100,11 @@ def check_model_params(params: Dict, esn_type: str) -> None:
     if esn_type == "ESNGenerative":
         assert teacher_forcing == True, "generative ESN requires teacher forcing"
 
+    if params["regression_method"] != "ridge" and params["ridge_sample_weight"]:
+        raise ValueError(
+            "ridge_sample_weight is only supported for regression_method=ridge"
+        )
+
     # Warnings
     if params["leak_rate"] == 0:
         warnings.warn(
@@ -109,3 +115,9 @@ def check_model_params(params: Dict, esn_type: str) -> None:
             warnings.warn("input scaling will be ignored, since it is a generative ESN")
         if input_shift is not None:
             warnings.warn("input shift will be ignored, since it is a generative ESN")
+    if params["regression_method"] == "pinv" & params["ridge_alpha"] is not None:
+        warnings.warn(
+            "Ridge parameters will be ignored since regression_method is pinv."
+            "Set regression_method='ridge' if you want to solve W_out with ridge,"
+            "or ridge_alpha=None to silence this warning"
+        )

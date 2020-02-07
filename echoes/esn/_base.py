@@ -20,6 +20,131 @@ from echoes.utils import (
 
 # TODO: scale/unscale teacher
 class ESNBase:
+    """
+    Parameters
+    ----------
+    n_inputs: int, default=None
+        Number of input neurons.
+    n_reservoir: int, default=None
+        Number of reservoir neurons.
+    n_outputs: int, default=None
+        Number of output neurons.
+    W: np.ndarray of shape (n_reservoir, n_reservoir), optional, default=None
+        Reservoir weights matrix. If None, random weights are used (uniformly
+        distributed around 0, ie., in [-0.5, 0.5).
+        Be careful with the distribution of W values. Wrong W initialization
+        might drastically affect test performance (even with reasonable good
+        training fit).
+    spectral_radius: float, default=None
+        Spectral radius of the reservoir weights matrix (W).
+    W_in: np.ndarray of shape (n_reservoir, 1+n_inputs) (1->bias), optional, default None.
+        Input weights matrix by which input signal is multiplied.
+        If None, random weights are used.
+    W_feedb: np.ndarray of shape(n_reservoir, n_outputs), optional, default None.
+        Feedback weights matrix by which teaching signal is multiplied in
+        case of teaching force.
+    sparsity: float, optional, default=0
+        Proportion of the reservoir matrix weights forced to be zero.
+        Note that with default W (centered around 0), the actual sparsity will
+        be slightly more than the specified.
+    noise: float, optional, default=0
+        Magnitud of the noise input added to neurons at each step.
+        This is used for regularization purposes and should typically be
+        very small, e.g. 0.0001 or 1e-5.
+    leak_rate: float, optional, default=1
+        Leaking rate applied to the neurons at each step.
+        Default is 1, which is no leaking. 0 would be total leakeage.
+    bias: float, optional, default=1
+        Value of the bias neuron, injected at each time step together with input.
+    input_scaling: float or np.ndarray of length n_inputs, default=None
+        Scalar to multiply each input before feeding it to the network.
+        If float, all inputs get multiplied by same value.
+        If array, it must match n_inputs length, specifying the scaling factor for
+        each input.
+    input_shift: float or np.ndarray of length n_inputs, default=None
+        Scalar to add to each input before feeding it to the network.
+        If float, multiplied same value is added to all inputs.
+        If array, it must match n_inputs length, specifying the value to add to
+        each input.
+    teacher_forcing: bool, optional, default=False
+        If True, the output signal gets reinjected into the reservoir
+        during training.
+    activation: function, optional, default=tanh
+        Non-linear activation function applied to the neurons at each step.
+    activation_out: function, optional, default=identity
+        Activation function applied to the outputs. In other words, it is assumed
+        that targets = f(outputs). So the output produced must be transformed.
+    inv_activation_out: function, optional, default=identity
+        Inverse of acivation function applied to the outputs. This is used to first
+        transform targets to teacher (during training).
+    fit_only_states: bool,default=False
+        If True, outgoing weights (W_out) are computed fitting only the reservoir
+        states. Inputs and bias are still use to drive reservoir activity, but
+        ignored for fitting W_out, both in the training and prediction phase.
+    regression_method: str, optional, default pseudoinverse (pinv).
+        Method to solve the linear regression to find out outgoing weights.
+        One of ["pinv", "ridge", "ridge_formula"].
+        If "ridge" or "ridge_formula", then the ridge_* parameters will be used.
+    ridge_alpha: float, ndarray of shape (n_outputs,), default=None
+        Regularization coefficient used for Ridge regression.
+        Larger values specify stronger regularization.
+        If an array is passed, penalties are assumed to be specific to the targets.
+        Hence they must correspond in number.
+        Default is None to make sure one deliberately sets this since it is
+        a crucial parameter. See sklearn Ridge documentation for details.
+        # TODO: recommend sensible range of values depending on the task.
+    ridge_fit_intercept: bool, optional, default=False
+        If True, intercept is fit in Ridge regression. Default False.
+        See sklearn Ridge documentation for details.
+    ridge_normalize: bool, default=False
+        This parameter is ignored when fit_intercept is set to False.
+        If True, the regressors X will be normalized before regression by
+        subtracting the mean and dividing by the l2-norm.
+        See sklearn Ridge documentation for details.
+    ridge_max_iter: int, default=None
+        Maximum number of iterations for conjugate gradient solver.
+        See sklearn Ridge documentation for details.
+    ridge_tol: float, default=1e-3
+        Precision of the solution.
+        See sklearn Ridge documentation for details.
+    ridge_solver: str, optional, default="auto"
+        Solver to use in the Ridge regression.
+        One of ["auto", "svd", "cholesky", "lsqr", "sparse_cg", "sag", "saga"].
+        See sklearn Ridge documentation for details.
+    ridge_sample_weight: float or ndarray of shape (n_samples,), default=None
+        Individual weights for each sample.
+        If given a float, every sample will have the same weight.
+        See sklearn Ridge documentation for details.
+    n_transient: int, optional, default=0
+        Number of activity initial steps removed (not considered for training)
+        in order to avoid initial instabilities.
+        Default is 0, but this is something one definitely might want to tweak.
+        # TODO: recommend sensible range of values depending on the task.
+    random_seed: int, optional, default=None
+        Random seed fixed at the beginning for reproducibility of results.
+    store_states_train: bool, optional, default=False
+        If True, time series series of reservoir neurons during training are stored
+        in the object attribute states_train_.
+    store_states_pred: bool, optional, default=False
+        If True, time series series of reservoir neurons during prediction are stored
+        in the object attribute states_pred_.
+
+    Attributes
+    ----------
+    W_out_ : array of shape (n_outputs, n_inputs + n_reservoir + 1)
+        Outgoing weights after fitting linear regression model to predict outputs.
+    training_prediction_: array of shape (n_samples, n_outputs)
+        Predicted output on training data.
+    states_train_: array of shape (n_samples, n_reservoir)
+        If store_states_train is True, states matrix is stored for visualizing
+        reservoir neurons activity during training.
+        Default False.
+    states_pred_: array of shape (n_samples, n_reservoir)
+        If store_states_pred is True, states matrix is stored for visualizing
+        reservoir neurons activity during prediction (test).
+        Default False.
+        """
+
     def __init__(
         self,
         n_inputs: int = None,
@@ -40,140 +165,19 @@ class ESNBase:
         activation_out: Callable = identity,
         inv_activation_out: Callable = identity,
         fit_only_states: bool = False,
-        regression_params: Dict = {
-            "method": "pinv",
-            "solver": "lsqr",
-            "fit_intercept": False,
-            "regcoef": None,
-        },
+        regression_method: str = "pinv",
+        ridge_alpha: float = None,
+        ridge_fit_intercept: bool = False,
+        ridge_normalize: bool = False,
+        ridge_max_iter: int = None,
+        ridge_tol: float = 1e-3,
+        ridge_solver: str = "auto",
+        ridge_sample_weight: Union[float, np.ndarray] = None,
         n_transient: int = None,
         store_states_train: bool = False,
         store_states_pred: bool = False,
         random_seed: int = None,
     ) -> None:
-        """
-        Parameters
-        ----------
-        n_inputs: int
-            Number of input neurons.
-            Default None.
-        n_reservoir: int
-            Number of reservoir neurons.
-            Default None.
-        n_outputs: int
-            Number of output neurons.
-            Default None.
-        W: np.ndarray of shape (n_reservoir, n_reservoir), optional.
-            Reservoir weights matrix. If None, random weights are used (uniformly
-            distributed around 0, ie., in [-0.5, 0.5).
-            Be careful with the distribution of W values. Wrong W initialization
-            might drastically affect test performance (even with reasonable good
-            training fit).
-            Default None.
-        spectral_radius: float
-            Spectral radius of the reservoir weights matrix (W).
-        W_in: np.ndarray of shape (n_reservoir, 1+n_inputs) (1->bias), optional
-            Input weights matrix by which input signal is multiplied.
-            If None, random weights are used.
-            Default None.
-        W_feedb: np.ndarray of shape(n_reservoir, n_outputs), optional
-            Feedback weights matrix by which teaching signal is multiplied in
-            case of teaching force.
-            Default None.
-        sparsity: float, optional
-            Proportion of the reservoir matrix weights forced to be zero.
-            Note that with default W (centered around 0), the actual sparsity will
-            be slightly more than the specified.
-            Default 0.
-        noise: float, optional
-            Magnitud of the noise input added to neurons at each step.
-            This is used for regularization purposes and should typically be
-            very small, e.g. 0.0001 or 1e-5.
-            Default 0.
-        leak_rate: float, optional
-            Leaking rate applied to the neurons at each step.
-            Default is 1, which is no leaking. 0 would be total leakeage.
-        bias: float, optional
-            Value of the bias neuron, injected at each time step together with input.
-            Default 1.
-        input_scaling: float or np.ndarray of length n_inputs.
-            Scalar to multiply each input before feeding it to the network.
-            If float, all inputs get multiplied by same value.
-            If array, it must match n_inputs length, specifying the scaling factor for
-            each input.
-            Default None.
-        input_shift: float or np.ndarray of length n_inputs.
-            Scalar to add to each input before feeding it to the network.
-            If float, multiplied same value is added to all inputs.
-            If array, it must match n_inputs length, specifying the value to add to
-            each input.
-            Default None.
-        teacher_forcing: bool, optional
-            If True, the output signal gets reinjected into the reservoir
-            during training.
-            Default False.
-        activation: function, optional
-            Non-linear activation function applied to the neurons at each step.
-            Default tanh.
-        activation_out: function, optional
-            Activation function applied to the outputs. In other words, it is assumed
-            that targets = f(outputs). So the output produced must be transformed.
-            Default identity.
-        inv_activation_out: function, optional.
-            Inverse of acivation function applied to the outputs. This is used to first
-            transform targets to teacher (during training).
-            Default identity.
-        fit_only_states: bool
-            If True, outgoing weights (W_out) are computed fitting only the reservoir
-            states. Inputs and bias are still use to drive reservoir activity, but
-            ignored for fitting W_out, both in the training and prediction phase.
-            Default False.
-        regression_params: Dict
-            Parameters to solve the linear regression to find out outgoing weights.
-            "method": str, optional
-                One of ["pinv", "ridge", "ridge_formula"]. Default pseudoinverse (pinv).
-            "solver": str, optional
-                Solver to use in the Ridge regression. Default least squares (lsqr).
-                Valid options are the ones included in sklearn Ridge:
-                   ["auto", "svd", "cholesky", "lsqr", "sparse_cg", "sag", "saga"]
-                Check sklearn.linear_model.Ridge documentation for details.
-            "fit_intercept": bool, optional
-                If True, intercept is fit in Ridge regression. Default False.
-            "regcoef": float, ndarray of shape (n_outputs,)
-                Regularization coefficient used for Ridge regression.
-                Default is None to make sure one deliberately sets this since it is
-                a crucial parameter.
-                # TODO: recommend sensible range of values depending on the task.
-        n_transient: int, optional
-            Number of activity initial steps removed (not considered for training)
-            in order to avoid initial instabilities.
-            Default is 0, but this is something one definitely might want to tweak.
-            # TODO: recommend sensible range of values depending on the task.
-        random_seed: int, optional
-            Random seed fixed at the beginning for reproducibility of results.
-            Default None.
-        store_states_train: bool, optional
-            If True, time series series of reservoir neurons during training are stored
-            in the object attribute states_train_.
-        store_states_pred: bool, optional
-            If True, time series series of reservoir neurons during prediction are stored
-            in the object attribute states_pred_.
-
-        Attributes
-        ----------
-        W_out_ : array of shape (n_outputs, n_inputs + n_reservoir + 1)
-            Outgoing weights after fitting linear regression model to predict outputs.
-        training_prediction_: array of shape (n_samples, n_outputs)
-            Predicted output on training data.
-        states_train_: array of shape (n_samples, n_reservoir)
-            If store_states_train is True, states matrix is stored for visualizing
-            reservoir neurons activity during training.
-            Default False.
-        states_pred_: array of shape (n_samples, n_reservoir)
-            If store_states_pred is True, states matrix is stored for visualizing
-            reservoir neurons activity during prediction (test).
-            Default False.
-        """
         self.n_inputs = n_inputs
         self.n_reservoir = n_reservoir
         self.n_outputs = n_outputs
@@ -192,14 +196,22 @@ class ESNBase:
         self.activation_out = activation_out
         self.inv_activation_out = inv_activation_out
         self.fit_only_states = fit_only_states
-        self.regression_params = regression_params
         self.n_transient = n_transient
         self.store_states_train = store_states_train
         self.store_states_pred = store_states_pred
+        self.regression_method = regression_method
+        self.ridge_alpha = ridge_alpha
+        self.ridge_fit_intercept = ridge_fit_intercept
+        self.ridge_normalize = ridge_normalize
+        self.ridge_max_iter = ridge_max_iter
+        self.ridge_tol = ridge_tol
+        self.ridge_solver = ridge_solver
+        self.ridge_sample_weight = ridge_sample_weight
+        self._esn_type = self.__class__.__name__
+
         if random_seed:
             np.random.seed(random_seed)
-        self.init_all_weights()
-        self._esn_type = self.__class__.__name__
+        self.init_all_weights()   #  this line must be after seeding random generator
 
         check_model_params(self.__dict__, self._esn_type)
 
@@ -354,23 +366,26 @@ class ESNBase:
             Outgoing weights matrix.
             Second dimension matches the reservoir neurons, n_outputs and bias.
         """
-        if self.regression_params["method"] == "pinv":
+        if self.regression_method == "pinv":
             W_out = (np.linalg.pinv(full_states) @ outputs).T
-        elif self.regression_params["method"] == "ridge":
+        elif self.regression_method == "ridge":
             linreg = Ridge(
-                alpha=self.regression_params["regcoef"],
-                solver=self.regression_params["solver"],
-                fit_intercept=self.regression_params["fit_intercept"],
+                alpha=self.ridge_alpha,
+                fit_intercept=self.ridge_fit_intercept,
+                normalize=self.ridge_normalize,
+                max_iter=self.ridge_max_iter,
+                tol=self.ridge_tol,
+                solver=self.ridge_solver,
             )
-            linreg.fit(full_states, outputs)
+            linreg.fit(full_states, outputs, sample_weight=self.ridge_sample_weight)
             W_out = linreg.coef_
         # TODO: test formula/write more clearly. Current one is copied from Mantas code.
-        elif self.regression_params["method"] == "ridge_formula":
+        elif self.regression_method == "ridge_formula":
             Y = outputs.T
             X = full_states.T
             X_T = X.T
             I = np.eye(1 + self.n_inputs + self.n_reservoir)
-            reg = self.regression_params["regcoef"]
+            reg = self.ridge_alpha
             W_out = np.dot(
                 np.dot(Y, X_T),
                 np.linalg.inv(
@@ -379,7 +394,7 @@ class ESNBase:
             )
         else:
             raise ValueError(
-                "regression_params['method'] must be one of pinv, ridge, ridge_formula"
+                "regression_method must be one of pinv, ridge, ridge_formula"
             )
         return W_out
 
@@ -399,7 +414,7 @@ class ESNBase:
         outputs: 2D np.ndarray of shape (n_smaples, n_outputs)
             Training output, i.e., y, the target.
         esn_type: str
-            Type of ESN network. Either "generative" or "predictive"
+            Type of ESN network. Either "ESNGenerative" or "ESNPredictive"
 
         Returns
         -------
@@ -410,7 +425,9 @@ class ESNBase:
         # If generative mode, make inputs zero, ignoring the possibly given ones
         if self._esn_type == "ESNGenerative":
             if inputs is not None:
-                warnings.warn("inputs will be ignored in generative ESN. Use None instead")
+                warnings.warn(
+                    "inputs will be ignored in generative ESN. Use None instead"
+                )
             inputs = np.zeros(shape=(outputs.shape[0], self.n_inputs))
 
         check_arrays_dimensions(inputs, outputs)  # sanity check
