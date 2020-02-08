@@ -121,7 +121,8 @@ class ESNBase:
         Default is 0, but this is something one definitely might want to tweak.
         # TODO: recommend sensible range of values depending on the task.
     random_seed: int, optional, default=None
-        Random seed fixed at the beginning for reproducibility of results.
+        Numpy random seed fixed before initializing weights. It *only* affects weights
+        generation, since it gets reset to default (None) after that.
     store_states_train: bool, optional, default=False
         If True, time series series of reservoir neurons during training are stored
         in the object attribute states_train_.
@@ -178,6 +179,7 @@ class ESNBase:
         store_states_pred: bool = False,
         random_seed: int = None,
     ) -> None:
+
         self.n_inputs = n_inputs
         self.n_reservoir = n_reservoir
         self.n_outputs = n_outputs
@@ -209,9 +211,9 @@ class ESNBase:
         self.ridge_sample_weight = ridge_sample_weight
         self._esn_type = self.__class__.__name__
 
-        if random_seed:
-            np.random.seed(random_seed)
-        self.init_all_weights()   #  this line must be after seeding random generator
+        np.random.seed(random_seed)
+        self.init_all_weights()
+        np.random.seed(None)
 
         check_model_params(self.__dict__, self._esn_type)
 
