@@ -422,6 +422,10 @@ class ESNBase:
         -------
         self: returns an instance of self.
         """
+        assert (
+            outputs.shape[1] == self.n_outputs
+            ), "wrong outputs: outputs last dimension must equal n_outputs"
+
         if self._esn_type == "ESNPredictive":
             assert inputs is not None, "inputs must be specified for predictive ESN"
         # If generative mode, make inputs zero, ignoring the possibly given ones
@@ -432,7 +436,8 @@ class ESNBase:
                 )
             inputs = np.zeros(shape=(outputs.shape[0], self.n_inputs))
 
-        check_arrays_dimensions(inputs, outputs)  # sanity check
+        check_arrays_dimensions(inputs, outputs) # sanity check
+
         # Scale and shift inputs (only for predictive case)
         inputs = (
             self.scale_shift_inputs(inputs)

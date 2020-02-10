@@ -115,7 +115,7 @@ def check_model_params(params: Dict, esn_type: str) -> None:
             warnings.warn("input scaling will be ignored, since it is a generative ESN")
         if input_shift is not None:
             warnings.warn("input shift will be ignored, since it is a generative ESN")
-    if params["regression_method"] == "pinv" & params["ridge_alpha"] is not None:
+    if params["regression_method"] == "pinv" and params["ridge_alpha"] is not None:
         warnings.warn(
             "Ridge parameters will be ignored since regression_method is pinv."
             "Set regression_method='ridge' if you want to solve W_out with ridge,"
