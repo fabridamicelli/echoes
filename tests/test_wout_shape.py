@@ -1,6 +1,6 @@
 import numpy as np
 
-from echoes.esn import ESNGenerative
+from echoes import ESNGenerative
 from echoes.datasets import load_mackeyglasst17
 
 
@@ -15,9 +15,7 @@ def test_W_out_shape_fullstates():
         spectral_radius=1.25,
         teacher_forcing=True,
         fit_only_states=False,
-        regression_params={
-            "method": "pinv"
-        },
+        regression_method="pinv",
         random_seed=42,
     ).fit(None, data[:trainlen])
 
@@ -34,9 +32,7 @@ def test_W_out_shape_onlystates():
         spectral_radius=1.25,
         teacher_forcing=True,
         fit_only_states=True,
-        regression_params={
-            "method": "pinv"
-        },
+        regression_method="pinv",
         random_seed=42,
     ).fit(None, data[:trainlen])
 

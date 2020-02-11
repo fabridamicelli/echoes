@@ -1,6 +1,6 @@
 import numpy as np
 
-from echoes.esn import ESNGenerative, ESNPredictive
+from echoes import ESNGenerative, ESNPredictive
 from echoes.datasets import load_mackeyglasst17
 
 
@@ -16,9 +16,7 @@ def test_spec_rad():
             n_reservoir=100,
             spectral_radius=radius,
             teacher_forcing=True,
-            regression_params={
-                "method": "pinv"
-            },
+            regression_method= "pinv"
         )
 
         assert (np.max(np.abs(np.linalg.eigvals(esn.W))).round(decimals=decimals)
@@ -30,9 +28,8 @@ def test_spec_rad():
             n_reservoir=100,
             spectral_radius=radius,
             teacher_forcing=True,
-            regression_params={
-                "method": "pinv"
-            },
+            regression_method= "pinv"
+
         )
 
         assert (np.max(np.abs(np.linalg.eigvals(esn.W))).round(decimals=decimals)
@@ -55,9 +52,8 @@ def test_spec_rad_inputW():
                 W=W,
                 spectral_radius=radius,
                 teacher_forcing=True,
-                regression_params={
-                    "method": "pinv"
-                },
+                regression_method= "pinv"
+
             )
 
             assert (np.max(np.abs(np.linalg.eigvals(esn.W))).round(decimals=decimals)
@@ -70,9 +66,7 @@ def test_spec_rad_inputW():
                 W=W,
                 spectral_radius=radius,
                 teacher_forcing=True,
-                regression_params={
-                    "method": "pinv"
-                },
+                regression_method= "pinv"
             )
 
             assert (np.max(np.abs(np.linalg.eigvals(esn.W))).round(decimals=decimals)

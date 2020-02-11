@@ -136,14 +136,12 @@ class ESNBase:
         Outgoing weights after fitting linear regression model to predict outputs.
     training_prediction_: array of shape (n_samples, n_outputs)
         Predicted output on training data.
-    states_train_: array of shape (n_samples, n_reservoir)
+    states_train_: array of shape (n_samples, n_reservoir), default False.
         If store_states_train is True, states matrix is stored for visualizing
         reservoir neurons activity during training.
-        Default False.
-    states_pred_: array of shape (n_samples, n_reservoir)
+    states_pred_: array of shape (n_samples, n_reservoir), default False.
         If store_states_pred is True, states matrix is stored for visualizing
         reservoir neurons activity during prediction (test).
-        Default False.
         """
 
     def __init__(
