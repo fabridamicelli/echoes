@@ -53,9 +53,7 @@ esn = ESNGenerative(
     spectral_radius=1.25,
     teacher_forcing=True,
     leak_rate=.4,
-    regression_params={
-        "method": "pinv"  
-    },
+    regression_method="pinv",
     random_seed=42,
 )
 
@@ -129,9 +127,7 @@ esn = ESNPredictive(
     leak_rate=.4,
     n_transient=100,
     teacher_forcing=False,
-    regression_params={
-        "method": "pinv",
-    },
+    regression_method="pinv",
     random_seed=42
 ).fit(inputs_train, outputs_train)
 
@@ -180,9 +176,7 @@ esn_params = dict(
     spectral_radius=.9,
     bias=0,
     n_transient=100,
-    regression_params={
-        "method": "pinv"
-    },
+    regression_method="pinv",
     random_seed=42,
 )
 
@@ -225,9 +219,7 @@ esn = ESNGenerative(
     spectral_radius=1.25,
     teacher_forcing=True,
     leak_rate=.4,
-    regression_params={
-        "method": "pinv"  
-    },
+    regression_method="pinv",
     store_states_pred=True,   # store states for plotting
     random_seed=42,
 ).fit(None, data[: trainlen])  # fit the model 
@@ -275,13 +267,12 @@ The code has been tested with Python 3.7 on Ubuntu 18.04.
    - reservoir matrix
    - input matrix
    - feedback matrix
+ - fit only states (fit outgoing weights without inputs and bias)
  - regression parameters:
    - method: 
      - pinv
-     - ridge 
+     - ridge (sklearn Ridge parameters available)
      - ridge-formula
-   - sklearn Ridge solvers
- - fit only states (fit outgoing weights without inputs and bias)
 
 ### Plotting
  - True vs predicted time series.
@@ -290,6 +281,9 @@ The code has been tested with Python 3.7 on Ubuntu 18.04.
 
 ### Tasks 
  - Memory capacity
+
+### Model selection
+ - Grid search
 
 ### Datasets
  - Mackey-Glass-t17 
@@ -300,6 +294,8 @@ The code has been tested with Python 3.7 on Ubuntu 18.04.
  - numba acceleration
  - add Tasks 
  - add Datasets
+ - ensemble
+ - visualization grid search
 
 ## Tests 
 Run tests with 
