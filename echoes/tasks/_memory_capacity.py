@@ -10,7 +10,7 @@ from typing import Callable, Dict, List, Union, Tuple
 
 import numpy as np
 
-from echoes.esn import ESNPredictive
+from echoes import ESNPredictive
 
 
 class MemoryCapacity:
@@ -75,9 +75,7 @@ class MemoryCapacity:
             spectral_radius=.9,
             bias=0,
             n_transient=100,
-            regression_params={
-                "method": "pinv"
-            },
+            regression_method="pinv"
         )
 
     >>> mc = MemoryCapacity(
