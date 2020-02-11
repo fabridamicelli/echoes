@@ -44,7 +44,7 @@ class ESNGenerative(ESNBase):
         outputs = np.vstack([self.last_output, np.zeros((n_steps, self.n_outputs))])
 
         # Go through samples (steps) and predict for each of them
-        for step in range(1, n_steps):
+        for step in range(1, outputs.shape[0]):
             states[step, :] = self._update_state(
                 states[step - 1, :], inputs[step, :], outputs[step - 1, :]
             )
@@ -56,7 +56,8 @@ class ESNGenerative(ESNBase):
             outputs[step, :] = self.W_out_ @ full_states
 
         # Store reservoir activity
-        if self.store_states_pred: self.states_pred_ = states[1:, :]  # discard first step (comes from fitting)
+        if self.store_states_pred:
+            self.states_pred_ = states[1:, :]  # discard first step (comes from fitting)
 
         # Map outputs back to actual target space with activation function
         outputs = self.activation_out(outputs)
