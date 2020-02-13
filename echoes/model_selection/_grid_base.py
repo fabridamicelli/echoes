@@ -22,11 +22,13 @@ class GridSearchBase:
 
     This class knows how to map the scoriong function over data and gridpoits
     (parameter constellations) independently of the specific evaluation definition.
-    Subclasses implement the actual point evaluation. So the user might generate
-    arbitrary grid searches by overloading the methods _make_data and _eval_point.
-    For example, you can wrap up an arbitrary task under the methods _make_data and
-    _eval_point in order to find best hyperparameters for the task.
-    _eval_point must return a single value - the score.
+    Subclasses implement the actual point evaluation.
+    So the user might generate arbitrary grid searches by overloading the methods
+    _make_data and _eval_point.
+    For example, you can wrap up an arbitrary task under the method  _eval_point
+    in order to find best hyperparameters for the task.
+    _eval_point must return a single value (score) and have the signature as defined
+    in this class (gridpoint, data).
 
     Note: best_estimator_ is considered to be the one with *lowest score*, as it is
     supposed to be a loss function.
@@ -148,9 +150,9 @@ class GridSearchBase:
         """Returns generator of gridpoints."""
         return ParameterGrid(self.param_grid)
 
-    def _make_data(self, X, y):
+    def _make_data(self, *args):
         """Implemented in the subclasses"""
-        raise NotImplementedError
+        return None
 
     def _evaluate_gridpoint(self, *args):
         """Implemented in the subclasses"""
