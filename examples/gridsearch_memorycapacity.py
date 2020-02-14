@@ -13,10 +13,6 @@ set_mystyle()
 
 
 class GridSearchMemoryCapacity(GridSearchBase):
-    def _make_data(self, X, y):
-        """Placeholders for consistency"""
-        return None
-
     def _eval_gridpoint(self, esn_params, data):
         """data: placeholder for consistency"""
         # Echo state network parameters (after Jaeger)
