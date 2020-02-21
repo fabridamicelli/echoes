@@ -5,7 +5,7 @@ from sklearn.model_selection import train_test_split
 from ._grid_base import GridSearchBase
 from echoes import ESNPredictive
 
-
+# TODO: remove
 class GridSearchESNPredictive(GridSearchBase):
     def _make_data(self, X, y):
         """
@@ -19,10 +19,10 @@ class GridSearchESNPredictive(GridSearchBase):
         """
         Data = namedtuple("Data", ["X_train", "X_test", "y_train", "y_test"])
         X_train, X_test, y_train, y_test = train_test_split(
-            X, y, test_size=self.test_size, shuffle=False)
+            X, y, test_size=self.validation_size, shuffle=False)
         return Data(X_train, X_test, y_train, y_test)
 
-    def _eval_gridpoint(self, esn_params, data):
+    def ___evaluate_gridpoint(self, esn_params, data):
         """
         Evaluate one constellation of paremeters (gridpoint).
         Instantiate echo state network (esn), fit and score it.

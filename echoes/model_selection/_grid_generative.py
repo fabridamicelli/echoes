@@ -25,7 +25,7 @@ class GridSearchESNGenerative(GridSearchBase):
             y, test_size=self.test_size, shuffle=False)
         return Data(y_train, y_test)
 
-    def _eval_gridpoint(self, esn_params, data):
+    def _evaluate_gridpoint(self, esn_params, data):
         """
         Evaluate one constellation of paremeters (gridpoint).
         Instantiate echo state network (esn), fit and score it.

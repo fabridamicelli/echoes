@@ -2,12 +2,14 @@ from typing import Dict, Callable, Union
 import warnings
 
 import numpy as np
+from joblib import Parallel, delayed
+import pandas as pd
 from sklearn.model_selection import ParameterGrid, train_test_split
 from sklearn.metrics import mean_squared_error
 from sklearn.model_selection._search import _check_param_grid
 from sklearn.exceptions import NotFittedError
-from joblib import Parallel, delayed
-import pandas as pd
+
+from echoes import ESNGenerative, ESNPredictive
 
 
 class GridSearchBase:
@@ -20,28 +22,31 @@ class GridSearchBase:
     For predictive mode, use GridSearchPredictiveESN.
     For generative mode, use GridSearchGenerativeESN.
 
-    This class knows how to map the scoriong function over data and gridpoits
-    (parameter constellations) independently of the specific evaluation definition.
-    Subclasses implement the actual point evaluation.
-    So the user might generate arbitrary grid searches by overloading the methods
-    _make_data and _eval_point.
-    For example, you can wrap up an arbitrary task under the method  _eval_point
-    in order to find best hyperparameters for the task.
-    _eval_point must return a single value (score) and have the signature as defined
-    in this class (gridpoint, data).
+    ## This class knows how to map the scoring function over data and gridpoits
+    ## (parameter constellations) independently of the specific evaluation definition.
+    ## Subclasses implement the actual point evaluation.
+    ## So the user might generate arbitrary grid searches by overloading the methods
+    ## _make_data and _eval_point.
+    ## For example, you can wrap up an arbitrary task under the method  _eval_point
+    ## in order to find best hyperparameters for the task.
+    ## _eval_point must return a single value (score) and have the signature as defined
+    ## in this class (gridpoint, data).
 
     Note: best_estimator_ is considered to be the one with *lowest score*, as it is
     supposed to be a loss function.
 
     Parameters
     ----------
+    esn: Echo State class, eg, ESNGenerative, ESNPredictive
+        *class* (not object as in sklearn).
+        It must provide a score function.
     param_grid: dict of string to sequence, or sequence of dicts
         The parameter grid to explore, as a dictionary mapping estimator
         parameters to sequences of allowed values.
         See sklearn.model_selection.ParameterGrid for details.
-    test_size: int, float.
-        If int, number of steps used as test.
-        If float, proportion of steps used as test.
+    validation_size: int, float.
+        If int, number of steps used as validation.
+        If float, proportion of steps used as validation.
         Time series order is preserved, ie., test is always the last part
         without shuffling.
     scoring: callable, optional, default=mean_squared_error
@@ -63,7 +68,7 @@ class GridSearchBase:
         Estimator which gave highest score on the left out data.
         Available if refit True.
     best_score_: float
-        Lowest loss over all evaluated parameter constellations.
+        Higher score over all evaluated parameter constellations.
     best_params_: dict
         Parameter constellation with best score (lowest loss) on valid data.
     best_params_idx_: int
@@ -72,8 +77,9 @@ class GridSearchBase:
 
     def __init__(
         self,
+        esn: Union[ESNGenerative, ESNPredictive],
         param_grid: Dict = None,
-        test_size: Union[int, float] = None,
+        validation_size: Union[int, float] = None,
         scoring: Callable = mean_squared_error,
         strip_transient: bool = False,
         refit: bool = True,
@@ -83,8 +89,9 @@ class GridSearchBase:
 
         _check_param_grid(param_grid)
 
+        self.esn = esn
         self.param_grid = param_grid
-        self.test_size = test_size
+        self.validation_size = validation_size
         self.scoring = scoring
         self.strip_transient = strip_transient
         self.n_jobs = n_jobs
@@ -98,8 +105,8 @@ class GridSearchBase:
 
         if self.esn_type == "predictive" and not self.strip_transient:
             warnings.warn(
-                "Initial transient is being considered for the loss, which "
-                "overestimates it. You might want to set strip_transient=True"
+                "Initial transient is being considered for the score, which "
+                "underestimates it. You might want to set strip_transient=True"
             )
 
         if self.esn_type == "generative" and self.strip_transient:
@@ -136,11 +143,11 @@ class GridSearchBase:
         grid = self._make_grid()
         # Evaluate all gridpoints in parallel
         self.scores_ = Parallel(n_jobs=self.n_jobs, verbose=self.verbose)(
-            delayed(self._eval_gridpoint)(gridpoint, data) for gridpoint in grid
+            delayed(self._evaluate_gridpoint)(gridpoint, data) for gridpoint in grid
         )
 
         self.params_ = list(grid)
-        self.best_params_idx_ = np.argmin(self.scores_)
+        self.best_params_idx_ = np.argmax(self.scores_)
         self.best_params_ = self.params_[self.best_params_idx_]
         self.best_score_ = self.scores_[self.best_params_idx_]
 
@@ -154,9 +161,32 @@ class GridSearchBase:
         """Implemented in the subclasses"""
         return None
 
-    def _evaluate_gridpoint(self, *args):
-        """Implemented in the subclasses"""
-        raise NotImplementedError
+    def _evaluate_gridpoint(self, esn_params, data):
+        """
+        Evaluate one constellation of paremeters (gridpoint).
+        Instantiate echo state network (esn), fit and score it.
+
+        esn_params: mapping of parameters to instantiate esn.
+        data: namedtuple
+            Data to fit and score model.
+            It must include the np.ndarrays: X_train, X_test, y_train, y_test
+
+        Returns
+        -------
+        score: float
+            Result of evaluation scoring(y_test, y_pred)
+        """
+        # Fit model with params and get model score
+        esn = self.esn(**esn_params).fit(inputs=data.X_train, outputs=data.y_train)
+
+        if self.strip_transient:
+            sample_weight = np.ones(data.y_test.shape[0])
+            sample_weight[: esn_params["n_transient"]] = 0
+            return esn.score(inputs=data.X_test,
+                             outputs=data.y_test,
+                             sample_weight=sample_weight)
+        else:
+           raise NotImplementedError
 
     def to_dataframe(self):
         """Return results of the grid search as pandas dataframe"""
