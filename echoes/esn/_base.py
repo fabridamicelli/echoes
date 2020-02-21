@@ -16,6 +16,8 @@ from echoes.utils import (
     identity,
     check_arrays_dimensions,
     check_model_params,
+    check_inputs,
+    check_outputs
 )
 
 
@@ -428,19 +430,11 @@ class ESNBase:
         """
         esn_type = self.__class__.__name__
         check_model_params(self.__dict__, esn_type)
+        check_inputs(inputs, esn_type)
+        check_outputs(outputs, self.n_outputs)
 
-        assert (
-            outputs.shape[1] == self.n_outputs
-            ), "wrong outputs: outputs last dimension must equal n_outputs"
-
-        if esn_type == "ESNPredictive":
-            assert inputs is not None, "inputs must be specified for predictive ESN"
         # If generative mode, make inputs zero, ignoring the possibly given ones
         if esn_type == "ESNGenerative":
-            if inputs is not None:
-                warnings.warn(
-                    "inputs will be ignored in generative ESN. Use None instead"
-                )
             inputs = np.zeros(shape=(outputs.shape[0], self.n_inputs))
 
         check_arrays_dimensions(inputs, outputs) # sanity check

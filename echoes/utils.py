@@ -121,3 +121,20 @@ def check_model_params(params: Dict, esn_type: str) -> None:
             "Set regression_method='ridge' if you want to solve W_out with ridge,"
             "or ridge_alpha=None to silence this warning"
         )
+
+
+def check_outputs(outputs: np.ndarray, n_outputs: int) -> None:
+    assert (
+        outputs.shape[1] == n_outputs
+        ), "wrong outputs: outputs last dimension must equal n_outputs"
+
+
+def check_inputs(inputs: np.ndarray, esn_type: str) -> None:
+    if esn_type == "ESNPredictive":
+        assert inputs is not None, "inputs must be specified for predictive ESN"
+
+    if esn_type == "ESNGenerative":
+        if inputs is not None:
+            warnings.warn(
+                "inputs will be ignored in generative ESN. Use None instead"
+            )
