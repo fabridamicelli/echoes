@@ -9,6 +9,7 @@ from typing import Union, Callable, Dict
 
 import numpy as np
 from sklearn.linear_model import Ridge
+from sklearn.utils.validation import check_random_state
 
 from echoes.utils import (
     set_spectral_radius,
@@ -120,9 +121,15 @@ class ESNBase:
         in order to avoid initial instabilities.
         Default is 0, but this is something one definitely might want to tweak.
         # TODO: recommend sensible range of values depending on the task.
-    random_seed: int, optional, default=None
-        Numpy random seed fixed before initializing weights. It *only* affects weights
-        generation, since it gets reset to default (None) after that.
+    random_state : int, RandomState instance, default=None
+        The seed of the pseudo random number generator used to generate weight
+        matrices, to generate noise inyected to reservoir neurons (regularization)
+        and it is passed to the ridge solver in case regression_method=ridge.
+        From sklearn:
+          If int, random_state is the seed used by the random number generator;
+          If RandomState instance, random_state is the random number generator;
+          If None, the random number generator is the RandomState instance used
+          by `np.random`.
     store_states_train: bool, optional, default=False
         If True, time series series of reservoir neurons during training are stored
         in the object attribute states_train_.
@@ -175,7 +182,7 @@ class ESNBase:
         n_transient: int = None,
         store_states_train: bool = False,
         store_states_pred: bool = False,
-        random_seed: int = None,
+        random_state: Union[int, np.random.RandomState, None] = None,
     ) -> None:
 
         self.n_inputs = n_inputs
@@ -209,10 +216,10 @@ class ESNBase:
         self.ridge_sample_weight = ridge_sample_weight
         self._esn_type = self.__class__.__name__
 
-        np.random.seed(random_seed)
+        self.random_state = check_random_state(random_state)
         self.init_all_weights()
-        np.random.seed(None)
 
+        # TODO: move away to fit for sklearn compatibility
         check_model_params(self.__dict__, self._esn_type)
 
     def init_incoming_weights(self):
@@ -224,7 +231,7 @@ class ESNBase:
                 a different contribution than the inputs.
         """
         self.W_in = (
-            np.random.rand(self.n_reservoir, self.n_inputs + 1) * 2 - 1
+            self.random_state.rand(self.n_reservoir, self.n_inputs + 1) * 2 - 1
         )  # +1 -> bias
 
     def init_reservoir_weights(self):
@@ -234,8 +241,8 @@ class ESNBase:
         Spectral radius and sparsity are adjusted.
         """
         # Init random matrix centered around zero with desired spectral radius
-        W = np.random.rand(self.n_reservoir, self.n_reservoir) - 0.5
-        W[np.random.rand(*W.shape) < self.sparsity] = 0
+        W = self.random_state.rand(self.n_reservoir, self.n_reservoir) - 0.5
+        W[self.random_state.rand(*W.shape) < self.sparsity] = 0
         self.W = set_spectral_radius(W, self.spectral_radius)
 
     def init_feedback_weights(self):
@@ -244,7 +251,7 @@ class ESNBase:
         Shape (n_reservoir, n_outputs).
         """
         # random feedback (teacher forcing) weights:
-        self.W_feedb = np.random.rand(self.n_reservoir, self.n_outputs) * 2 - 1
+        self.W_feedb = self.random_state.rand(self.n_reservoir, self.n_outputs) * 2 - 1
 
     def init_all_weights(self):
         """
@@ -333,7 +340,7 @@ class ESNBase:
         else:
             state_preac = self.W @ state + self.W_in @ inputs
         new_state = self.activation(state_preac) + self.noise * (
-            np.random.rand(self.n_reservoir) - 0.5
+            self.random_state.rand(self.n_reservoir) - 0.5
         )
         # Apply leakage
         if self.leak_rate < 1:

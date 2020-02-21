@@ -2,6 +2,7 @@
 Generative Echo State Network.
 """
 import numpy as np
+from sklearn.metrics import r2_score
 
 from ._base import ESNBase
 from echoes.utils import check_arrays_dimensions, check_model_params
@@ -62,3 +63,31 @@ class ESNGenerative(ESNBase):
         # Map outputs back to actual target space with activation function
         outputs = self.activation_out(outputs)
         return outputs[1:, :] # discard initial step (comes from fitting)
+
+    def score(self, inputs=None, outputs=None, sample_weight=None):
+        """
+        From sklearn:
+          R^2 (coefficient of determination) regression score function.
+          Best possible score is 1.0 and it can be negative (because the model can be
+          arbitrarily worse).
+          A constant model that always predicts the expected value of y,
+          disregarding the input features, would get a R^2 score of 0.0.
+
+        Parameters
+        ----------
+        inputs: None
+            Not used, present for API consistency.
+            Generative ESN predicts purely based on its generative outputs.
+        outputs: 2D np.ndarray of shape (n_samples, n_outputs)
+            Target sequence, true values of the outputs.
+        sample_weight: array-like of shape (n_samples,), default=None
+            Sample weights.
+
+        Returns
+        -------
+        score: float
+            R2 score
+        """
+        n_samples = outputs.shape[0]
+        y_pred = self.predict(n_steps=n_samples)
+        return r2_score(outputs, y_pred, sample_weight=sample_weight)
