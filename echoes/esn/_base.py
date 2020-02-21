@@ -214,13 +214,26 @@ class ESNBase:
         self.ridge_tol = ridge_tol
         self.ridge_solver = ridge_solver
         self.ridge_sample_weight = ridge_sample_weight
-        self._esn_type = self.__class__.__name__
+        self.random_state = random_state
 
-        self.random_state = check_random_state(random_state)
-        self.init_all_weights()
+        self.init_all_weights()  # also initialize random_state_ (sklearn convention)
 
-        # TODO: move away to fit for sklearn compatibility
-        check_model_params(self.__dict__, self._esn_type)
+    def init_all_weights(self):
+        """
+        Wrapper function to initialize all weight matrices at once.
+        Even with user defined reservoir matrix W, the spectral radius is adjusted.
+        """
+        # Initialize random state and store with underscore (sklearn convention)
+        self.random_state_ = check_random_state(self.random_state)
+
+        if self.W is None:
+            self.init_reservoir_weights()
+        else:
+            self.W = set_spectral_radius(self.W, self.spectral_radius)
+        if self.W_in is None:
+            self.init_incoming_weights()
+        if self.W_feedb is None and self.teacher_forcing:
+            self.init_feedback_weights()
 
     def init_incoming_weights(self):
         """
@@ -231,7 +244,7 @@ class ESNBase:
                 a different contribution than the inputs.
         """
         self.W_in = (
-            self.random_state.rand(self.n_reservoir, self.n_inputs + 1) * 2 - 1
+            self.random_state_.rand(self.n_reservoir, self.n_inputs + 1) * 2 - 1
         )  # +1 -> bias
 
     def init_reservoir_weights(self):
@@ -241,8 +254,8 @@ class ESNBase:
         Spectral radius and sparsity are adjusted.
         """
         # Init random matrix centered around zero with desired spectral radius
-        W = self.random_state.rand(self.n_reservoir, self.n_reservoir) - 0.5
-        W[self.random_state.rand(*W.shape) < self.sparsity] = 0
+        W = self.random_state_.rand(self.n_reservoir, self.n_reservoir) - 0.5
+        W[self.random_state_.rand(*W.shape) < self.sparsity] = 0
         self.W = set_spectral_radius(W, self.spectral_radius)
 
     def init_feedback_weights(self):
@@ -251,21 +264,7 @@ class ESNBase:
         Shape (n_reservoir, n_outputs).
         """
         # random feedback (teacher forcing) weights:
-        self.W_feedb = self.random_state.rand(self.n_reservoir, self.n_outputs) * 2 - 1
-
-    def init_all_weights(self):
-        """
-        Wrapper function to initialize all weight matrices at once.
-        Even with user defined reservoir matrix W, the spectral radius is adjusted.
-        """
-        if self.W is None:
-            self.init_reservoir_weights()
-        else:
-            self.W = set_spectral_radius(self.W, self.spectral_radius)
-        if self.W_in is None:
-            self.init_incoming_weights()
-        if self.W_feedb is None and self.teacher_forcing:
-            self.init_feedback_weights()
+        self.W_feedb = self.random_state_.rand(self.n_reservoir, self.n_outputs) * 2 - 1
 
     # TODO test input scaling and shifting
     # TODO maybe move to utils
@@ -340,7 +339,7 @@ class ESNBase:
         else:
             state_preac = self.W @ state + self.W_in @ inputs
         new_state = self.activation(state_preac) + self.noise * (
-            self.random_state.rand(self.n_reservoir) - 0.5
+            self.random_state_.rand(self.n_reservoir) - 0.5
         )
         # Apply leakage
         if self.leak_rate < 1:
@@ -427,14 +426,17 @@ class ESNBase:
         -------
         self: returns an instance of self.
         """
+        esn_type = self.__class__.__name__
+        check_model_params(self.__dict__, esn_type)
+
         assert (
             outputs.shape[1] == self.n_outputs
             ), "wrong outputs: outputs last dimension must equal n_outputs"
 
-        if self._esn_type == "ESNPredictive":
+        if esn_type == "ESNPredictive":
             assert inputs is not None, "inputs must be specified for predictive ESN"
         # If generative mode, make inputs zero, ignoring the possibly given ones
-        if self._esn_type == "ESNGenerative":
+        if esn_type == "ESNGenerative":
             if inputs is not None:
                 warnings.warn(
                     "inputs will be ignored in generative ESN. Use None instead"
@@ -446,7 +448,7 @@ class ESNBase:
         # Scale and shift inputs (only for predictive case)
         inputs = (
             self.scale_shift_inputs(inputs)
-            if self._esn_type == "ESNPredictive"
+            if esn_type == "ESNPredictive"
             else inputs
         )
         # Inverse transform outputs (map them into inner, latent space)
@@ -474,7 +476,7 @@ class ESNBase:
         self.training_prediction_ = self.activation_out(full_states @ self.W_out_.T)
 
         # Keep last state for later (only generative case)
-        if self._esn_type == "ESNGenerative":
+        if esn_type == "ESNGenerative":
             self.last_state = states[-1, :]
             self.last_input = inputs[-1, :]
             self.last_output = outputs[-1, :]

@@ -16,7 +16,7 @@ def test_W_out_shape_fullstates():
         teacher_forcing=True,
         fit_only_states=False,
         regression_method="pinv",
-        random_seed=42,
+        random_state=42,
     ).fit(None, data[:trainlen])
 
     assert esn.W_out_.shape == (1, esn.n_reservoir+esn.n_inputs+1)
@@ -33,7 +33,7 @@ def test_W_out_shape_onlystates():
         teacher_forcing=True,
         fit_only_states=True,
         regression_method="pinv",
-        random_seed=42,
+        random_state=42,
     ).fit(None, data[:trainlen])
 
     assert esn.W_out_.shape == (1, esn.n_reservoir)

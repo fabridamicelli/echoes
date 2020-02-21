@@ -4,7 +4,7 @@ from echoes import ESNGenerative, ESNPredictive
 from echoes.datasets import load_mackeyglasst17
 
 
-def test_spec_rad():
+def test_spectral_rad():
     """check that actual spectral radius is the one specified by parameters"""
     decimals = 6
     radia = np.linspace(.5, 2.5).round(decimals=decimals)

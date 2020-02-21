@@ -13,7 +13,7 @@ def test_random_seed():
         n_reservoir=100,
         spectral_radius=1,
         teacher_forcing=True,
-        random_seed=seed,
+        random_state=seed,
     )
 
     after_seed = np.random.choice(10000000, size=10000)
@@ -24,7 +24,7 @@ def test_random_seed():
         n_reservoir=100,
         spectral_radius=1,
         teacher_forcing=True,
-        random_seed=seed,
+        random_state=seed,
     )
 
     after_seed2 = np.random.choice(10000000, size=10000)
