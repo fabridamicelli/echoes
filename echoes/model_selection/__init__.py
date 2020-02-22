@@ -1,6 +1,4 @@
-from ._grid_base import GridSearchBase
-from ._grid_generative import GridSearchESNGenerative
-from ._grid_predictive import GridSearchESNPredictive
+from ._grid_base import GridSearch
 
 
-__all__ = ["GridSearchBase", "GridSearchESNGenerative", "GridSearchESNPredictive"]
+__all__ = ["GridSearch"]

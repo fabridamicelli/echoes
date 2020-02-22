@@ -1,4 +1,4 @@
-from typing import Dict, Callable, Union
+from typing import Dict, Callable, Union, Sequence
 import warnings
 
 import numpy as np
@@ -12,34 +12,31 @@ from sklearn.exceptions import NotFittedError
 from echoes import ESNGenerative, ESNPredictive
 
 
-class GridSearchBase:
+class GridSearch:
     """
     Generic class to perform grid search over parameter grid of
     hyperparameters of Echo State Network (ESN).
 
-    Do not instantiate this class, but rather the children classes
-    according to the case.
-    For predictive mode, use GridSearchPredictiveESN.
-    For generative mode, use GridSearchGenerativeESN.
+    This class knows how to evaluate parameter constellations for arbitrary
+    ESN-like objects (analogous to estimator in sklearn). That is, it maps
+    (parameters, train_data, test_data) -> score, and stores results (along with
+    best performances). In particular, train_data and test_data may be None, as the
+    passed ESN-like class might generate its own data.
 
-    ## This class knows how to map the scoring function over data and gridpoits
-    ## (parameter constellations) independently of the specific evaluation definition.
-    ## Subclasses implement the actual point evaluation.
-    ## So the user might generate arbitrary grid searches by overloading the methods
-    ## _make_data and _eval_point.
-    ## For example, you can wrap up an arbitrary task under the method  _eval_point
-    ## in order to find best hyperparameters for the task.
-    ## _eval_point must return a single value (score) and have the signature as defined
-    ## in this class (gridpoint, data).
+    The passed ESN-like class must have fit and score methods. For example, one can
+    programm a task, eg memory capacity, and use the GridSearch to find best
+    hyperparameters, as long as the Task class has an appropiate fit and score method.
+    Note that you might want to override the _make_data method if your task requires
+    special data generation.
 
-    Note: best_estimator_ is considered to be the one with *lowest score*, as it is
-    supposed to be a loss function.
+    Higher scores are considered better.
 
     Parameters
     ----------
-    esn: Echo State class, eg, ESNGenerative, ESNPredictive
+    esn: Echo State Network-like class, eg, ESNGenerative, ESNPredictive, Task
         *class* (not object as in sklearn).
-        It must provide a score function.
+        It must provide a score function with signature score(X, y) and
+        return a single value.
     param_grid: dict of string to sequence, or sequence of dicts
         The parameter grid to explore, as a dictionary mapping estimator
         parameters to sequences of allowed values.
@@ -47,41 +44,35 @@ class GridSearchBase:
     validation_size: int, float.
         If int, number of steps used as validation.
         If float, proportion of steps used as validation.
-        Time series order is preserved, ie., test is always the last part
+        Time series order is preserved, ie., validation is always the last part
         without shuffling.
-    scoring: callable, optional, default=mean_squared_error
-        *Loss function* with signature loss(y_true, y_pred), must return a single value.
-        The estimator (esn) that *minimizes* this function will be stored as best_estimator_.
-    strip_transient: bool, optional, default=False
-        If True, the first n_transient steps are removed before evaluation.
-        This is typically what you want for ESNPredictive but NOT for ESNGenerative.
 
     Methods
     -------
+    fit: Evaluate parameter grid
     to_dataframe(self): Return results of grid search as dataframe.
 
     Attributes
     ----------
     params_: list of evaluated parameter constellations
-    scores_: list of scores (loss)
-    best_estimator_: ESNPredictive or ESNGenerative
-        Estimator which gave highest score on the left out data.
+    scores_: list of scores
+    best_esn_: ESN-like, eg ESNPredictive or ESNGenerative
+        ESN-like which gave highest score on the left out data, refitted with all
+        training data.
         Available if refit True.
     best_score_: float
         Higher score over all evaluated parameter constellations.
     best_params_: dict
-        Parameter constellation with best score (lowest loss) on valid data.
+        Parameter constellation with best score (highest) on valid data.
     best_params_idx_: int
         Index of best parameters (to select on results_["params"]).
     """
 
     def __init__(
         self,
-        esn: Union[ESNGenerative, ESNPredictive],
-        param_grid: Dict = None,
+        esn: Union[ESNGenerative, ESNPredictive] = None,
+        param_grid: Union[Dict, Sequence] = None,
         validation_size: Union[int, float] = None,
-        scoring: Callable = mean_squared_error,
-        strip_transient: bool = False,
         refit: bool = True,
         n_jobs: int = -2,
         verbose: int = 5,
@@ -92,29 +83,16 @@ class GridSearchBase:
         self.esn = esn
         self.param_grid = param_grid
         self.validation_size = validation_size
-        self.scoring = scoring
-        self.strip_transient = strip_transient
+        self.refit = refit,
         self.n_jobs = n_jobs
         self.verbose = verbose
 
-        self.esn_type = (
-            "predictive"
-            if self.__class__.__name__ == "GridSearchESNPredictive"
-            else "generative"
-        )
-
-        if self.esn_type == "predictive" and not self.strip_transient:
-            warnings.warn(
-                "Initial transient is being considered for the score, which "
-                "underestimates it. You might want to set strip_transient=True"
-            )
-
-        if self.esn_type == "generative" and self.strip_transient:
-            raise ValueError("strip_transient must be False for generative esn.")
+        self.esn_type = self.esn.__name__
 
     def fit(self, X, y):
         """
         Fit and score all points of the grid.
+        Set attibutes best_params_, best_score_.
 
         This function wraps up the grid generation (parameters) and
         the data to be passed (if any) and evaluates in parallel all the
@@ -122,23 +100,21 @@ class GridSearchBase:
         Functions make_grid, make_data and evaluate_gridpoint actually
         do the job. So behaviour can be changed by overloading those.
 
-        Set attibutes best_params_, best_score_.
 
         Parameters
         ----------
-        X: np.ndarray of shape (n_samples(steps), n_inputs)
+        X: np.ndarray of shape (n_samples(steps), n_inputs) or None
             Training inputs. In ESNGenerative case they can be None, as they will
             be anyways ignored.
-        y: np.ndarray of shape (n_samples(steps), n_outputs)
+            For API consistency, pass None if X is not necessary.
+        y: np.ndarray of shape (n_samples(steps), n_outputs) or None
             Training outputs (targets).
+            For API consistency, pass None if y is not necessary.
 
         Returns
         -------
         self: instance of self fitted.
         """
-        if X is None:
-            assert self.esn_type == "generative", "only ESNGenerative allows X=None"
-
         data = self._make_data(X, y)
         grid = self._make_grid()
         # Evaluate all gridpoints in parallel
@@ -150,16 +126,14 @@ class GridSearchBase:
         self.best_params_idx_ = np.argmax(self.scores_)
         self.best_params_ = self.params_[self.best_params_idx_]
         self.best_score_ = self.scores_[self.best_params_idx_]
+        if self.refit:
+            self.best_esn_ = self.esn(**self.best_params_).fit(X, y)
 
         return self
 
     def _make_grid(self):
         """Returns generator of gridpoints."""
         return ParameterGrid(self.param_grid)
-
-    def _make_data(self, *args):
-        """Implemented in the subclasses"""
-        return None
 
     def _evaluate_gridpoint(self, esn_params, data):
         """
@@ -169,24 +143,41 @@ class GridSearchBase:
         esn_params: mapping of parameters to instantiate esn.
         data: namedtuple
             Data to fit and score model.
-            It must include the np.ndarrays: X_train, X_test, y_train, y_test
+            It must include the np.ndarrays: X_train, X_test, y_train, y_test,
+            even if they are not required (API consistency). So they may be just None.
 
         Returns
         -------
         score: float
-            Result of evaluation scoring(y_test, y_pred)
+            Result of calling the score method of the ESN-like class.
         """
         # Fit model with params and get model score
         esn = self.esn(**esn_params).fit(inputs=data.X_train, outputs=data.y_train)
+        return esn.score(inputs=data.X_test, outputs=data.y_test)
 
-        if self.strip_transient:
-            sample_weight = np.ones(data.y_test.shape[0])
-            sample_weight[: esn_params["n_transient"]] = 0
-            return esn.score(inputs=data.X_test,
-                             outputs=data.y_test,
-                             sample_weight=sample_weight)
+    def _make_data(self, X, y):
+        """
+        Generate data for training/test for standard ESNPredictive.
+        Split train/test data preserving time series order (no shuffling).
+        If self.esn is not ESNPredictive or ESNGenerative, it still generates the
+        empty data container (API consistency).
+
+        Returns
+        -------
+        namedtuple: "Data", np.ndarrays
+            Predictive case: (X_train, X_test, y_train, y_test)
+        """
+        if self.esn_type == "ESNPredictive":
+            Data = namedtuple("Data", ["X_train", "X_test", "y_train", "y_test"])
+            X_train, X_test, y_train, y_test = train_test_split(
+                X, y, test_size=self.validation_size, shuffle=False)
+            return Data(X_train, X_test, y_train, y_test)
+        elif self.esn_type == "ESNGenerative":
+            y_train, y_test = train_test_split(
+                y, test_size=self.validation_size, shuffle=False)
+            return Data(None, None, y_train, y_test)
         else:
-           raise NotImplementedError
+            return Data(None, None, None, None)
 
     def to_dataframe(self):
         """Return results of the grid search as pandas dataframe"""
