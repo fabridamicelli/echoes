@@ -66,8 +66,12 @@ class ESNPredictive(ESNBase):
 
     def score(self, inputs=None, outputs=None, sample_weight=None):
         """
+        R^2 (coefficient of determination) regression score function.
+
+        By default, the initial transient period (n_transient steps) is not considered
+        to compute the score - modify sample_weight to change that behaviour (see below).
+
         From sklearn:
-          R^2 (coefficient of determination) regression score function.
           Best possible score is 1.0 and it can be negative (because the model can be
           arbitrarily worse).
           A constant model that always predicts the expected value of y,
@@ -81,6 +85,14 @@ class ESNPredictive(ESNBase):
             Target sequence, true values of the outputs.
         sample_weight: array-like of shape (n_samples,), default=None
             Sample weights.
+            If None, the transient is left out.
+            To consider all steps or leave out a different transient, pass a different
+            sample_weight array with same length as outputs 1 dimension.
+            Example:
+              >> n_steps_to_remove = 10
+              >> weights = np.ones(outputs.shape[0])
+              >> weights[: n_steps_to_remove] = 0
+              >> score(inputs, outputs, sample_weight=weights)
 
         Returns
         -------
@@ -88,4 +100,9 @@ class ESNPredictive(ESNBase):
             R2 score
         """
         y_pred = self.predict(inputs)
+        if sample_weight is None:
+            weights = np.ones(outputs.shape[0])
+            weights[: self.n_transient] = 0
+            return r2_score(outputs, y_pred, sample_weight=weights)
+
         return r2_score(outputs, y_pred, sample_weight=sample_weight)
