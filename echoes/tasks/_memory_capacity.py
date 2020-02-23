@@ -36,6 +36,7 @@ class MemoryCapacity:
         For example: np.arange(1, 31, 5).
     esn_params: Dict
         Parameters to generate the Echo State Network.
+        Number of inputs and outputs are automatically fixed to 1, and len(lags).
         See ESNPredictive class for details.
 
     Attributes
@@ -97,7 +98,6 @@ class MemoryCapacity:
         inputs_func: Callable = None,
         inputs_params: Dict = None,
         lags: np.ndarray = None,
-        n_transient: int = None,
         esn_params: Dict = None,
     ) -> None:
 
@@ -105,6 +105,9 @@ class MemoryCapacity:
         self.inputs_params = inputs_params
         self.lags = lags
         self.esn_params = esn_params
+        # Set esn_params that never vary
+        self.esn_params["n_outputs"] = len(lags)
+        self.esn_params["n_inputs"] = 1
 
     def _make_lagged_inputs(
         self, inputs: np.ndarray, lags: Union[List, np.ndarray], cut: int = 0
@@ -211,3 +214,6 @@ class MemoryCapacity:
         self._fit()
         self._predict()
         return self
+
+    def score(self):
+        return self.fit_predict().memory_capacity_

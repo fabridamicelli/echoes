@@ -1,5 +1,7 @@
 from typing import Dict, Callable, Union, Sequence
 import warnings
+from collections import namedtuple
+from copy import deepcopy
 
 import numpy as np
 from joblib import Parallel, delayed
@@ -33,7 +35,7 @@ class GridSearch:
 
     Parameters
     ----------
-    esn: Echo State Network-like class, eg, ESNGenerative, ESNPredictive, Task
+    esn: Echo State Network-like object, eg, ESNGenerative, ESNPredictive, Task
         *class* (not object as in sklearn).
         It must provide a score function with signature score(X, y) and
         return a single value.
@@ -89,7 +91,7 @@ class GridSearch:
 
         self.esn_type = self.esn.__name__
 
-    def fit(self, X, y):
+    def fit(self, X=None, y=None):
         """
         Fit and score all points of the grid.
         Set attibutes best_params_, best_score_.
@@ -126,8 +128,9 @@ class GridSearch:
         self.best_params_idx_ = np.argmax(self.scores_)
         self.best_params_ = self.params_[self.best_params_idx_]
         self.best_score_ = self.scores_[self.best_params_idx_]
-        if self.refit:
-            self.best_esn_ = self.esn(**self.best_params_).fit(X, y)
+        if hasattr(self, "refit"):  # tasks might not have this attr
+            if self.refit:
+                self.best_esn_ = self.esn(**self.best_params_).fit(X, y)
 
         return self
 
@@ -167,8 +170,11 @@ class GridSearch:
         namedtuple: "Data", np.ndarrays
             Predictive case: (X_train, X_test, y_train, y_test)
         """
+        if not hasattr(self, "esn_type"):
+            return None  # API consistency
+
+        Data = namedtuple("Data", ["X_train", "X_test", "y_train", "y_test"])
         if self.esn_type == "ESNPredictive":
-            Data = namedtuple("Data", ["X_train", "X_test", "y_train", "y_test"])
             X_train, X_test, y_train, y_test = train_test_split(
                 X, y, test_size=self.validation_size, shuffle=False)
             return Data(X_train, X_test, y_train, y_test)
@@ -177,7 +183,7 @@ class GridSearch:
                 y, test_size=self.validation_size, shuffle=False)
             return Data(None, None, y_train, y_test)
         else:
-            return Data(None, None, None, None)
+            return Data(None, None, None, None)  # API consistency
 
     def to_dataframe(self):
         """Return results of the grid search as pandas dataframe"""
