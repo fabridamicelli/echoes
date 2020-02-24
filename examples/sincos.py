@@ -5,12 +5,10 @@ import seaborn as sns
 from sklearn.metrics import mean_squared_error
 
 from echoes import ESNPredictive
+from echoes.plotting import set_mystyle
+set_mystyle()
 
-sns.set(context="notebook", style="whitegrid", font_scale=1.4, 
-        rc={'grid.linestyle': '--', 
-            'grid.linewidth': 0.8,})
-
-# Prepare synthetic data 
+# Prepare synthetic data
 traininglen, testlen = 500, 500
 totallen = traininglen + testlen
 x = np.linspace(0, 30*np.pi, totallen).reshape(-1,1)
@@ -34,17 +32,16 @@ esn = ESNPredictive(
     n_transient=100,
     teacher_forcing=False,
     regression_method="pinv",
-    random_seed=42
+    random_state=42
 ).fit(inputs_train, outputs_train)
 
-print("training test:", 
+print("training RMSE:",
     np.sqrt(mean_squared_error(esn.training_prediction_[esn.n_transient:],
                                outputs_train[esn.n_transient:]))
 )
 
-
 prediction_test = esn.predict(inputs_test)
-print("test RSME:", 
+print("test RSME:",
       np.sqrt(mean_squared_error(prediction_test.flatten()[esn.n_transient:], # discard same transient as in training
                                  outputs_test[esn.n_transient:])))
 

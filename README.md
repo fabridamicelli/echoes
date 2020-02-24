@@ -37,10 +37,9 @@ import seaborn as sns
 
 from echoes import ESNGenerative
 from echoes.datasets import load_mackeyglasst17
+from echoes.plotting import set_mystyle
 
-sns.set(context="notebook", style="whitegrid", font_scale=1.4, 
-        rc={'grid.linestyle': '--', 
-            'grid.linewidth': 0.8,})
+set_mystyle()  # nicer plots :)
 
 # Instantiate the model: several parameter choices here are rather arbitrary and 
 # even not so conventional (e.g., spectral radius > 1), but this is just for the 
@@ -54,7 +53,7 @@ esn = ESNGenerative(
     teacher_forcing=True,
     leak_rate=.4,
     regression_method="pinv",
-    random_seed=42,
+    random_state=42,
 )
 
 # Load data and define train/test length
@@ -100,10 +99,10 @@ import seaborn as sns
 from sklearn.metrics import mean_squared_error
 
 from echoes import ESNPredictive
+from echoes.plotting import set_mystyle
 
-sns.set(context="notebook", style="whitegrid", font_scale=1.4, 
-        rc={'grid.linestyle': '--', 
-            'grid.linewidth': 0.8,})
+set_mystyle()  # nicer plots :)
+
 
 # Prepare synthetic data 
 traininglen, testlen = 500, 500
@@ -128,7 +127,7 @@ esn = ESNPredictive(
     n_transient=100,
     teacher_forcing=False,
     regression_method="pinv",
-    random_seed=42
+    random_state=42
 ).fit(inputs_train, outputs_train)
 
 prediction_test = esn.predict(inputs_test)
@@ -177,7 +176,7 @@ esn_params = dict(
     bias=0,
     n_transient=100,
     regression_method="pinv",
-    random_seed=42,
+    random_state=42,
 )
 
 # Initialize the task object
@@ -221,7 +220,7 @@ esn = ESNGenerative(
     leak_rate=.4,
     regression_method="pinv",
     store_states_pred=True,   # store states for plotting
-    random_seed=42,
+    random_state=42,
 ).fit(None, data[: trainlen])  # fit the model 
 
 prediction = esn.predict(n_steps=testlen)
