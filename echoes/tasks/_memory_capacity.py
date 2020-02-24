@@ -6,6 +6,8 @@ The class wraps the ESNPredictive class and initializes the echo state network
 instance to run the task. Thus, only the init parameters of ESNPredictive are
 necessary.
 """
+import warnings
+
 from typing import Callable, Dict, List, Union, Tuple
 
 import numpy as np
@@ -105,9 +107,6 @@ class MemoryCapacity:
         self.inputs_params = inputs_params
         self.lags = lags
         self.esn_params = esn_params
-        # Set esn_params that never vary
-        self.esn_params["n_outputs"] = len(lags)
-        self.esn_params["n_inputs"] = 1
 
     def _make_lagged_inputs(
         self, inputs: np.ndarray, lags: Union[List, np.ndarray], cut: int = 0
@@ -179,6 +178,13 @@ class MemoryCapacity:
         Create and fit echo state network according to task parameters.
         Store fitted esn_ for prediction.
         """
+        # Set esn_params that never vary
+        if "n_inputs" in self.esn_params or "n_outputs" in self.esn_params:
+            warnings.warn("n_inputs and n_outputs will be ignored and set "
+                          "to 1 and len(lags) respectively")
+        self.esn_params["n_inputs"] = 1
+        self.esn_params["n_outputs"] = len(self.lags)
+
         # Training data
         inputs = self.inputs_func(**self.inputs_params).reshape(-1, 1)
         outputs = self._make_lagged_inputs(inputs, self.lags)

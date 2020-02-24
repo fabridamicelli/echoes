@@ -19,15 +19,13 @@ class GridSearch:
     Generic class to perform grid search over parameter grid of
     hyperparameters of Echo State Network (ESN).
 
-    This class knows how to evaluate parameter constellations for arbitrary
-    ESN-like objects (analogous to estimator in sklearn). That is, it maps
-    (parameters, train_data, test_data) -> score, and stores results (along with
-    best performances). In particular, train_data and test_data may be None, as the
-    passed ESN-like class might generate its own data.
+    This class knows how to evaluate parameter constellations for ESN's.
+    It maps (parameters, train_data, test_data) -> score, and stores results
+    (along with best performances).
+    In particular, train_data and test_data may be None, as the passed ESN class
+    might generate its own data.
 
-    The passed ESN-like class must have fit and score methods. For example, one can
-    programm a task, eg memory capacity, and use the GridSearch to find best
-    hyperparameters, as long as the Task class has an appropiate fit and score method.
+    The passed ESN class must have fit and score methods.
     Note that you might want to override the _make_data method if your task requires
     special data generation.
 
@@ -35,8 +33,7 @@ class GridSearch:
 
     Parameters
     ----------
-    esn: Echo State Network-like object, eg, ESNGenerative, ESNPredictive, Task
-        *class* (not object as in sklearn).
+    esn: ESNGenerative, ESNPredictive class
         It must provide a score function with signature score(X, y) and
         return a single value.
     param_grid: dict of string to sequence, or sequence of dicts
@@ -48,6 +45,15 @@ class GridSearch:
         If float, proportion of steps used as validation.
         Time series order is preserved, ie., validation is always the last part
         without shuffling.
+    refit: bool, default=True.
+        Refit an the esn using the best found parameters on the whole dataset and
+        store as best_esn_.
+    n_jobs: int or None, optional, default=-2 (all processors but one)
+        Number of jobs to run in parallel. See joblib library for details.
+        -1 means using all processors.
+        -2 means using all processors but one.
+    verbose: int, default=5
+        Verbosity level. See joblib library for details.
 
     Methods
     -------
@@ -58,10 +64,9 @@ class GridSearch:
     ----------
     params_: list of evaluated parameter constellations
     scores_: list of scores
-    best_esn_: ESN-like, eg ESNPredictive or ESNGenerative
-        ESN-like which gave highest score on the left out data, refitted with all
-        training data.
-        Available if refit True.
+    best_esn_: ESNPredictive or ESNGenerative
+        ESN which gave highest score on the left out data, refitted with all
+        training data. Available if refit True.
     best_score_: float
         Higher score over all evaluated parameter constellations.
     best_params_: dict

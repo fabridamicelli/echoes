@@ -38,8 +38,10 @@ class ESNBase:
         Be careful with the distribution of W values. Wrong W initialization
         might drastically affect test performance (even with reasonable good
         training fit).
+        Spectral radius will be adjusted in all cases.
     spectral_radius: float, default=None
         Spectral radius of the reservoir weights matrix (W).
+        Spectral radius will be adjusted in all cases (also with user specified W).
     W_in: np.ndarray of shape (n_reservoir, 1+n_inputs) (1->bias), optional, default None.
         Input weights matrix by which input signal is multiplied.
         If None, random weights are used.
@@ -50,6 +52,7 @@ class ESNBase:
         Proportion of the reservoir matrix weights forced to be zero.
         Note that with default W (centered around 0), the actual sparsity will
         be slightly more than the specified.
+        If W is passed, sparsity will be ignored.
     noise: float, optional, default=0
         Magnitud of the noise input added to neurons at each step.
         This is used for regularization purposes and should typically be
@@ -230,8 +233,7 @@ class ESNBase:
 
         if self.W is None:
             self.init_reservoir_weights()
-        else:
-            self.W = set_spectral_radius(self.W, self.spectral_radius)
+        self.W = set_spectral_radius(self.W, self.spectral_radius)
         if self.W_in is None:
             self.init_incoming_weights()
         if self.W_feedb is None and self.teacher_forcing:
@@ -253,12 +255,12 @@ class ESNBase:
         """
         Initialize random weights matrix of matrix W (stored in self.W).
         Shape (n_reservoir, n_reservoir).
-        Spectral radius and sparsity are adjusted.
+        Sparsity is adjusted but not spectral radius.
         """
         # Init random matrix centered around zero with desired spectral radius
         W = self.random_state_.rand(self.n_reservoir, self.n_reservoir) - 0.5
         W[self.random_state_.rand(*W.shape) < self.sparsity] = 0
-        self.W = set_spectral_radius(W, self.spectral_radius)
+        self.W = W
 
     def init_feedback_weights(self):
         """
