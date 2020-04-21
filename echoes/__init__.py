@@ -1,1 +1,1 @@
-from echoes.esn import ESNGenerative, ESNPredictive
+from echoes.esn import ESNGenerator, ESNRegressor

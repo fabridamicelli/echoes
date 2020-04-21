@@ -1,4 +1,4 @@
-from ._generative import ESNGenerative
-from ._predictive import ESNPredictive
+from ._generator import ESNGenerator
+from ._regressor import ESNRegressor
 
-__all__ = ["ESNGenerative", "ESNPredictive"]
+__all__ = ["ESNGenerator", "ESNRegressor"]

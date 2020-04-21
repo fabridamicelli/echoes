@@ -1,16 +1,78 @@
 """
-Predictive Echo State Network.
+Echo State Network Regressor.
 """
 import numpy as np
+from sklearn.base import MultiOutputMixin, RegressorMixin
 from sklearn.metrics import r2_score
 
 from ._base import ESNBase
 from echoes.utils import check_arrays_dimensions, check_model_params
 
+#TODO: allow y to be 1D
+#TODO: add sklearn checks
+class ESNRegressor(ESNBase, MultiOutputMixin, RegressorMixin):
 
-class ESNPredictive(ESNBase):
+    def fit(self, X, y):
+        """
+        Fit Echo State model, i.e., find outgoing weights matrix (W_out) for later
+        prediction.
+        Bias is appended automatically to the inputs.
 
-    def predict(self, inputs):
+        Parameters
+        ----------
+        X: None or 2D np.ndarray of shape (n_samples, n_inputs)
+            Training input, i.e., X, the features.
+            If None, it is assumed that only the teaching sequence matters (outputs)
+            and simply a sequence of zeros will be fed in - matching the len(outputs).
+            This is to be used in the case of generative mode.
+        y: 2D np.ndarray of shape (n_samples, n_outputs)
+            Training output, i.e., y, the target.
+
+        Returns
+        -------
+        self: returns an instance of self.
+        """
+        inputs, outputs = X, y
+
+        # TODO: check all checks!
+        # check_model_params(self.__dict__, esn_type)
+        # check_inputs(inputs, esn_type)
+        # check_outputs(outputs, self.n_outputs)
+        # check_arrays_dimensions(inputs, outputs) # sanity check
+
+        # Scale and shift inputs
+        inputs = self.scale_shift_inputs(inputs)
+
+        # Inverse transform outputs (map them into inner, latent space)
+        outputs = self.inv_activation_out(outputs)
+
+        n_samples = inputs.shape[0]
+        # Append the bias to inputs -> [1; u(t)]
+        bias = np.ones((n_samples, 1)) * self.bias
+        inputs = np.hstack((bias, inputs))
+        # Collect reservoir states through the given input,output pairs
+        states = np.zeros((n_samples, self.n_reservoir))
+        for step in range(1, n_samples):
+            states[step, :] = self._update_state(
+                states[step - 1], inputs[step, :], outputs[step - 1, :]
+            )
+
+        # Extend states matrix with inputs (and bias); i.e., make [x(t); 1; u(t)]
+        full_states = states if self.fit_only_states else np.hstack((states, inputs))
+
+        # Solve for W_out using full states and outputs, excluding transient
+        self.W_out_ = self._solve_W_out(
+            full_states[self.n_transient :, :], outputs[self.n_transient :, :]
+        )
+        # Predict on training set (map them back to original space with activation)
+        self.training_prediction_ = self.activation_out(full_states @ self.W_out_.T)
+
+        # Store reservoir activity
+        if self.store_states_train:
+            self.states_train_ = states
+        return self
+
+    def predict(self, X):
         """
         Predict outputs according to inputs.
         State/output is reinitialized to predict test outputs from
@@ -21,7 +83,7 @@ class ESNPredictive(ESNBase):
 
         Parameters
         ----------
-        inputs: 2D np.ndarray of shape (n_samples, n_inputs)
+        X: 2D np.ndarray of shape (n_samples, n_inputs)
             Testing input, i.e., X, the features.
 
         Returns
@@ -29,6 +91,7 @@ class ESNPredictive(ESNBase):
         outputs: 2D np.ndarray of shape (n_samples, n_outputs)
             Predicted outputs.
         """
+        inputs = X
         n_samples = inputs.shape[0]
 
         # Scale and shift inputs
@@ -63,7 +126,7 @@ class ESNPredictive(ESNBase):
         # Map outputs back to actual target space with activation function
         outputs = self.activation_out(outputs)
         return outputs
-
+    #TODO: handle transient
     def score(self, inputs=None, outputs=None, sample_weight=None):
         """
         R^2 (coefficient of determination) regression score function.

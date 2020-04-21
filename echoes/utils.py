@@ -124,6 +124,8 @@ def check_model_params(params: Dict, esn_type: str) -> None:
 
 
 def check_outputs(outputs: np.ndarray, n_outputs: int) -> None:
+    if np.ndim(outputs) < 2:
+        outputs = outputs.reshape(-1, 1)
     assert (
         outputs.shape[1] == n_outputs
         ), "wrong outputs: outputs last dimension must equal n_outputs"

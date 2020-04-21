@@ -8,6 +8,7 @@ import warnings
 from typing import Union, Callable, Dict
 
 import numpy as np
+from sklearn.base import BaseEstimator
 from sklearn.linear_model import Ridge
 from sklearn.utils.validation import check_random_state
 
@@ -22,7 +23,7 @@ from echoes.utils import (
 
 
 # TODO: scale/unscale teacher
-class ESNBase:
+class ESNBase(BaseEstimator):
     """
     Parameters
     ----------
@@ -89,7 +90,7 @@ class ESNBase:
         ignored for fitting W_out, both in the training and prediction phase.
     regression_method: str, optional, default pseudoinverse (pinv).
         Method to solve the linear regression to find out outgoing weights.
-        One of ["pinv", "ridge", "ridge_formula"].
+        One of ["pinv", "ridge"].
         If "ridge" or "ridge_formula", then the ridge_* parameters will be used.
     ridge_alpha: float, ndarray of shape (n_outputs,), default=None
         Regularization coefficient used for Ridge regression.
@@ -389,22 +390,9 @@ class ESNBase:
             )
             linreg.fit(full_states, outputs, sample_weight=self.ridge_sample_weight)
             W_out = linreg.coef_
-        # TODO: test formula/write more clearly. Current one is copied from Mantas code.
-        elif self.regression_method == "ridge_formula":
-            Y = outputs.T
-            X = full_states.T
-            X_T = X.T
-            I = np.eye(1 + self.n_inputs + self.n_reservoir)
-            reg = self.ridge_alpha
-            W_out = np.dot(
-                np.dot(Y, X_T),
-                np.linalg.inv(
-                    np.dot(X, X_T) + reg * np.eye(1 + self.n_inputs + self.n_reservoir)
-                ),
-            )
         else:
             raise ValueError(
-                "regression_method must be one of pinv, ridge, ridge_formula"
+                "regression_method must be one of pinv, ridge"
             )
         return W_out
 
