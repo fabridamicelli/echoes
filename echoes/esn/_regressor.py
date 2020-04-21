@@ -12,7 +12,7 @@ from echoes.utils import check_arrays_dimensions, check_model_params
 #TODO: add sklearn checks
 class ESNRegressor(ESNBase, MultiOutputMixin, RegressorMixin):
 
-    def fit(self, X, y):
+    def fit(self, X, y) -> ESNRegressor:
         """
         Fit Echo State model, i.e., find outgoing weights matrix (W_out) for later
         prediction.
@@ -72,7 +72,7 @@ class ESNRegressor(ESNBase, MultiOutputMixin, RegressorMixin):
             self.states_train_ = states
         return self
 
-    def predict(self, X):
+    def predict(self, X) -> np.ndarray:
         """
         Predict outputs according to inputs.
         State/output is reinitialized to predict test outputs from
@@ -127,7 +127,7 @@ class ESNRegressor(ESNBase, MultiOutputMixin, RegressorMixin):
         outputs = self.activation_out(outputs)
         return outputs
     #TODO: handle transient
-    def score(self, inputs=None, outputs=None, sample_weight=None):
+    def score(self, inputs=None, outputs=None, sample_weight=None) -> float:
         """
         R^2 (coefficient of determination) regression score function.
 

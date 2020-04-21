@@ -155,11 +155,11 @@ class ESNBase(BaseEstimator):
         """
     def __init__(
         self,
-        n_inputs: int = None,
-        n_reservoir: int = None,
-        n_outputs: int = None,
+        n_inputs: int = 1,
+        n_reservoir: int = 100,
+        n_outputs: int = 1,
         W: np.ndarray = None,
-        spectral_radius: float = None,
+        spectral_radius: float = .99,
         W_in: np.ndarray = None,
         W_feedb: np.ndarray = None,
         sparsity: float = 0,
@@ -220,7 +220,7 @@ class ESNBase(BaseEstimator):
 
         self.init_all_weights()  # also initialize random_state_ (sklearn convention)
 
-    def init_all_weights(self):
+    def init_all_weights(self) -> None:
         """
         Wrapper function to initialize all weight matrices at once.
         Even with user defined reservoir matrix W, the spectral radius is adjusted.
@@ -236,7 +236,7 @@ class ESNBase(BaseEstimator):
         if self.W_feedb is None and self.teacher_forcing:
             self.init_feedback_weights()
 
-    def init_incoming_weights(self):
+    def init_incoming_weights(self) -> None:
         """
         Initialize random incoming weights of matrix W_in (stored in self.W_in).
         Shape (n_reservoir, n_inputs+1), where +1 corresponds to bias column.
@@ -248,7 +248,7 @@ class ESNBase(BaseEstimator):
             self.random_state_.rand(self.n_reservoir, self.n_inputs + 1) * 2 - 1
         )  # +1 -> bias
 
-    def init_reservoir_weights(self):
+    def init_reservoir_weights(self) -> None:
         """
         Initialize random weights matrix of matrix W (stored in self.W).
         Shape (n_reservoir, n_reservoir).
@@ -259,7 +259,7 @@ class ESNBase(BaseEstimator):
         W[self.random_state_.rand(*W.shape) < self.sparsity] = 0
         self.W = W
 
-    def init_feedback_weights(self):
+    def init_feedback_weights(self) -> None:
         """
         Initialize teacher feedback weights (stored inW_feedb).
         Shape (n_reservoir, n_outputs).
@@ -269,9 +269,9 @@ class ESNBase(BaseEstimator):
 
     # TODO test input scaling and shifting
     # TODO maybe move to utils
-    def scale_shift_inputs(self, inputs):
+    def scale_shift_inputs(self, inputs) -> np.ndarray:
         """
-        Scale first and then shift inputs vector/matrix.
+        Return first scaled and then shifted inputs vector/matrix.
         """
         if self.input_scaling is not None:
             if isinstance(self.input_scaling, (float, int)):
@@ -293,7 +293,7 @@ class ESNBase(BaseEstimator):
 
         return inputs
 
-    def _update_state(self, state, inputs, outputs):
+    def _update_state(self, state, inputs, outputs) -> np.ndarray:
         """
         Update reservoir states one time step with the following equations.
         There are two cases, a) without and b) with teacher forcing (feedback):
@@ -348,7 +348,7 @@ class ESNBase(BaseEstimator):
 
         return new_state
 
-    def _solve_W_out(self, full_states, outputs):
+    def _solve_W_out(self, full_states, outputs) -> np.ndarray:
         """
         Solve for outgoing weights with linear regression, i.e., the equation:
                 W_out = Y X.T inv(X X.T)
@@ -391,77 +391,3 @@ class ESNBase(BaseEstimator):
                 "regression_method must be one of pinv, ridge"
             )
         return W_out
-
-    def fit(self, inputs=None, outputs=None):
-        """
-        Fit Echo State model, i.e., find outgoing weights matrix (W_out) for later
-        prediction.
-        Bias is appended automatically to the inputs.
-
-        Parameters
-        ----------
-        inputs: None or 2D np.ndarray of shape (n_samples, n_inputs)
-            Training input, i.e., X, the features.
-            If None, it is assumed that only the teaching sequence matters (outputs)
-            and simply a sequence of zeros will be fed in - matching the len(outputs).
-            This is to be used in the case of generative mode.
-        outputs: 2D np.ndarray of shape (n_smaples, n_outputs)
-            Training output, i.e., y, the target.
-        esn_type: str
-            Type of ESN network. Either "ESNGenerative" or "ESNPredictive"
-
-        Returns
-        -------
-        self: returns an instance of self.
-        """
-        esn_type = self.__class__.__name__
-        check_model_params(self.__dict__, esn_type)
-        check_inputs(inputs, esn_type)
-        check_outputs(outputs, self.n_outputs)
-
-        # If generative mode, make inputs zero, ignoring the possibly given ones
-        if esn_type == "ESNGenerative":
-            inputs = np.zeros(shape=(outputs.shape[0], self.n_inputs))
-
-        check_arrays_dimensions(inputs, outputs) # sanity check
-
-        # Scale and shift inputs (only for predictive case)
-        inputs = (
-            self.scale_shift_inputs(inputs)
-            if esn_type == "ESNPredictive"
-            else inputs
-        )
-        # Inverse transform outputs (map them into inner, latent space)
-        outputs = self.inv_activation_out(outputs)
-
-        n_samples = inputs.shape[0]
-        # Append the bias to inputs -> [1; u(t)]
-        bias = np.ones((n_samples, 1)) * self.bias
-        inputs = np.hstack((bias, inputs))
-        # Collect reservoir states through the given input,output pairs
-        states = np.zeros((n_samples, self.n_reservoir))
-        for step in range(1, n_samples):
-            states[step, :] = self._update_state(
-                states[step - 1], inputs[step, :], outputs[step - 1, :]
-            )
-
-        # Extend states matrix with inputs (and bias); i.e., make [x(t); 1; u(t)]
-        full_states = states if self.fit_only_states else np.hstack((states, inputs))
-
-        # Solve for W_out using full states and outputs, excluding transient
-        self.W_out_ = self._solve_W_out(
-            full_states[self.n_transient :, :], outputs[self.n_transient :, :]
-        )
-        # Predict on training set (map them back to original space with activation)
-        self.training_prediction_ = self.activation_out(full_states @ self.W_out_.T)
-
-        # Keep last state for later (only generative case)
-        if esn_type == "ESNGenerative":
-            self.last_state = states[-1, :]
-            self.last_input = inputs[-1, :]
-            self.last_output = outputs[-1, :]
-
-        # Store reservoir activity
-        if self.store_states_train:
-            self.states_train_ = states
-        return self

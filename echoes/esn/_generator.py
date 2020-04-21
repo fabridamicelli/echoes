@@ -4,6 +4,7 @@ Echo State Network Generator (pattern generator).
 import warnings
 
 import numpy as np
+from sklearn.base import MultiOutputMixin, RegressorMixin
 from sklearn.metrics import r2_score
 
 from ._base import ESNBase
@@ -145,11 +146,11 @@ class ESNGenerator(ESNBase, MultiOutputMixin, RegressorMixin):
         If store_states_pred is True, states matrix is stored for visualizing
         reservoir neurons activity during prediction (test).
         """
-    def __init__(self, n_steps=100, **kwargs):
+    def __init__(self, n_steps=100, **kwargs) -> None:
         super().__init__(**kwargs)
         self.n_steps = n_steps
 
-    def fit(self, X=None, y=None):
+    def fit(self, X=None, y=None) -> ESNGenerator:
         """
         Fit Echo State model, i.e., find outgoing weights matrix (W_out) for later
         prediction.
@@ -215,7 +216,7 @@ class ESNGenerator(ESNBase, MultiOutputMixin, RegressorMixin):
             self.states_train_ = states
         return self
 
-    def predict(self, X=None):
+    def predict(self, X=None) -> np.ndarray:
         """
         Last training state/input/output is used as initial test
         state/input/output and at each step the output of the network is reinjected
@@ -269,9 +270,11 @@ class ESNGenerator(ESNBase, MultiOutputMixin, RegressorMixin):
         # Map outputs back to actual target space with activation function
         outputs = self.activation_out(outputs)
         return outputs[1:, :] # discard initial step (comes from fitting)
-    #TODO: fix score handling n_samples
-    def score(self, inputs=None, outputs=None, sample_weight=None):
+
+    def score(self, X=None, y=None, sample_weight=None) -> float:
         """
+        Wrapper around sklearn r2_score with kwargs.
+
         From sklearn:
           R^2 (coefficient of determination) regression score function.
           Best possible score is 1.0 and it can be negative (because the model can be
@@ -281,10 +284,10 @@ class ESNGenerator(ESNBase, MultiOutputMixin, RegressorMixin):
 
         Parameters
         ----------
-        inputs: None
+        X: None
             Not used, present for API consistency.
             Generative ESN predicts purely based on its generative outputs.
-        outputs: 2D np.ndarray of shape (n_samples, n_outputs)
+        y: 2D np.ndarray of shape (n_samples, n_outputs)
             Target sequence, true values of the outputs.
         sample_weight: array-like of shape (n_samples,), default=None
             Sample weights.
@@ -294,6 +297,4 @@ class ESNGenerator(ESNBase, MultiOutputMixin, RegressorMixin):
         score: float
             R2 score
         """
-        n_samples = outputs.shape[0]
-        y_pred = self.predict(n_steps=n_samples)
-        return r2_score(outputs, y_pred, sample_weight=sample_weight)
+        return r2_score(y, self.predict(), sample_weight=sample_weight)
