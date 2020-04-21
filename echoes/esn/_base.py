@@ -22,7 +22,6 @@ from echoes.utils import (
 )
 
 
-# TODO: scale/unscale teacher
 class ESNBase(BaseEstimator):
     """
     Parameters
@@ -88,10 +87,10 @@ class ESNBase(BaseEstimator):
         If True, outgoing weights (W_out) are computed fitting only the reservoir
         states. Inputs and bias are still use to drive reservoir activity, but
         ignored for fitting W_out, both in the training and prediction phase.
-    regression_method: str, optional, default pseudoinverse (pinv).
+    regression_method: str, optional, default "pinv" (pseudoinverse).
         Method to solve the linear regression to find out outgoing weights.
         One of ["pinv", "ridge"].
-        If "ridge" or "ridge_formula", then the ridge_* parameters will be used.
+        If "ridge", ridge_* parameters will be used.
     ridge_alpha: float, ndarray of shape (n_outputs,), default=None
         Regularization coefficient used for Ridge regression.
         Larger values specify stronger regularization.
@@ -99,7 +98,6 @@ class ESNBase(BaseEstimator):
         Hence they must correspond in number.
         Default is None to make sure one deliberately sets this since it is
         a crucial parameter. See sklearn Ridge documentation for details.
-        # TODO: recommend sensible range of values depending on the task.
     ridge_fit_intercept: bool, optional, default=False
         If True, intercept is fit in Ridge regression. Default False.
         See sklearn Ridge documentation for details.
@@ -126,7 +124,6 @@ class ESNBase(BaseEstimator):
         Number of activity initial steps removed (not considered for training)
         in order to avoid initial instabilities.
         Default is 0, but this is something one definitely might want to tweak.
-        # TODO: recommend sensible range of values depending on the task.
     random_state : int, RandomState instance, default=None
         The seed of the pseudo random number generator used to generate weight
         matrices, to generate noise inyected to reservoir neurons (regularization)
@@ -156,7 +153,6 @@ class ESNBase(BaseEstimator):
         If store_states_pred is True, states matrix is stored for visualizing
         reservoir neurons activity during prediction (test).
         """
-
     def __init__(
         self,
         n_inputs: int = None,
