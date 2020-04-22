@@ -2,17 +2,18 @@
 Echo State Network Regressor.
 """
 import numpy as np
+from sklearn.utils.validation import check_random_state
 from sklearn.base import MultiOutputMixin, RegressorMixin
 from sklearn.metrics import r2_score
 
 from ._base import ESNBase
 from echoes.utils import check_arrays_dimensions, check_model_params
 
-#TODO: allow y to be 1D
+
 #TODO: add sklearn checks
 class ESNRegressor(ESNBase, MultiOutputMixin, RegressorMixin):
 
-    def fit(self, X, y) -> ESNRegressor:
+    def fit(self, X, y) -> "ESNRegressor":
         """
         Fit Echo State model, i.e., find outgoing weights matrix (W_out) for later
         prediction.
@@ -25,13 +26,14 @@ class ESNRegressor(ESNBase, MultiOutputMixin, RegressorMixin):
             If None, it is assumed that only the teaching sequence matters (outputs)
             and simply a sequence of zeros will be fed in - matching the len(outputs).
             This is to be used in the case of generative mode.
-        y: 2D np.ndarray of shape (n_samples, n_outputs)
+        y: 2D np.ndarray of shape (n_samples,) or (n_samples, n_outputs)
             Training output, i.e., y, the target.
 
         Returns
         -------
         self: returns an instance of self.
         """
+        y = y.reshape(-1, 1) if y.ndim == 1 else y
         inputs, outputs = X, y
 
         # TODO: check all checks!
@@ -40,8 +42,16 @@ class ESNRegressor(ESNBase, MultiOutputMixin, RegressorMixin):
         # check_outputs(outputs, self.n_outputs)
         # check_arrays_dimensions(inputs, outputs) # sanity check
 
+        # Initialize matrices and random state
+        self.random_state_ = check_random_state(self.random_state)
+        self.W_in_ = self._init_incoming_weights()
+        self.W_ = self._init_reservoir_weights()
+        self.W_fb_ = self._init_feedback_weights()
+
+
+        #######--#####
         # Scale and shift inputs
-        inputs = self.scale_shift_inputs(inputs)
+        inputs = self._scale_shift_inputs(inputs)
 
         # Inverse transform outputs (map them into inner, latent space)
         outputs = self.inv_activation_out(outputs)
@@ -54,7 +64,8 @@ class ESNRegressor(ESNBase, MultiOutputMixin, RegressorMixin):
         states = np.zeros((n_samples, self.n_reservoir))
         for step in range(1, n_samples):
             states[step, :] = self._update_state(
-                states[step - 1], inputs[step, :], outputs[step - 1, :]
+                states[step - 1], inputs[step, :], outputs[step - 1, :],
+                self.W_in_, self.W_, self.W_fb_
             )
 
         # Extend states matrix with inputs (and bias); i.e., make [x(t); 1; u(t)]
@@ -95,7 +106,7 @@ class ESNRegressor(ESNBase, MultiOutputMixin, RegressorMixin):
         n_samples = inputs.shape[0]
 
         # Scale and shift inputs
-        inputs = self.scale_shift_inputs(inputs)
+        inputs = self._scale_shift_inputs(inputs)
 
         # Append the bias to inputs -> [1; u(t)]
         bias = np.ones((n_samples, 1)) * self.bias
@@ -109,7 +120,8 @@ class ESNRegressor(ESNBase, MultiOutputMixin, RegressorMixin):
         # Go through samples (steps) and predict for each of them
         for step in range(1, n_samples):
             states[step, :] = self._update_state(
-                states[step - 1, :], inputs[step, :], outputs[step - 1, :]
+                states[step - 1, :], inputs[step, :], outputs[step - 1, :],
+                self.W_in_, self.W_, self.W_fb_
             )
 
             if self.fit_only_states:
@@ -126,8 +138,9 @@ class ESNRegressor(ESNBase, MultiOutputMixin, RegressorMixin):
         # Map outputs back to actual target space with activation function
         outputs = self.activation_out(outputs)
         return outputs
+
     #TODO: handle transient
-    def score(self, inputs=None, outputs=None, sample_weight=None) -> float:
+    def score(self, X=None, y=None, sample_weight=None) -> float:
         """
         R^2 (coefficient of determination) regression score function.
 
@@ -142,9 +155,9 @@ class ESNRegressor(ESNBase, MultiOutputMixin, RegressorMixin):
 
         Parameters
         ----------
-        inputs: 2D np.ndarray of shape (n_samples, n_inputs)
+        X: 2D np.ndarray of shape (n_samples, n_inputs)
             Test samples.
-        outputs: 2D np.ndarray of shape (n_samples, n_outputs)
+        y: 2D np.ndarray of shape (n_samples,) or (n_samples, n_outputs)
             Target sequence, true values of the outputs.
         sample_weight: array-like of shape (n_samples,), default=None
             Sample weights.
@@ -162,10 +175,10 @@ class ESNRegressor(ESNBase, MultiOutputMixin, RegressorMixin):
         score: float
             R2 score
         """
-        y_pred = self.predict(inputs)
+        y_pred = self.predict(X)
         if sample_weight is None:
-            weights = np.ones(outputs.shape[0])
+            weights = np.ones(y.shape[0])
             weights[: self.n_transient] = 0
-            return r2_score(outputs, y_pred, sample_weight=weights)
+            return r2_score(y, y_pred, sample_weight=weights)
 
-        return r2_score(outputs, y_pred, sample_weight=sample_weight)
+        return r2_score(y, y_pred, sample_weight=sample_weight)

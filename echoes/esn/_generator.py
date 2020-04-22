@@ -4,6 +4,7 @@ Echo State Network Generator (pattern generator).
 import warnings
 
 import numpy as np
+from sklearn.utils.validation import check_random_state
 from sklearn.base import MultiOutputMixin, RegressorMixin
 from sklearn.metrics import r2_score
 
@@ -11,7 +12,6 @@ from ._base import ESNBase
 from echoes.utils import check_arrays_dimensions, check_model_params
 
 
-# TODO: test initialization of inputs (should be zero)
 # TODO: is this inheritance conceptually correct?
 class ESNGenerator(ESNBase, MultiOutputMixin, RegressorMixin):
     """
@@ -150,7 +150,7 @@ class ESNGenerator(ESNBase, MultiOutputMixin, RegressorMixin):
         super().__init__(**kwargs)
         self.n_steps = n_steps
 
-    def fit(self, X=None, y=None) -> ESNGenerator:
+    def fit(self, X=None, y=None) -> "ESNGenerator":
         """
         Fit Echo State model, i.e., find outgoing weights matrix (W_out) for later
         prediction.
@@ -162,7 +162,7 @@ class ESNGenerator(ESNBase, MultiOutputMixin, RegressorMixin):
             It is ignored as only the teaching sequence matters (outputs).
             A sequence of zeros will be fed in - matching the len(outputs) as initial
             condition.
-        y: 2D np.ndarray of shape (n_samples, n_outputs), default=None
+        y: 2D np.ndarray of shape (n_samples,) or (n_samples, n_outputs), default=None
             Target variable.
 
         Returns
@@ -171,11 +171,19 @@ class ESNGenerator(ESNBase, MultiOutputMixin, RegressorMixin):
         """
         if X is not None:
             warnings.warn("X will be ignored – ESNGenerator only takes y for training")
+        y = y.reshape(-1, 1) if y.ndim == 1 else y  # TODO:move to checks_X_y
         outputs = y
+
         #TODO: fix parameters checks
         #check_model_params(self.__dict__, esn_type)
         #check_inputs(inputs, esn_type)
         #check_outputs(outputs, self.n_outputs)
+
+        # Initialize matrices and random state
+        self.random_state_ = check_random_state(self.random_state)
+        self.W_in_ = self._init_incoming_weights()
+        self.W_ = self._init_reservoir_weights()
+        self.W_fb_ = self._init_feedback_weights()
 
         # Make inputs zero
         inputs = np.zeros(shape=(outputs.shape[0], self.n_inputs))
@@ -193,7 +201,8 @@ class ESNGenerator(ESNBase, MultiOutputMixin, RegressorMixin):
         states = np.zeros((n_samples, self.n_reservoir))
         for step in range(1, n_samples):
             states[step, :] = self._update_state(
-                states[step - 1], inputs[step, :], outputs[step - 1, :]
+                states[step - 1], inputs[step, :], outputs[step - 1, :],
+                self.W_in_, self.W_, self.W_fb_
             )
 
         # Extend states matrix with inputs (and bias); i.e., make [x(t); 1; u(t)]
@@ -254,7 +263,8 @@ class ESNGenerator(ESNBase, MultiOutputMixin, RegressorMixin):
         # Go through samples (steps) and predict for each of them
         for step in range(1, outputs.shape[0]):
             states[step, :] = self._update_state(
-                states[step - 1, :], inputs[step, :], outputs[step - 1, :]
+                states[step - 1, :], inputs[step, :], outputs[step - 1, :],
+                self.W_in_, self.W_, self.W_fb_
             )
             if self.fit_only_states:
                 full_states = states[step, :]
@@ -287,7 +297,7 @@ class ESNGenerator(ESNBase, MultiOutputMixin, RegressorMixin):
         X: None
             Not used, present for API consistency.
             Generative ESN predicts purely based on its generative outputs.
-        y: 2D np.ndarray of shape (n_samples, n_outputs)
+        y: 2D np.ndarray of shape (n_samples, ) or (n_samples, n_outputs)
             Target sequence, true values of the outputs.
         sample_weight: array-like of shape (n_samples,), default=None
             Sample weights.

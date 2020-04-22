@@ -10,7 +10,6 @@ from typing import Union, Callable, Dict
 import numpy as np
 from sklearn.base import BaseEstimator
 from sklearn.linear_model import Ridge
-from sklearn.utils.validation import check_random_state
 
 from echoes.utils import (
     set_spectral_radius,
@@ -45,7 +44,7 @@ class ESNBase(BaseEstimator):
     W_in: np.ndarray of shape (n_reservoir, 1+n_inputs) (1->bias), optional, default None.
         Input weights matrix by which input signal is multiplied.
         If None, random weights are used.
-    W_feedb: np.ndarray of shape(n_reservoir, n_outputs), optional, default None.
+    W_fb: np.ndarray of shape(n_reservoir, n_outputs), optional, default None.
         Feedback weights matrix by which teaching signal is multiplied in
         case of teaching force.
     sparsity: float, optional, default=0
@@ -91,7 +90,7 @@ class ESNBase(BaseEstimator):
         Method to solve the linear regression to find out outgoing weights.
         One of ["pinv", "ridge"].
         If "ridge", ridge_* parameters will be used.
-    ridge_alpha: float, ndarray of shape (n_outputs,), default=None
+    ridge_alpha: float, ndarray of shape (n_outputs,), default=1
         Regularization coefficient used for Ridge regression.
         Larger values specify stronger regularization.
         If an array is passed, penalties are assumed to be specific to the targets.
@@ -161,7 +160,7 @@ class ESNBase(BaseEstimator):
         W: np.ndarray = None,
         spectral_radius: float = .99,
         W_in: np.ndarray = None,
-        W_feedb: np.ndarray = None,
+        W_fb: np.ndarray = None,
         sparsity: float = 0,
         noise: float = 0,
         leak_rate: float = 1,
@@ -174,7 +173,7 @@ class ESNBase(BaseEstimator):
         inv_activation_out: Callable = identity,
         fit_only_states: bool = False,
         regression_method: str = "pinv",
-        ridge_alpha: float = None,
+        ridge_alpha: float = 1,
         ridge_fit_intercept: bool = False,
         ridge_normalize: bool = False,
         ridge_max_iter: int = None,
@@ -193,7 +192,7 @@ class ESNBase(BaseEstimator):
         self.spectral_radius = spectral_radius
         self.W = W
         self.W_in = W_in
-        self.W_feedb = W_feedb
+        self.W_fb = W_fb
         self.sparsity = sparsity
         self.noise = noise
         self.leak_rate = leak_rate
@@ -218,58 +217,52 @@ class ESNBase(BaseEstimator):
         self.ridge_sample_weight = ridge_sample_weight
         self.random_state = random_state
 
-        self.init_all_weights()  # also initialize random_state_ (sklearn convention)
-
-    def init_all_weights(self) -> None:
+    def _init_incoming_weights(self) -> np.ndarray:
         """
-        Wrapper function to initialize all weight matrices at once.
-        Even with user defined reservoir matrix W, the spectral radius is adjusted.
-        """
-        # Initialize random state and store with underscore (sklearn convention)
-        self.random_state_ = check_random_state(self.random_state)
-
-        if self.W is None:
-            self.init_reservoir_weights()
-        self.W = set_spectral_radius(self.W, self.spectral_radius)
-        if self.W_in is None:
-            self.init_incoming_weights()
-        if self.W_feedb is None and self.teacher_forcing:
-            self.init_feedback_weights()
-
-    def init_incoming_weights(self) -> None:
-        """
-        Initialize random incoming weights of matrix W_in (stored in self.W_in).
+        Return matrix W_in of random incoming weights.
         Shape (n_reservoir, n_inputs+1), where +1 corresponds to bias column.
         Note: bias and input weights are not initialized separately.
         # TODO: initialize bias weights separately, as we might want bias to have
                 a different contribution than the inputs.
         """
-        self.W_in = (
-            self.random_state_.rand(self.n_reservoir, self.n_inputs + 1) * 2 - 1
-        )  # +1 -> bias
+        #TODO: append bias when Win is passed
+        if self.W_in is not None:
+            return self.W_in
+        W_in = (
+            self.random_state_.uniform(
+                low=-1, high=1, size=(self.n_reservoir, self.n_inputs + 1) # +1 ->bias
+            )
+        )
+        return W_in
 
-    def init_reservoir_weights(self) -> None:
+    def _init_reservoir_weights(self) -> np.ndarray:
         """
-        Initialize random weights matrix of matrix W (stored in self.W).
-        Shape (n_reservoir, n_reservoir).
-        Sparsity is adjusted but not spectral radius.
+        Return reservoir weights matrix W. Shape (n_reservoir, n_reservoir).
+        Sparsity and spectral_radius are adjusted.
         """
+        if self.W is not None:
+            return set_spectral_radius(self.W, self.spectral_radius)
         # Init random matrix centered around zero with desired spectral radius
-        W = self.random_state_.rand(self.n_reservoir, self.n_reservoir) - 0.5
+        W = self.random_state_.uniform(
+            low=-.5, high=.5, size=(self.n_reservoir, self.n_reservoir)
+        )
         W[self.random_state_.rand(*W.shape) < self.sparsity] = 0
-        self.W = W
+        return set_spectral_radius(W, self.spectral_radius)
 
-    def init_feedback_weights(self) -> None:
-        """
-        Initialize teacher feedback weights (stored inW_feedb).
-        Shape (n_reservoir, n_outputs).
-        """
-        # random feedback (teacher forcing) weights:
-        self.W_feedb = self.random_state_.rand(self.n_reservoir, self.n_outputs) * 2 - 1
+    def _init_feedback_weights(self) -> Union[None, np.ndarray]:
+        """Return feedback weights. Shape (n_reservoir, n_outputs)."""
+        if not self.teacher_forcing:
+            return None
+        if self.W_fb is not None:
+            return self.W_fb
+        W_fb = self.random_state_.uniform(
+            low=-1, high=1, size=(self.n_reservoir, self.n_outputs)
+        )
+        return W_fb
 
     # TODO test input scaling and shifting
     # TODO maybe move to utils
-    def scale_shift_inputs(self, inputs) -> np.ndarray:
+    def _scale_shift_inputs(self, inputs) -> np.ndarray:
         """
         Return first scaled and then shifted inputs vector/matrix.
         """
@@ -293,7 +286,7 @@ class ESNBase(BaseEstimator):
 
         return inputs
 
-    def _update_state(self, state, inputs, outputs) -> np.ndarray:
+    def _update_state(self, state, inputs, outputs, W_in, W, W_fb) -> np.ndarray:
         """
         Update reservoir states one time step with the following equations.
         There are two cases, a) without and b) with teacher forcing (feedback):
@@ -303,7 +296,7 @@ class ESNBase(BaseEstimator):
         a.2)    x(t) = (1-a) * x(t-1) + a * x(t)'
 
 
-        b.1)    x'(t) = f(W x(t-1) + W_in [1; u(t)] + W_feedb y(t-1)) + e
+        b.1)    x'(t) = f(W x(t-1) + W_in [1; u(t)] + W_fb y(t-1)) + e
 
         b.2)    x(t) = (1-a) * x(t-1) + a * x(t)'
 
@@ -315,7 +308,7 @@ class ESNBase(BaseEstimator):
             e: random noise applied to neurons (regularization)
             W: reservoir weights matrix
             W_in: incoming weights matrix
-            W_feedb: feedback (teaching) matrix
+            W_fb: feedback (teaching) matrix
             u(t): inputs vector at time t
             y(t): outputs vector at time t
             1: bias input.
@@ -336,9 +329,9 @@ class ESNBase(BaseEstimator):
             Reservoir states vector after update.
         """
         if self.teacher_forcing:
-            state_preac = self.W @ state + self.W_in @ inputs + self.W_feedb @ outputs
+            state_preac = W @ state + W_in @ inputs + W_fb @ outputs
         else:
-            state_preac = self.W @ state + self.W_in @ inputs
+            state_preac = W @ state + W_in @ inputs
         new_state = self.activation(state_preac) + self.noise * (
             self.random_state_.rand(self.n_reservoir) - 0.5
         )
