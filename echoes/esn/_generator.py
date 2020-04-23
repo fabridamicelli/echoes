@@ -25,6 +25,7 @@ class ESNGenerator(ESNBase, MultiOutputMixin, RegressorMixin):
     n_reservoir: int, optional, default=100
         Number of reservoir neurons. Only used if W is not passed.
         If W is passed, n_reservoir gets overwritten with len(W).
+        Either n_reservoir or W must be passed.
     W: np.ndarray of shape (n_reservoir, n_reservoir), optional, default=None
         Reservoir weights matrix. If None, random weights are used (uniformly
         distributed around 0, ie., in [-0.5, 0.5).
@@ -32,13 +33,14 @@ class ESNGenerator(ESNBase, MultiOutputMixin, RegressorMixin):
         might drastically affect test performance (even with reasonable good
         training fit).
         Spectral radius will be adjusted in all cases.
-    spectral_radius: float, default=None
+        Either n_reservoir or W must be passed.
+    spectral_radius: float, default=.99
         Spectral radius of the reservoir weights matrix (W).
         Spectral radius will be adjusted in all cases (also with user specified W).
     W_in: np.ndarray of shape (n_reservoir, 1+n_inputs) (1->bias), optional, default None.
         Input weights matrix by which input signal is multiplied.
         If None, random weights are used.
-    W_feedb: np.ndarray of shape(n_reservoir, n_outputs), optional, default None.
+    W_fb: np.ndarray of shape(n_reservoir, n_outputs), optional, default None.
         Feedback weights matrix by which teaching signal is multiplied in
         case of teaching force.
     sparsity: float, optional, default=0
