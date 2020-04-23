@@ -23,14 +23,13 @@ from echoes.utils import (
 
 class ESNBase(BaseEstimator):
     """
+    n_inputs and n_outputs are infered from passed data.
+
     Parameters
     ----------
-    n_inputs: int, default=None
-        Number of input neurons.
-    n_reservoir: int, default=None
-        Number of reservoir neurons.
-    n_outputs: int, default=None
-        Number of output neurons.
+    n_reservoir: int, optional, default=100
+        Number of reservoir neurons. Only used if W is not passed.
+        If W is passed, n_reservoir gets overwritten with len(W).
     W: np.ndarray of shape (n_reservoir, n_reservoir), optional, default=None
         Reservoir weights matrix. If None, random weights are used (uniformly
         distributed around 0, ie., in [-0.5, 0.5).
@@ -154,9 +153,7 @@ class ESNBase(BaseEstimator):
         """
     def __init__(
         self,
-        n_inputs: int = 1,
         n_reservoir: int = 100,
-        n_outputs: int = 1,
         W: np.ndarray = None,
         spectral_radius: float = .99,
         W_in: np.ndarray = None,
@@ -186,9 +183,7 @@ class ESNBase(BaseEstimator):
         random_state: Union[int, np.random.RandomState, None] = None,
     ) -> None:
 
-        self.n_inputs = n_inputs
         self.n_reservoir = n_reservoir
-        self.n_outputs = n_outputs
         self.spectral_radius = spectral_radius
         self.W = W
         self.W_in = W_in
@@ -230,7 +225,7 @@ class ESNBase(BaseEstimator):
             return self.W_in
         W_in = (
             self.random_state_.uniform(
-                low=-1, high=1, size=(self.n_reservoir, self.n_inputs + 1) # +1 ->bias
+                low=-1, high=1, size=(self.n_reservoir_, self.n_inputs_ + 1) # +1 ->bias
             )
         )
         return W_in
@@ -239,12 +234,13 @@ class ESNBase(BaseEstimator):
         """
         Return reservoir weights matrix W. Shape (n_reservoir, n_reservoir).
         Sparsity and spectral_radius are adjusted.
+        Init random matrix centered around zero with desired spectral radius
         """
         if self.W is not None:
             return set_spectral_radius(self.W, self.spectral_radius)
-        # Init random matrix centered around zero with desired spectral radius
+
         W = self.random_state_.uniform(
-            low=-.5, high=.5, size=(self.n_reservoir, self.n_reservoir)
+            low=-.5, high=.5, size=(self.n_reservoir_, self.n_reservoir_)
         )
         W[self.random_state_.rand(*W.shape) < self.sparsity] = 0
         return set_spectral_radius(W, self.spectral_radius)
@@ -256,13 +252,13 @@ class ESNBase(BaseEstimator):
         if self.W_fb is not None:
             return self.W_fb
         W_fb = self.random_state_.uniform(
-            low=-1, high=1, size=(self.n_reservoir, self.n_outputs)
-        )
+            low=-1, high=1, size=(self.n_reservoir_, self.n_outputs_))
         return W_fb
 
     # TODO test input scaling and shifting
     # TODO maybe move to utils
-    def _scale_shift_inputs(self, inputs) -> np.ndarray:
+    # TODO maybe replace by sklearn scaler
+    def _scale_shift_inputs(self, inputs: np.ndarray) -> np.ndarray:
         """
         Return first scaled and then shifted inputs vector/matrix.
         """
@@ -270,7 +266,7 @@ class ESNBase(BaseEstimator):
             if isinstance(self.input_scaling, (float, int)):
                 inputs *= self.input_scaling
             elif isinstance(self.input_scaling, np.ndarray):
-                assert len(self.input_scaling) == self.n_inputs, "wrong input scaling"
+                assert len(self.input_scaling) == self.n_inputs_, "wrong input scaling"
                 inputs *= self.input_scaling[:, None]  # broadcast column-wise
             else:
                 raise ValueError("wrong input scaling type")
@@ -279,14 +275,22 @@ class ESNBase(BaseEstimator):
             if isinstance(self.input_shift, (float, int)):
                 inputs += self.input_shift
             elif isinstance(self.input_scaling, np.ndarray):
-                assert len(self.input_shift) == self.n_inputs, "wrong input shift"
+                assert len(self.input_shift) == self.n_inputs_, "wrong input shift"
                 inputs += self.input_scaling[:, None]  # broadcast column-wise
             else:
                 raise ValueError("wrong input scaling type")
 
         return inputs
 
-    def _update_state(self, state, inputs, outputs, W_in, W, W_fb) -> np.ndarray:
+    def _update_state(
+        self,
+        state: np.ndarray,
+        inputs: np.ndarray,
+        outputs: np.ndarray,
+        W_in: np.ndarray,
+        W: np.ndarray,
+        W_fb: np.ndarray
+    ) -> np.ndarray:
         """
         Update reservoir states one time step with the following equations.
         There are two cases, a) without and b) with teacher forcing (feedback):
@@ -333,7 +337,7 @@ class ESNBase(BaseEstimator):
         else:
             state_preac = W @ state + W_in @ inputs
         new_state = self.activation(state_preac) + self.noise * (
-            self.random_state_.rand(self.n_reservoir) - 0.5
+            self.random_state_.rand(self.n_reservoir_) - 0.5
         )
         # Apply leakage
         if self.leak_rate < 1:
@@ -341,7 +345,7 @@ class ESNBase(BaseEstimator):
 
         return new_state
 
-    def _solve_W_out(self, full_states, outputs) -> np.ndarray:
+    def _solve_W_out(self, full_states: np.ndarray, outputs: np.ndarray) -> np.ndarray:
         """
         Solve for outgoing weights with linear regression, i.e., the equation:
                 W_out = Y X.T inv(X X.T)

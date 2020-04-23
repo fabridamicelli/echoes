@@ -2,7 +2,8 @@
 Echo State Network Regressor.
 """
 import numpy as np
-from sklearn.utils.validation import check_random_state
+from sklearn.utils.validation import check_random_state, check_is_fitted
+from sklearn.utils import check_X_y, check_array
 from sklearn.base import MultiOutputMixin, RegressorMixin
 from sklearn.metrics import r2_score
 
@@ -13,7 +14,7 @@ from echoes.utils import check_arrays_dimensions, check_model_params
 #TODO: add sklearn checks
 class ESNRegressor(ESNBase, MultiOutputMixin, RegressorMixin):
 
-    def fit(self, X, y) -> "ESNRegressor":
+    def fit(self, X: np.ndarray, y: np.ndarray) -> "ESNRegressor":
         """
         Fit Echo State model, i.e., find outgoing weights matrix (W_out) for later
         prediction.
@@ -33,6 +34,7 @@ class ESNRegressor(ESNBase, MultiOutputMixin, RegressorMixin):
         -------
         self: returns an instance of self.
         """
+        X, y = check_X_y(X, y, multi_output=True)
         y = y.reshape(-1, 1) if y.ndim == 1 else y
         inputs, outputs = X, y
 
@@ -44,6 +46,9 @@ class ESNRegressor(ESNBase, MultiOutputMixin, RegressorMixin):
 
         # Initialize matrices and random state
         self.random_state_ = check_random_state(self.random_state)
+        self.n_inputs_ = inputs.shape[1]
+        self.n_reservoir_ = len(self.W) if self.W is not None else self.n_reservoir
+        self.n_outputs_ = outputs.shape[1]
         self.W_in_ = self._init_incoming_weights()
         self.W_ = self._init_reservoir_weights()
         self.W_fb_ = self._init_feedback_weights()
@@ -61,7 +66,7 @@ class ESNRegressor(ESNBase, MultiOutputMixin, RegressorMixin):
         bias = np.ones((n_samples, 1)) * self.bias
         inputs = np.hstack((bias, inputs))
         # Collect reservoir states through the given input,output pairs
-        states = np.zeros((n_samples, self.n_reservoir))
+        states = np.zeros((n_samples, self.n_reservoir_))
         for step in range(1, n_samples):
             states[step, :] = self._update_state(
                 states[step - 1], inputs[step, :], outputs[step - 1, :],
@@ -83,7 +88,7 @@ class ESNRegressor(ESNBase, MultiOutputMixin, RegressorMixin):
             self.states_train_ = states
         return self
 
-    def predict(self, X) -> np.ndarray:
+    def predict(self, X: np.ndarray) -> np.ndarray:
         """
         Predict outputs according to inputs.
         State/output is reinitialized to predict test outputs from
@@ -102,6 +107,9 @@ class ESNRegressor(ESNBase, MultiOutputMixin, RegressorMixin):
         outputs: 2D np.ndarray of shape (n_samples, n_outputs)
             Predicted outputs.
         """
+        check_is_fitted(self)
+        X = check_array(X)
+
         inputs = X
         n_samples = inputs.shape[0]
 
@@ -113,8 +121,8 @@ class ESNRegressor(ESNBase, MultiOutputMixin, RegressorMixin):
         inputs = np.hstack((bias, inputs))
 
         # Initialize predictions
-        states = np.zeros((n_samples, self.n_reservoir))
-        outputs = np.zeros((n_samples, self.n_outputs))
+        states = np.zeros((n_samples, self.n_reservoir_))
+        outputs = np.zeros((n_samples, self.n_outputs_))
         check_arrays_dimensions(inputs)  # sanity check
 
         # Go through samples (steps) and predict for each of them

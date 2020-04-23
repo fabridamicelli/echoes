@@ -4,7 +4,8 @@ Echo State Network Generator (pattern generator).
 import warnings
 
 import numpy as np
-from sklearn.utils.validation import check_random_state
+from sklearn.utils.validation import check_random_state, check_is_fitted
+from sklearn.utils import check_X_y, check_array
 from sklearn.base import MultiOutputMixin, RegressorMixin
 from sklearn.metrics import r2_score
 
@@ -15,16 +16,15 @@ from echoes.utils import check_arrays_dimensions, check_model_params
 # TODO: is this inheritance conceptually correct?
 class ESNGenerator(ESNBase, MultiOutputMixin, RegressorMixin):
     """
+    n_inputs is always 1 and n_outputs is infered from passed data.
+
     Parameters
     ----------
     n_steps: int, default=100
         Number of steps to generate pattern (used by predict method).
-    n_inputs: int, default=None
-        Number of input neurons.
-    n_reservoir: int, default=None
-        Number of reservoir neurons.
-    n_outputs: int, default=None
-        Number of output neurons.
+    n_reservoir: int, optional, default=100
+        Number of reservoir neurons. Only used if W is not passed.
+        If W is passed, n_reservoir gets overwritten with len(W).
     W: np.ndarray of shape (n_reservoir, n_reservoir), optional, default=None
         Reservoir weights matrix. If None, random weights are used (uniformly
         distributed around 0, ie., in [-0.5, 0.5).
@@ -171,7 +171,9 @@ class ESNGenerator(ESNBase, MultiOutputMixin, RegressorMixin):
         """
         if X is not None:
             warnings.warn("X will be ignored – ESNGenerator only takes y for training")
-        y = y.reshape(-1, 1) if y.ndim == 1 else y  # TODO:move to checks_X_y
+        y = check_array(y, ensure_2d=False)
+        y = y.reshape(-1, 1) if y.ndim == 1 else y
+
         outputs = y
 
         #TODO: fix parameters checks
@@ -181,12 +183,17 @@ class ESNGenerator(ESNBase, MultiOutputMixin, RegressorMixin):
 
         # Initialize matrices and random state
         self.random_state_ = check_random_state(self.random_state)
+        # Pattern generation takes no input, thus hardcode for later
+        # construction of matrices
+        self.n_inputs_ = 1
+        self.n_reservoir_ = len(self.W) if self.W is not None else self.n_reservoir
+        self.n_outputs_ = outputs.shape[1]
         self.W_in_ = self._init_incoming_weights()
         self.W_ = self._init_reservoir_weights()
         self.W_fb_ = self._init_feedback_weights()
 
         # Make inputs zero
-        inputs = np.zeros(shape=(outputs.shape[0], self.n_inputs))
+        inputs = np.zeros(shape=(outputs.shape[0], self.n_inputs_))
 
         check_arrays_dimensions(inputs, outputs)
 
@@ -198,7 +205,7 @@ class ESNGenerator(ESNBase, MultiOutputMixin, RegressorMixin):
         bias = np.ones((n_samples, 1)) * self.bias
         inputs = np.hstack((bias, inputs))
         # Collect reservoir states through the given input,output pairs
-        states = np.zeros((n_samples, self.n_reservoir))
+        states = np.zeros((n_samples, self.n_reservoir_))
         for step in range(1, n_samples):
             states[step, :] = self._update_state(
                 states[step - 1], inputs[step, :], outputs[step - 1, :],
@@ -248,7 +255,7 @@ class ESNGenerator(ESNBase, MultiOutputMixin, RegressorMixin):
 
         # Scale and shift inputs are ignored, since only bias should contribute to
         # next state and inputs should be zero
-        inputs = np.zeros(shape=(n_steps, self.n_inputs))
+        inputs = np.zeros(shape=(n_steps, self.n_inputs_))
         check_arrays_dimensions(inputs)
 
         # Append the bias to inputs -> [1; u(t)]
@@ -257,8 +264,8 @@ class ESNGenerator(ESNBase, MultiOutputMixin, RegressorMixin):
 
         # Initialize predictions: begin with last state as first state
         inputs = np.vstack([self.last_input, inputs])
-        states = np.vstack([self.last_state, np.zeros((n_steps, self.n_reservoir))])
-        outputs = np.vstack([self.last_output, np.zeros((n_steps, self.n_outputs))])
+        states = np.vstack([self.last_state, np.zeros((n_steps, self.n_reservoir_))])
+        outputs = np.vstack([self.last_output, np.zeros((n_steps, self.n_outputs_))])
 
         # Go through samples (steps) and predict for each of them
         for step in range(1, outputs.shape[0]):
