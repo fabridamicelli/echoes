@@ -17,6 +17,7 @@ from echoes.utils import check_arrays_dimensions, check_model_params
 class ESNGenerator(ESNBase, MultiOutputMixin, RegressorMixin):
     """
     n_inputs is always 1 and n_outputs is infered from passed data.
+    It uses always feedback, so that is not a parameter anymore (always True).
 
     Parameters
     ----------
@@ -56,18 +57,6 @@ class ESNGenerator(ESNBase, MultiOutputMixin, RegressorMixin):
         Default is 1, which is no leaking. 0 would be total leakeage.
     bias: float, optional, default=1
         Value of the bias neuron, injected at each time step together with input.
-    input_scaling: float or np.ndarray of length n_inputs, default=None
-        Scalar to multiply each input before feeding it to the network.
-        If float, all inputs get multiplied by same value.
-        If array, it must match n_inputs length, specifying the scaling factor for
-        each input.
-    input_shift: float or np.ndarray of length n_inputs, default=None
-        Scalar to add to each input before feeding it to the network.
-        If float, multiplied same value is added to all inputs.
-        If array, it must match n_inputs length, specifying the value to add to
-        each input.
-    feedback: bool, optional, default=False
-        If True, the reservoir also receives the outout signal as input.
     activation: function, optional, default=tanh
         Non-linear activation function applied to the neurons at each step.
     activation_out: function, optional, default=identity
@@ -146,9 +135,16 @@ class ESNGenerator(ESNBase, MultiOutputMixin, RegressorMixin):
         If store_states_pred is True, states matrix is stored for visualizing
         reservoir neurons activity during prediction (test).
         """
-    def __init__(self, n_steps=100, **kwargs) -> None:
+    def __init__(self, n_steps: int = 100, **kwargs) -> None:
         super().__init__(**kwargs)
         self.n_steps = n_steps
+        if "feedback" in kwargs:
+            if kwargs["feedback"] == False:
+                warnings.warn(
+                    "feedback is forced to be True – required for ESNGenerator."
+                    "You may simply skip this parameter"
+                )
+        self.feedback = True
 
     def fit(self, X=None, y=None) -> "ESNGenerator":
         """
