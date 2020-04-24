@@ -24,7 +24,7 @@ class ESNRegressor(ESNBase, MultiOutputMixin, RegressorMixin):
         ----------
         X: None or 2D np.ndarray of shape (n_samples, n_inputs)
             Training input, i.e., X, the features.
-            If None, it is assumed that only the teaching sequence matters (outputs)
+            If None, it is assumed that only the target sequence matters (outputs)
             and simply a sequence of zeros will be fed in - matching the len(outputs).
             This is to be used in the case of generative mode.
         y: 2D np.ndarray of shape (n_samples,) or (n_samples, n_outputs)

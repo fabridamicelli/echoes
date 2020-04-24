@@ -1,15 +1,11 @@
 # echoes 
 (work in progress!)
 
-Python module for Echo State Networks (ESN).
+Scikit-learn compatible, high level API for machine learning with Echo State Networks.
+Documentation and examples back up all the code.
 
-High level API for machine learning with Echo State Networks.
-The design attempts to follow the intuitions from standard packages, eg scikit-learn,
-as much as possible. Documentation, type annotations and examples are all over the place.
-
-As intended for research purposes as well, several typical benchmark tasks, datasets
-and plotting functionalities are also included and straight forward to run, thus 
-saving boiler plate code and allowing the user to quickly test the ESN.
+Several typical benchmark tasks, datasets and plotting functionalities are also included,
+thus saving boiler plate code and allowing the user to quickly test the ESN.
 
 
 ## Installation
@@ -50,7 +46,7 @@ esn = ESNGenerative(
     n_outputs=1,
     n_reservoir=200,
     spectral_radius=1.25,
-    teacher_forcing=True,
+    feedback=True,
     leak_rate=.4,
     regression_method="pinv",
     random_state=42,
@@ -125,7 +121,7 @@ esn = ESNPredictive(
     spectral_radius=.95,
     leak_rate=.4,
     n_transient=100,
-    teacher_forcing=False,
+    feedback=False,
     regression_method="pinv",
     random_state=42
 ).fit(inputs_train, outputs_train)
@@ -216,7 +212,7 @@ esn = ESNGenerative(
     n_outputs=1,
     n_reservoir=200,
     spectral_radius=1.25,
-    teacher_forcing=True,
+    feedback=True,
     leak_rate=.4,
     regression_method="pinv",
     store_states_pred=True,   # store states for plotting
@@ -239,27 +235,27 @@ plot_reservoir_activity(esn,
 
 ## Requirements
 ### Dependencies
-   - numpy
-   - sklearn
-   - pandas
-   - matplotlib
-   - seaborn
-   - tests:
-     - mypy
-     - pytest 
+ - numpy
+ - sklearn
+ - pandas
+ - matplotlib
+ - seaborn
+ - tests:
+   - mypy
+   - pytest 
 
 The code has been tested with Python 3.7 on Ubuntu 18.04.
 
 ## Features
-### ESN types
- - predictive
- - generative
+### ESNs
+ - ESNRegressor
+ - ESNGenerator
 ### ESN hyperparameters
  - input scaling and shift
  - reservoir sparsity
  - leakage rate
  - input noise (regularization)
- - arbitrary:
+ - custom:
    - activation function
    - bias 
    - activation_out function
@@ -267,34 +263,19 @@ The code has been tested with Python 3.7 on Ubuntu 18.04.
    - input matrix
    - feedback matrix
  - fit only states (fit outgoing weights without inputs and bias)
- - regression parameters:
-   - method: 
-     - pinv
-     - ridge (sklearn Ridge parameters available)
-     - ridge-formula
-
+ - regression:
+   - pinv
+   - ridge (sklearn Ridge parameters available)
 ### Plotting
  - True vs predicted time series.
  - Task related plots (e.g, forgetting curve).
  - Reservoir neurons activity.
-
 ### Tasks 
  - Memory capacity
-
 ### Model selection
  - Grid search
-
 ### Datasets
  - Mackey-Glass-t17 
-
-### TODO
- - teacher scaling and shift
- - neuron models 
- - numba acceleration
- - add Tasks 
- - add Datasets
- - ensemble
- - visualization grid search
 
 ## Tests 
 Run tests with 
@@ -307,3 +288,13 @@ make test
   - [A Practical Guide to Applying Echo State Networks, Mantas, 2012](https://link.springer.com/chapter/10.1007/978-3-642-35289-8_36)
   - [Echo state network (scholarpedia), Jaeger](http://www.scholarpedia.org/article/Echo_state_network)
   - [Short Term Memory in Echo State Networks, Jaeger, 2001](http://publica.fraunhofer.de/eprints/urn_nbn_de_0011-b-731310.pdf)
+
+### TODO (aka coming soon!)
+ - teacher scaling and shift
+ - neuron models 
+ - numba acceleration
+ - add Tasks 
+ - add Datasets
+ - ensemble
+ - visualization grid search
+ - sparse matri

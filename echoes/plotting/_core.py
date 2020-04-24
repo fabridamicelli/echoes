@@ -9,7 +9,7 @@ import numpy as np
 import pandas as pd
 import seaborn as sns
 
-from echoes.esn import ESNGenerative, ESNPredictive
+from echoes.esn import ESNGenerator, ESNRegressor
 
 
 def set_mystyle():
@@ -82,7 +82,7 @@ def plot_predicted_ts(
 
 
 def plot_reservoir_activity(
-    esn: Union[ESNPredictive, ESNGenerative],
+    esn: Union[ESNRegressor, ESNGenerator],
     neurons: Union[np.ndarray, List],
     train: bool = False,
     pred: bool = True,

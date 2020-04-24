@@ -41,8 +41,7 @@ class ESNGenerator(ESNBase, MultiOutputMixin, RegressorMixin):
         Input weights matrix by which input signal is multiplied.
         If None, random weights are used.
     W_fb: np.ndarray of shape(n_reservoir, n_outputs), optional, default None.
-        Feedback weights matrix by which teaching signal is multiplied in
-        case of teaching force.
+        Feedback weights matrix by which feedback is multiplied in case of feedback.
     sparsity: float, optional, default=0
         Proportion of the reservoir matrix weights forced to be zero.
         Note that with default W (centered around 0), the actual sparsity will
@@ -67,9 +66,8 @@ class ESNGenerator(ESNBase, MultiOutputMixin, RegressorMixin):
         If float, multiplied same value is added to all inputs.
         If array, it must match n_inputs length, specifying the value to add to
         each input.
-    teacher_forcing: bool, optional, default=False
-        If True, the output signal gets reinjected into the reservoir
-        during training.
+    feedback: bool, optional, default=False
+        If True, the reservoir also receives the outout signal as input.
     activation: function, optional, default=tanh
         Non-linear activation function applied to the neurons at each step.
     activation_out: function, optional, default=identity
@@ -77,7 +75,7 @@ class ESNGenerator(ESNBase, MultiOutputMixin, RegressorMixin):
         that targets = f(outputs). So the output produced must be transformed.
     inv_activation_out: function, optional, default=identity
         Inverse of acivation function applied to the outputs. This is used to first
-        transform targets to teacher (during training).
+        transform targets (during training).
     fit_only_states: bool,default=False
         If True, outgoing weights (W_out) are computed fitting only the reservoir
         states. Inputs and bias are still use to drive reservoir activity, but
@@ -161,7 +159,7 @@ class ESNGenerator(ESNBase, MultiOutputMixin, RegressorMixin):
         Parameters
         ----------
         X: None, always ignored, API consistency
-            It is ignored as only the teaching sequence matters (outputs).
+            It is ignored as only the target sequence matters (outputs).
             A sequence of zeros will be fed in - matching the len(outputs) as initial
             condition.
         y: 2D np.ndarray of shape (n_samples,) or (n_samples, n_outputs), default=None

@@ -22,7 +22,7 @@ def check_arrays_dimensions(
         assert isinstance(
             inputs, np.ndarray
         ), "wrong inputs type; must be np.ndarray or None"
-        if inputs.ndim < 2:
+        if inputs.ndim != 2:
             raise ValueError(
                 "Input must be 2D array, got 1D array instead"
                 "If n_inputs is one reshape your data with .reshape(-1, 1)."
@@ -32,12 +32,11 @@ def check_arrays_dimensions(
                 inputs.shape[0] == outputs.shape[0]
             ), "inputs and outputs must have same length"
     if outputs is not None:
-        if outputs.ndim < 2:
+        if outputs.ndim != 2:
             raise ValueError(
                 "Output must be 2D array, got 1D array instead."
                 "If your n_outputs is one, reshape your data with .reshape(-1, 1)."
             )
-    # TODO: assert dimensions inputs match n_inputs and dimensions output matchs n_outputs
 
 
 def identity(x: Union[float, np.ndarray]) -> Union[float, np.ndarray]:

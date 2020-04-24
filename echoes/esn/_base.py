@@ -46,8 +46,7 @@ class ESNBase(BaseEstimator):
         Input weights matrix by which input signal is multiplied.
         If None, random weights are used.
     W_fb: np.ndarray of shape(n_reservoir, n_outputs), optional, default None.
-        Feedback weights matrix by which teaching signal is multiplied in
-        case of teaching force.
+        Feedback weights matrix by which feedback is multiplied in case of feedback.
     sparsity: float, optional, default=0
         Proportion of the reservoir matrix weights forced to be zero.
         Note that with default W (centered around 0), the actual sparsity will
@@ -72,9 +71,8 @@ class ESNBase(BaseEstimator):
         If float, multiplied same value is added to all inputs.
         If array, it must match n_inputs length, specifying the value to add to
         each input.
-    teacher_forcing: bool, optional, default=False
-        If True, the output signal gets reinjected into the reservoir
-        during training.
+    feedback: bool, optional, default=False
+        If True, the reservoir also receives the outout signal as input.
     activation: function, optional, default=tanh
         Non-linear activation function applied to the neurons at each step.
     activation_out: function, optional, default=identity
@@ -82,7 +80,7 @@ class ESNBase(BaseEstimator):
         that targets = f(outputs). So the output produced must be transformed.
     inv_activation_out: function, optional, default=identity
         Inverse of acivation function applied to the outputs. This is used to first
-        transform targets to teacher (during training).
+        transform targets.
     fit_only_states: bool,default=False
         If True, outgoing weights (W_out) are computed fitting only the reservoir
         states. Inputs and bias are still use to drive reservoir activity, but
@@ -166,7 +164,7 @@ class ESNBase(BaseEstimator):
         bias: Union[int, float] = 1,
         input_scaling: Union[float, np.ndarray] = None,
         input_shift: Union[float, np.ndarray] = None,
-        teacher_forcing: bool = False,
+        feedback: bool = False,
         activation: Callable = np.tanh,
         activation_out: Callable = identity,
         inv_activation_out: Callable = identity,
@@ -196,7 +194,7 @@ class ESNBase(BaseEstimator):
         self.bias = bias
         self.input_scaling = input_scaling
         self.input_shift = input_shift
-        self.teacher_forcing = teacher_forcing
+        self.feedback = feedback
         self.activation = activation
         self.activation_out = activation_out
         self.inv_activation_out = inv_activation_out
@@ -222,7 +220,6 @@ class ESNBase(BaseEstimator):
         # TODO: initialize bias weights separately, as we might want bias to have
                 a different contribution than the inputs.
         """
-        #TODO: append bias when Win is passed
         if self.W_in is not None:
             return self.W_in
         W_in = (
@@ -249,7 +246,7 @@ class ESNBase(BaseEstimator):
 
     def _init_feedback_weights(self) -> Union[None, np.ndarray]:
         """Return feedback weights. Shape (n_reservoir, n_outputs)."""
-        if not self.teacher_forcing:
+        if not self.feedback:
             return None
         if self.W_fb is not None:
             return self.W_fb
@@ -257,7 +254,6 @@ class ESNBase(BaseEstimator):
             low=-1, high=1, size=(self.n_reservoir_, self.n_outputs_))
         return W_fb
 
-    # TODO test input scaling and shifting
     # TODO maybe move to utils
     # TODO maybe replace by sklearn scaler
     def _scale_shift_inputs(self, inputs: np.ndarray) -> np.ndarray:
@@ -295,7 +291,7 @@ class ESNBase(BaseEstimator):
     ) -> np.ndarray:
         """
         Update reservoir states one time step with the following equations.
-        There are two cases, a) without and b) with teacher forcing (feedback):
+        There are two cases, a) without and b) with feedback:
 
         a.1)    x'(t) = f(W x(t-1) + W_in [1; u(t)]) + e
 
@@ -314,7 +310,7 @@ class ESNBase(BaseEstimator):
             e: random noise applied to neurons (regularization)
             W: reservoir weights matrix
             W_in: incoming weights matrix
-            W_fb: feedback (teaching) matrix
+            W_fb: feedback matrix
             u(t): inputs vector at time t
             y(t): outputs vector at time t
             1: bias input.
@@ -334,7 +330,7 @@ class ESNBase(BaseEstimator):
         states: 2D np.ndarray of shape (1, n_reservoir)
             Reservoir states vector after update.
         """
-        if self.teacher_forcing:
+        if self.feedback:
             state_preac = W @ state + W_in @ inputs + W_fb @ outputs
         else:
             state_preac = W @ state + W_in @ inputs
