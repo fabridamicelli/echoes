@@ -382,6 +382,7 @@ class ESNBase(BaseEstimator):
                 max_iter=self.ridge_max_iter,
                 tol=self.ridge_tol,
                 solver=self.ridge_solver,
+                random_state=self.random_state_,
             )
             linreg.fit(full_states, outputs, sample_weight=self.ridge_sample_weight)
             W_out = linreg.coef_
