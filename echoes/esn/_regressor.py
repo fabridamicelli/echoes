@@ -2,18 +2,20 @@
 Echo State Network Regressor.
 """
 import numpy as np
-from sklearn.utils.validation import check_random_state, check_is_fitted
+from sklearn.utils.validation import (
+    check_random_state,
+    check_is_fitted,
+    check_consistent_length,
+)
 from sklearn.utils import check_X_y, check_array
 from sklearn.base import MultiOutputMixin, RegressorMixin
 from sklearn.metrics import r2_score
 
 from ._base import ESNBase
-from echoes.utils import check_arrays_dimensions, check_model_params
+from echoes.utils import check_model_params
 
 
-#TODO: add sklearn checks
 class ESNRegressor(ESNBase, MultiOutputMixin, RegressorMixin):
-
     def fit(self, X: np.ndarray, y: np.ndarray) -> "ESNRegressor":
         """
         Fit Echo State model, i.e., find outgoing weights matrix (W_out) for later
@@ -35,14 +37,9 @@ class ESNRegressor(ESNBase, MultiOutputMixin, RegressorMixin):
         self: returns an instance of self.
         """
         X, y = check_X_y(X, y, multi_output=True)
-        y = y.reshape(-1, 1) if y.ndim == 1 else y
+        if y.ndim == 1:
+            y = y.reshape(-1, 1)
         inputs, outputs = X, y
-
-        # TODO: check all checks!
-        # check_model_params(self.__dict__, esn_type)
-        # check_inputs(inputs, esn_type)
-        # check_outputs(outputs, self.n_outputs)
-        # check_arrays_dimensions(inputs, outputs) # sanity check
 
         # Initialize matrices and random state
         self.random_state_ = check_random_state(self.random_state)
@@ -53,7 +50,7 @@ class ESNRegressor(ESNBase, MultiOutputMixin, RegressorMixin):
         self.W_ = self._init_reservoir_weights()
         self.W_fb_ = self._init_feedback_weights()
 
-
+        check_model_params(self.__dict__)
         #######--#####
         # Scale and shift inputs
         inputs = self._scale_shift_inputs(inputs)
@@ -69,8 +66,12 @@ class ESNRegressor(ESNBase, MultiOutputMixin, RegressorMixin):
         states = np.zeros((n_samples, self.n_reservoir_))
         for step in range(1, n_samples):
             states[step, :] = self._update_state(
-                states[step - 1], inputs[step, :], outputs[step - 1, :],
-                self.W_in_, self.W_, self.W_fb_
+                states[step - 1],
+                inputs[step, :],
+                outputs[step - 1, :],
+                self.W_in_,
+                self.W_,
+                self.W_fb_,
             )
 
         # Extend states matrix with inputs (and bias); i.e., make [x(t); 1; u(t)]
@@ -123,13 +124,18 @@ class ESNRegressor(ESNBase, MultiOutputMixin, RegressorMixin):
         # Initialize predictions
         states = np.zeros((n_samples, self.n_reservoir_))
         outputs = np.zeros((n_samples, self.n_outputs_))
-        check_arrays_dimensions(inputs)  # sanity check
+
+        check_consistent_length(inputs, outputs)  # sanity check
 
         # Go through samples (steps) and predict for each of them
         for step in range(1, n_samples):
             states[step, :] = self._update_state(
-                states[step - 1, :], inputs[step, :], outputs[step - 1, :],
-                self.W_in_, self.W_, self.W_fb_
+                states[step - 1, :],
+                inputs[step, :],
+                outputs[step - 1, :],
+                self.W_in_,
+                self.W_,
+                self.W_fb_,
             )
 
             if self.fit_only_states:
@@ -147,7 +153,7 @@ class ESNRegressor(ESNBase, MultiOutputMixin, RegressorMixin):
         outputs = self.activation_out(outputs)
         return outputs
 
-    #TODO: handle transient
+    # TODO: handle transient
     def score(self, X=None, y=None, sample_weight=None) -> float:
         """
         R^2 (coefficient of determination) regression score function.

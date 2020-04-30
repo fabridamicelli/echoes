@@ -3,22 +3,13 @@ Echo State Network (ESN) base class.
 It implements common code for predictive and generative ESN's.
 It should not be instanciated, use ESNGenerative and ESNPredictive instead.
 """
-import warnings
-
-from typing import Union, Callable, Dict
+from typing import Union, Callable
 
 import numpy as np
 from sklearn.base import BaseEstimator
 from sklearn.linear_model import Ridge
 
-from echoes.utils import (
-    set_spectral_radius,
-    identity,
-    check_arrays_dimensions,
-    check_model_params,
-    check_inputs,
-    check_outputs
-)
+from echoes.utils import set_spectral_radius, identity
 
 
 class ESNBase(BaseEstimator):
@@ -151,11 +142,12 @@ class ESNBase(BaseEstimator):
         If store_states_pred is True, states matrix is stored for visualizing
         reservoir neurons activity during prediction (test).
         """
+
     def __init__(
         self,
         n_reservoir: int = 100,
         W: np.ndarray = None,
-        spectral_radius: float = .99,
+        spectral_radius: float = 0.99,
         W_in: np.ndarray = None,
         W_fb: np.ndarray = None,
         sparsity: float = 0,
@@ -222,10 +214,8 @@ class ESNBase(BaseEstimator):
         """
         if self.W_in is not None:
             return self.W_in
-        W_in = (
-            self.random_state_.uniform(
-                low=-1, high=1, size=(self.n_reservoir_, self.n_inputs_ + 1) # +1 ->bias
-            )
+        W_in = self.random_state_.uniform(
+            low=-1, high=1, size=(self.n_reservoir_, self.n_inputs_ + 1)  # +1 ->bias
         )
         return W_in
 
@@ -239,7 +229,7 @@ class ESNBase(BaseEstimator):
             return set_spectral_radius(self.W, self.spectral_radius)
 
         W = self.random_state_.uniform(
-            low=-.5, high=.5, size=(self.n_reservoir_, self.n_reservoir_)
+            low=-0.5, high=0.5, size=(self.n_reservoir_, self.n_reservoir_)
         )
         W[self.random_state_.rand(*W.shape) < self.sparsity] = 0
         return set_spectral_radius(W, self.spectral_radius)
@@ -251,7 +241,8 @@ class ESNBase(BaseEstimator):
         if self.W_fb is not None:
             return self.W_fb
         W_fb = self.random_state_.uniform(
-            low=-1, high=1, size=(self.n_reservoir_, self.n_outputs_))
+            low=-1, high=1, size=(self.n_reservoir_, self.n_outputs_)
+        )
         return W_fb
 
     # TODO maybe move to utils
@@ -287,7 +278,7 @@ class ESNBase(BaseEstimator):
         outputs: np.ndarray,
         W_in: np.ndarray,
         W: np.ndarray,
-        W_fb: np.ndarray
+        W_fb: np.ndarray,
     ) -> np.ndarray:
         """
         Update reservoir states one time step with the following equations.
@@ -383,7 +374,5 @@ class ESNBase(BaseEstimator):
             linreg.fit(full_states, outputs, sample_weight=self.ridge_sample_weight)
             W_out = linreg.coef_
         else:
-            raise ValueError(
-                "regression_method must be one of pinv, ridge"
-            )
+            raise ValueError("regression_method must be one of pinv, ridge")
         return W_out

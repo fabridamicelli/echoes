@@ -1,12 +1,11 @@
 # echoes 
 (work in progress!)
 
-Scikit-learn compatible, high level API for machine learning with Echo State Networks.
+Scikit-learn compatible, high level API for machine learning with Echo State Networks(ESN).
 Documentation and examples back up all the code.
 
 Several typical benchmark tasks, datasets and plotting functionalities are also included,
 thus saving boiler plate code and allowing the user to quickly test the ESN.
-
 
 ## Installation
 [Download](https://github.com/fabridamicelli/echoes/archive/master.zip) or clone repo like this:
@@ -232,6 +231,20 @@ plot_reservoir_activity(esn,
 ```
 ![Alt Text](https://github.com/fabridamicelli/echoes/blob/master/examples/figs/reservoir_activity.png)
 
+## Citing
+
+If you find echoes useful for a publication, then please use the following BibTeX to cite it:
+
+```
+@misc{echoes,
+  author = {Damicelli, Fabrizio},
+  title = {echoes: Echo State Networks with Python},
+  year = {2019},
+  publisher = {GitHub},
+  journal = {GitHub repository},
+  howpublished = {\url{https://github.com/fabridamicelli/echoes}},
+}
+```
 
 ## Requirements
 ### Dependencies
@@ -244,12 +257,13 @@ plot_reservoir_activity(esn,
    - mypy
    - pytest 
 
-The code has been tested with Python 3.7 on Ubuntu 18.04.
+The code has been tested with Python 3.7 on Ubuntu 16.04.
 
 ## Features
 ### ESNs
  - ESNRegressor
  - ESNGenerator
+Reservoir neurons activity is represented by a discretized rate model with leaky integration.
 ### ESN hyperparameters
  - input scaling and shift
  - reservoir sparsity
