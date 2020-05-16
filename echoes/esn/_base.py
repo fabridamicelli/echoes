@@ -169,7 +169,7 @@ class ESNBase(BaseEstimator):
         ridge_tol: float = 1e-3,
         ridge_solver: str = "auto",
         ridge_sample_weight: Union[float, np.ndarray] = None,
-        n_transient: int = None,
+        n_transient: int = 0,
         store_states_train: bool = False,
         store_states_pred: bool = False,
         random_state: Union[int, np.random.RandomState, None] = None,
