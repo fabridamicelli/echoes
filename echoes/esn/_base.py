@@ -253,19 +253,19 @@ class ESNBase(BaseEstimator):
         """
         if self.input_scaling is not None:
             if isinstance(self.input_scaling, (float, int)):
-                inputs *= self.input_scaling
+                inputs = inputs * self.input_scaling
             elif isinstance(self.input_scaling, np.ndarray):
                 assert len(self.input_scaling) == self.n_inputs_, "wrong input scaling"
-                inputs *= self.input_scaling[:, None]  # broadcast column-wise
+                inputs = inputs * self.input_scaling[:, None]  # broadcast column-wise
             else:
                 raise ValueError("wrong input scaling type")
 
         if self.input_shift is not None:
             if isinstance(self.input_shift, (float, int)):
-                inputs += self.input_shift
+                inputs = inputs + self.input_shift
             elif isinstance(self.input_scaling, np.ndarray):
                 assert len(self.input_shift) == self.n_inputs_, "wrong input shift"
-                inputs += self.input_scaling[:, None]  # broadcast column-wise
+                inputs = inputs + self.input_scaling[:, None]  # broadcast column-wise
             else:
                 raise ValueError("wrong input scaling type")
 
