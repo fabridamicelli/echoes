@@ -55,13 +55,13 @@ class ESNBase(BaseEstimator):
     input_scaling: float or np.ndarray of length n_inputs, default=None
         Scalar to multiply each input before feeding it to the network.
         If float, all inputs get multiplied by same value.
-        If array, it must match n_inputs length, specifying the scaling factor for
-        each input.
+        If array, it must match n_inputs length (X.shape[1]), specifying the scaling
+        factor for each input.
     input_shift: float or np.ndarray of length n_inputs, default=None
         Scalar to add to each input before feeding it to the network.
         If float, multiplied same value is added to all inputs.
-        If array, it must match n_inputs length, specifying the value to add to
-        each input.
+        If array, it must match n_inputs length (X.shape[1]), specifying the value to
+        add to each input.
     feedback: bool, optional, default=False
         If True, the reservoir also receives the outout signal as input.
     activation: function, optional, default=tanh
@@ -256,7 +256,7 @@ class ESNBase(BaseEstimator):
                 inputs = inputs * self.input_scaling
             elif isinstance(self.input_scaling, np.ndarray):
                 assert len(self.input_scaling) == self.n_inputs_, "wrong input scaling"
-                inputs = inputs * self.input_scaling[:, None]  # broadcast column-wise
+                inputs = inputs * self.input_scaling
             else:
                 raise ValueError("wrong input scaling type")
 
@@ -265,7 +265,7 @@ class ESNBase(BaseEstimator):
                 inputs = inputs + self.input_shift
             elif isinstance(self.input_scaling, np.ndarray):
                 assert len(self.input_shift) == self.n_inputs_, "wrong input shift"
-                inputs = inputs + self.input_scaling[:, None]  # broadcast column-wise
+                inputs = inputs + self.input_scaling
             else:
                 raise ValueError("wrong input scaling type")
 
