@@ -106,3 +106,4 @@ venv.bak/
 
 # temporal files
 tmp_files/
+site/
