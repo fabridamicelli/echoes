@@ -2,7 +2,7 @@
 Plotting functions often needed.
 Not extremely well polished, rather a tool for quick visualization.
 """
-from typing import List, Union, Tuple
+from typing import List, Union, Tuple, Mapping
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -18,12 +18,10 @@ def set_mystyle():
         context="paper",
         style="whitegrid",
         font_scale=1.4,
-        font="Helvetica",
         rc={"grid.linestyle": "--", "grid.linewidth": 0.8},
     )
 
 
-# TODO kwargs for customizing plot,legend, etc.
 def plot_predicted_ts(
     ts_true: Union[np.ndarray, List, pd.Series],
     ts_pred: Union[np.ndarray, List, pd.Series],
@@ -55,6 +53,11 @@ def plot_predicted_ts(
         Default (6, 2).
     legend: bool
         If True, legend is added ("target", "predicted").
+
+    Returns
+    -------
+    ax: axmatplotlib Axes
+        Returns the Axes object with the plot drawn onto it.
     """
     if isinstance(ts_true, pd.Series):
         ts_true = ts_true.values
@@ -79,6 +82,7 @@ def plot_predicted_ts(
 
     if legend:
         ax.legend()
+    return ax
 
 
 def plot_reservoir_activity(
@@ -88,7 +92,8 @@ def plot_reservoir_activity(
     pred: bool = True,
     start: int = None,
     end: int = None,
-    figsize: Tuple = (15, 9)
+    figsize: Tuple = (15, 9),
+    **kwargs: Mapping,
 ):
     """
     Plot the activity, ie time series of states, of the reservoir
@@ -113,6 +118,13 @@ def plot_reservoir_activity(
     figsize: tuple
         Figure size.
         Default (15, 10).
+    kwargs: dict
+        Plotting kwargs passed to plt.plot
+
+    Returns
+    -------
+    fig: plt.figure
+        Figure object for fine tuning.
     """
     assert train or pred, "either train or pred must be True"
     assert not (train and pred), "only one of train or pred can be True"
@@ -125,13 +137,21 @@ def plot_reservoir_activity(
     fig, axes = plt.subplots(
         nrows=int(np.ceil(n_neurons / 3)), ncols=3, figsize=figsize)
 
+    if "linewidth" in kwargs:
+        linewidth = kwargs.pop("linewidht")
+    else:
+        linewidth = 3
+    if "color" in kwargs:
+        color = kwargs.pop("color")
+    else:
+        color = ".6"
+
     for neuron_idx, neuron in enumerate(neurons):
         ax = axes.flat[neuron_idx]
-
-        ax.plot(ts[start:end, neuron], color=".52", linewidth=3)
+        ax.plot(ts[start:end, neuron], linewidth=linewidth, color=color, **kwargs)
         ax.set_ylabel("state")
         ax.set_xlabel("time")
-        ax.set_title(f"reservoir neuron # {neuron}")
+        ax.set_title(f"reservoir neuron idx: {neuron}")
 
     # Delete unnecessary axes
     if n_neurons % 3 == 1:
@@ -141,3 +161,4 @@ def plot_reservoir_activity(
         fig.delaxes(axes.flat[-1])
 
     fig.tight_layout()
+    return fig
