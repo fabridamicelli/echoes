@@ -4,7 +4,7 @@ from setuptools import find_packages
 
 setup(name='echoes',
       version='0.1',
-      description='Pythonic Echo State Networks',
+      description='Machine Learning with Echo State Networks',
       author='Fabrizio Damicelli',
       author_email='f.damicelli@uke.de',
       url='',

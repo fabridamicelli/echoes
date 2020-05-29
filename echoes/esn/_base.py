@@ -144,7 +144,7 @@ class ESNBase(BaseEstimator):
         """
 
     def __init__(
-        self,
+        self, *,
         n_reservoir: int = 100,
         W: np.ndarray = None,
         spectral_radius: float = 0.99,
@@ -245,8 +245,7 @@ class ESNBase(BaseEstimator):
         )
         return W_fb
 
-    # TODO maybe move to utils
-    # TODO maybe replace by sklearn scaler
+    # TODO maybe move to utils and/or replace by sklearn scaler
     def _scale_shift_inputs(self, inputs: np.ndarray) -> np.ndarray:
         """
         Return first scaled and then shifted inputs vector/matrix.

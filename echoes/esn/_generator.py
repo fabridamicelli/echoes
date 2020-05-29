@@ -140,7 +140,7 @@ class ESNGenerator(ESNBase, MultiOutputMixin, RegressorMixin):
         reservoir neurons activity during prediction (test).
         """
 
-    def __init__(self, n_steps: int = 100, **kwargs) -> None:
+    def __init__(self, *,  n_steps: int = 100, **kwargs) -> None:
         super().__init__(**kwargs)
         self.n_steps = n_steps
         if "feedback" in kwargs:

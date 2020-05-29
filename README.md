@@ -2,10 +2,8 @@
 (work in progress!)
 
 Scikit-learn compatible, high level API for machine learning with Echo State Networks(ESN).
-Documentation and examples back up all the code.
 
-Several typical benchmark tasks, datasets and plotting functionalities are also included,
-thus saving boiler plate code and allowing the user to quickly test the ESN.
+See [Documentation](documentation link) and [examples](examples links) for a quick start.
 
 ## Installation
 [Download](https://github.com/fabridamicelli/echoes/archive/master.zip) or clone repo like this:
