@@ -1,0 +1,61 @@
+site_name: echoes
+extra_css:
+  - custom.css
+
+repo_url: https://github.com/fabridamicelli/echoes
+site_url: https://fabridamicelli.github.io/echoes/
+site_description: Pythonic Echo State Networks
+site_author: Fabrizio Damicelli
+
+nav:
+  - Home: index.md
+  - What are Echo State Networks?: tutorial/index.md
+  - Examples:
+    - ESNRegressor (sin-cos): examples/plot_regressor_sincos/index.md
+    - ESNGenerator (Mackey-Glass): examples/plot_generator_mackeyglass17/index.md
+    - Plot Reservoir Activity: examples/plot_reservoir_activity/index.md
+  - API:
+    - ESNRegressor: api/ESNRegressor.md
+    - ESNGenerator: api/ESNGenerator.md
+    - plotting: api/plotting.md
+    - utils: api/utils.md
+
+theme:
+  name: material
+  custom_dir: theme/
+  feature:
+    tabs: true
+  palette:
+    primary: indigo
+    accent: orange
+  font:
+    text: Roboto
+    code: Roboto Mono
+
+markdown_extensions:
+  - toc:
+      permalink: true
+  - codehilite
+
+plugins:
+  - search
+  - mkdocstrings:
+      default_handler: python
+      handlers:
+        python:
+          rendering:
+            show_source: true
+      watch:
+        - echoes
+
+
+copyright: Copyright &copy; 2020 Maintained by <a href="https://twitter.com/fabridamicelli">Fabrizio</a>.
+
+extra:
+  social:
+    - icon: fontawesome/brands/github-alt
+      link: https://github.com/fabridamicelli
+    - icon: fontawesome/brands/twitter
+      link: https://twitter.com/fabridamicelli
+    - icon: fontawesome/brands/linkedin
+      link: https://linkedin.com/in/fabridamicelli
