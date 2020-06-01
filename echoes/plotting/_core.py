@@ -33,31 +33,29 @@ def plot_predicted_ts(
     legend: bool = True,
 ) -> None:
     """
-    Parameters
-    ----------
-    ts_true: np.ndarray, List, pd.Series
-        Target time series.
-    ts_pred: np.ndarray, List, pd.Series
-        Predicted time series.
-    start: int, optional
-        Plot will be timeseries[start: end].
-    end: int, optional
-        Plot will be timeseries[start: end].
-    ax: plt.Axes, optional
-        Axes to plot on. If None, a new figure is created.
-        Default None
-    title: str,optional
-        Plot title.
-    figsize: tuple
-        Figure size.
-        Default (6, 2).
-    legend: bool
-        If True, legend is added ("target", "predicted").
+    Arguments:
+        ts_true: np.ndarray, List, pd.Series
+            Target time series.
+        ts_pred: np.ndarray, List, pd.Series
+            Predicted time series.
+        start: int, optional
+            Plot will be timeseries[start: end].
+        end: int, optional
+            Plot will be timeseries[start: end].
+        ax: plt.Axes, optional
+            Axes to plot on. If None, a new figure is created.
+            Default None
+        title: str,optional
+            Plot title.
+        figsize: tuple
+            Figure size.
+            Default (6, 2).
+        legend: bool
+            If True, legend is added ("target", "predicted").
 
-    Returns
-    -------
-    ax: axmatplotlib Axes
-        Returns the Axes object with the plot drawn onto it.
+    Returns:
+        ax: matplotlib Axes
+            Returns the Axes object with the plot drawn onto it.
     """
     if isinstance(ts_true, pd.Series):
         ts_true = ts_true.values
@@ -99,32 +97,32 @@ def plot_reservoir_activity(
     Plot the activity, ie time series of states, of the reservoir
     neurons.
 
-    esn: ESNPredictive, ESNGenerative
-        Instances of ESN after fitting and/or prediction.
-    neurons: np.ndarray or List
-        List of reservoir neurons indices whose time series will be plotted.
-    train: bool, optional
-        If True, the time series during training will be plotted.
-        Either train or pred must be True, but only one of the two.
-    pred: bool, optional
-        If True, the time series during prediction will be plotted.
-        Either train or pred must be True, but only one of the two.
-    start: int, optional
-        Plot will be timeseries[start: end].
-    end: int, optional
-        Plot will be timeseries[start: end].
-    suptitle: str, optional
-        Plot suptitle.
-    figsize: tuple
-        Figure size.
-        Default (15, 10).
-    kwargs: dict
-        Plotting kwargs passed to plt.plot
+    Arguments:
+        esn: ESNPredictive, ESNGenerative
+            Instances of ESN after fitting and/or prediction.
+        neurons: np.ndarray or List
+            List of reservoir neurons indices whose time series will be plotted.
+        train: bool, optional
+            If True, the time series during training will be plotted.
+            Either train or pred must be True, but only one of the two.
+        pred: bool, optional
+            If True, the time series during prediction will be plotted.
+            Either train or pred must be True, but only one of the two.
+        start: int, optional
+            Plot will be timeseries[start: end].
+        end: int, optional
+            Plot will be timeseries[start: end].
+        suptitle: str, optional
+            Plot suptitle.
+        figsize: tuple
+            Figure size.
+            Default (15, 10).
+        kwargs: dict
+            Plotting kwargs passed to plt.plot
 
-    Returns
-    -------
-    fig: plt.figure
-        Figure object for fine tuning.
+    Returns:
+        fig: plt.figure
+            Figure object for fine tuning.
     """
     assert train or pred, "either train or pred must be True"
     assert not (train and pred), "only one of train or pred can be True"

@@ -18,16 +18,15 @@ def plot_forgetting_curve(
     """
     Plot forgetting curve, ie, memory capacity (MC) vs lag.
 
-    Parameters
-    ----------
-    lags: np.ndarray or List
-        Sequence of lags used in the memory capacity task.
-    forgetting_curve: np.ndarray
-        Sequence of results from the memory task.
-    ax: plt.Axes, optional
-        If given plot will use this axes.
-    kwargs: mapping, optional
-        Plotting args passed to ax.plot.
+    Arguments:
+        lags: np.ndarray or List
+            Sequence of lags used in the memory capacity task.
+        forgetting_curve: np.ndarray
+            Sequence of results from the memory task.
+        ax: plt.Axes, optional
+            If given plot will use this axes.
+        kwargs: mapping, optional
+            Plotting args passed to ax.plot.
     """
     if ax is None:
         fig, ax = plt.subplots()
@@ -47,17 +46,16 @@ def plot_mc_predicted_ts(
     Plot true and predicted time series coming from memory capacity
     task for all lags.
 
-    Parameters
-    ----------
-    lags: np.ndarray or List
-        Delays to be evaluated (memory capacity).
-        For example: np.arange(1, 31, 5).
-    ouputs_true: np.ndarray of shape (len(ts), len(n_lags))
-        Target time series used for testing the model.
-    ouputs_pred: np.ndarray of shape (len(ts), len(n_lags))
-        Predicted time series resulting from testing the model.
-    start/end: int, optional
-        Plot will we timeseries[start: end], to exclude transient.
+    Arguments:
+        lags: np.ndarray or List
+            Delays to be evaluated (memory capacity).
+            For example: np.arange(1, 31, 5).
+        ouputs_true: np.ndarray of shape (len(ts), len(n_lags))
+            Target time series used for testing the model.
+        ouputs_pred: np.ndarray of shape (len(ts), len(n_lags))
+            Predicted time series resulting from testing the model.
+        start/end: int, optional
+            Plot will we timeseries[start: end], to exclude transient.
     """
     assert (
         outputs_true.shape == outputs_pred.shape
