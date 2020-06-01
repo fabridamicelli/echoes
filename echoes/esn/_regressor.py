@@ -16,25 +16,24 @@ from echoes.utils import check_model_params
 
 
 class ESNRegressor(ESNBase, MultiOutputMixin, RegressorMixin):
+
     def fit(self, X: np.ndarray, y: np.ndarray) -> "ESNRegressor":
         """
         Fit Echo State model, i.e., find outgoing weights matrix (W_out) for later
         prediction.
         Bias is appended automatically to the inputs.
 
-        Parameters
-        ----------
-        X: None or 2D np.ndarray of shape (n_samples, n_inputs)
-            Training input, i.e., X, the features.
-            If None, it is assumed that only the target sequence matters (outputs)
-            and simply a sequence of zeros will be fed in - matching the len(outputs).
-            This is to be used in the case of generative mode.
-        y: 2D np.ndarray of shape (n_samples,) or (n_samples, n_outputs)
-            Training output, i.e., y, the target.
+        Arguments:
+            X: None or 2D np.ndarray of shape (n_samples, n_inputs)
+                Training input, i.e., X, the features.
+                If None, it is assumed that only the target sequence matters (outputs)
+                and simply a sequence of zeros will be fed in - matching the len(outputs).
+                This is to be used in the case of generative mode.
+            y: 2D np.ndarray of shape (n_samples,) or (n_samples, n_outputs)
+                Training output, i.e., y, the target.
 
         Returns
-        -------
-        self: returns an instance of self.
+            self: returns an instance of self.
         """
         X, y = check_X_y(X, y, multi_output=True)
         if y.ndim == 1:
@@ -98,15 +97,13 @@ class ESNRegressor(ESNBase, MultiOutputMixin, RegressorMixin):
         might want to cut off those steps to test performance (as done by the
         parameter n_transient during training).
 
-        Parameters
-        ----------
-        X: 2D np.ndarray of shape (n_samples, n_inputs)
-            Testing input, i.e., X, the features.
+        Arguments:
+            X: 2D np.ndarray of shape (n_samples, n_inputs)
+                Testing input, i.e., X, the features.
 
-        Returns
-        -------
-        outputs: 2D np.ndarray of shape (n_samples, n_outputs)
-            Predicted outputs.
+        Returns:
+            outputs: 2D np.ndarray of shape (n_samples, n_outputs)
+                Predicted outputs.
         """
         check_is_fitted(self)
         X = check_array(X)
@@ -167,27 +164,25 @@ class ESNRegressor(ESNBase, MultiOutputMixin, RegressorMixin):
           A constant model that always predicts the expected value of y,
           disregarding the input features, would get a R^2 score of 0.0.
 
-        Parameters
-        ----------
-        X: 2D np.ndarray of shape (n_samples, n_inputs)
-            Test samples.
-        y: 2D np.ndarray of shape (n_samples,) or (n_samples, n_outputs)
-            Target sequence, true values of the outputs.
-        sample_weight: array-like of shape (n_samples,), default=None
-            Sample weights.
-            If None, the transient is left out.
-            To consider all steps or leave out a different transient, pass a different
-            sample_weight array with same length as outputs 1 dimension.
-            Example:
-              >> n_steps_to_remove = 10
-              >> weights = np.ones(outputs.shape[0])
-              >> weights[: n_steps_to_remove] = 0
-              >> score(inputs, outputs, sample_weight=weights)
+        Arguments:
+            X: 2D np.ndarray of shape (n_samples, n_inputs)
+                Test samples.
+            y: 2D np.ndarray of shape (n_samples,) or (n_samples, n_outputs)
+                Target sequence, true values of the outputs.
+            sample_weight: array-like of shape (n_samples,), default=None
+                Sample weights.
+                If None, the transient is left out.
+                To consider all steps or leave out a different transient, pass a different
+                sample_weight array with same length as outputs 1 dimension.
+                Example:
+                  >> n_steps_to_remove = 10
+                  >> weights = np.ones(outputs.shape[0])
+                  >> weights[: n_steps_to_remove] = 0
+                  >> score(inputs, outputs, sample_weight=weights)
 
-        Returns
-        -------
-        score: float
-            R2 score
+        Returns:
+            score: float
+                R2 score
         """
         y_pred = self.predict(X)
         if sample_weight is None:
