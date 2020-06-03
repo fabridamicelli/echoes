@@ -6,20 +6,12 @@ Scikit-learn compatible, high level API for machine learning with Echo State Net
 Check out the examples for a quick start.
 
 ## Installation
-[Download](https://github.com/fabridamicelli/echoes/archive/master.zip) or clone repo like this:
+You can install the package via pip
 ```sh
-git clone https://github.com/fabridamicelli/echoes
+pip install echoes
 ```
-
-Then cd to directory and pip install:
-```sh
-cd echoes
-pip install .
-```
-Recommendation: install the package in a separate virtual environment, e.g., created with [(mini)conda](https://conda.io/docs/user-guide/install/index.html).
 
 ## Citing
-
 If you find echoes useful for a publication, then please use the following BibTeX to cite it:
 
 ```
@@ -42,10 +34,7 @@ If you find echoes useful for a publication, then please use the following BibTe
  - seaborn
  - tests: mypy, pytest 
 
-The code has been tested with Python 3.7 on Ubuntu 16.04.
-
-### Datasets
- - Mackey-Glass-t17 
+The code has been tested with Python 3.7 on Ubuntu 16.04. and 18.04.4
 
 ## Tests 
 Run tests with 
