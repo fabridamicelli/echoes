@@ -1,31 +1,17 @@
 import numpy as np
 
-from echoes.esn import ESNGenerative, ESNPredictive
+from echoes.esn import ESNGenerator, ESNRegressor
 
 
 def test_random_seed():
     """test that random seed affects only the weight generation and then gets reset"""
 
     seed = 1
-    esn = ESNGenerative(
-        n_inputs=1,
-        n_outputs=1,
-        n_reservoir=100,
-        spectral_radius=1,
-        teacher_forcing=True,
-        random_state=seed,
-    )
+    esn = ESNGenerator(random_state=seed)
 
     after_seed = np.random.choice(10000000, size=10000)
 
-    esn = ESNPredictive(
-        n_inputs=1,
-        n_outputs=1,
-        n_reservoir=100,
-        spectral_radius=1,
-        teacher_forcing=True,
-        random_state=seed,
-    )
+    esn = ESNRegressor(random_state=seed)
 
     after_seed2 = np.random.choice(10000000, size=10000)
     assert (after_seed != after_seed2).sum() > 0, ("random_seed has global scope, "

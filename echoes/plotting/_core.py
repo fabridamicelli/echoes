@@ -91,7 +91,7 @@ def plot_reservoir_activity(
     start: int = None,
     end: int = None,
     figsize: Tuple = (15, 9),
-    **kwargs: Mapping,
+    **kwargs
 ):
     """
     Plot the activity, ie time series of states, of the reservoir
