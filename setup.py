@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='echoes',
-    version='0.0.1',
+    version='0.0.2',
     description='Machine Learning with Echo State Networks',
     author='Fabrizio Damicelli',
     author_email='f.damicelli@uke.de',
