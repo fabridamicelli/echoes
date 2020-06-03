@@ -6,17 +6,9 @@ Scikit-learn compatible, high level API for machine learning with Echo State Net
 See [Documentation](https://fabridamicelli.github.io/echoes/) and examples for a quick start.
 
 ## Installation
-[Download](https://github.com/fabridamicelli/echoes/archive/master.zip) or clone repo like this:
 ```sh
-git clone https://github.com/fabridamicelli/echoes
+pip install echoes
 ```
-
-Then cd to directory and pip install:
-```sh
-cd echoes
-pip install .
-```
-Recommendation: install the package in a separate virtual environment, e.g., created with [(mini)conda](https://conda.io/docs/user-guide/install/index.html).
 
 ## Citing
 
