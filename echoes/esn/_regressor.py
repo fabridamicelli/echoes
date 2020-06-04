@@ -132,16 +132,16 @@ class ESNRegressor(ESNBase, MultiOutputMixin, RegressorMixin):
             in the object attribute states_pred_.
 
     ### Attributes:
-        W_out_ : array of shape (n_outputs, n_inputs + n_reservoir + 1)
-            Outgoing weights after fitting linear regression model to predict outputs.
-        training_prediction_: array of shape (n_samples, n_outputs)
-            Predicted output on training data.
-        states_train_: array of shape (n_samples, n_reservoir), default False.
-            If store_states_train is True, states matrix is stored for visualizing
-            reservoir neurons activity during training.
-        states_pred_: array of shape (n_samples, n_reservoir), default False.
-            If store_states_pred is True, states matrix is stored for visualizing
-            reservoir neurons activity during prediction (test).
+        - W_out_ : array of shape (n_outputs, n_inputs + n_reservoir + 1)
+             Outgoing weights after fitting linear regression model to predict outputs.
+        - training_prediction_: array of shape (n_samples, n_outputs)
+             Predicted output on training data.
+        - states_train_: array of shape (n_samples, n_reservoir), default False.
+             If store_states_train is True, states matrix is stored for visualizing
+             reservoir neurons activity during training.
+        - states_pred_: array of shape (n_samples, n_reservoir), default False.
+             If store_states_pred is True, states matrix is stored for visualizing
+             reservoir neurons activity during prediction (test).
     """
 
     def fit(self, X: np.ndarray, y: np.ndarray) -> "ESNRegressor":
