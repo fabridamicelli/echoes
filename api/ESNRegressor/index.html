@@ -625,16 +625,16 @@ in the object attribute states_pred_.</p>
 </table>
 <h3 id="attributes">Attributes:<a class="headerlink" href="#attributes" title="Permanent link">¶</a></h3>
 <div class="codehilite">
-<pre><span></span><code><span class="n">W_out_</span> <span class="o">:</span> <span class="n">array</span> <span class="n">of</span> <span class="n">shape</span> <span class="o">(</span><span class="n">n_outputs</span><span class="o">,</span> <span class="n">n_inputs</span> <span class="o">+</span> <span class="n">n_reservoir</span> <span class="o">+</span> <span class="mi">1</span><span class="o">)</span>
-    <span class="n">Outgoing</span> <span class="n">weights</span> <span class="n">after</span> <span class="n">fitting</span> <span class="n">linear</span> <span class="n">regression</span> <span class="n">model</span> <span class="n">to</span> <span class="n">predict</span> <span class="n">outputs</span><span class="o">.</span>
-<span class="o">!!!</span> <span class="n">training_prediction_</span> <span class="s2">"array of shape (n_samples, n_outputs)"</span>
-    <span class="n">Predicted</span> <span class="n">output</span> <span class="n">on</span> <span class="n">training</span> <span class="n">data</span><span class="o">.</span>
-<span class="o">!!!</span> <span class="n">states_train_</span> <span class="s2">"array of shape (n_samples, n_reservoir), default False."</span>
-    <span class="n">If</span> <span class="n">store_states_train</span> <span class="k">is</span> <span class="n">True</span><span class="o">,</span> <span class="n">states</span> <span class="n">matrix</span> <span class="k">is</span> <span class="n">stored</span> <span class="k">for</span> <span class="n">visualizing</span>
-    <span class="n">reservoir</span> <span class="n">neurons</span> <span class="n">activity</span> <span class="n">during</span> <span class="n">training</span><span class="o">.</span>
-<span class="o">!!!</span> <span class="n">states_pred_</span> <span class="s2">"array of shape (n_samples, n_reservoir), default False."</span>
-    <span class="n">If</span> <span class="n">store_states_pred</span> <span class="k">is</span> <span class="n">True</span><span class="o">,</span> <span class="n">states</span> <span class="n">matrix</span> <span class="k">is</span> <span class="n">stored</span> <span class="k">for</span> <span class="n">visualizing</span>
-    <span class="n">reservoir</span> <span class="n">neurons</span> <span class="n">activity</span> <span class="n">during</span> <span class="n">prediction</span> <span class="o">(</span><span class="n">test</span><span class="o">).</span>
+<pre><span></span><code><span class="err">- W_out_ : array of shape (n_outputs, n_inputs + n_reservoir + 1)</span>
+<span class="err">     Outgoing weights after fitting linear regression model to predict outputs.</span>
+<span class="err">- training_prediction_: array of shape (n_samples, n_outputs)</span>
+<span class="err">     Predicted output on training data.</span>
+<span class="err">- states_train_: array of shape (n_samples, n_reservoir), default False.</span>
+<span class="err">     If store_states_train is True, states matrix is stored for visualizing</span>
+<span class="err">     reservoir neurons activity during training.</span>
+<span class="err">- states_pred_: array of shape (n_samples, n_reservoir), default False.</span>
+<span class="err">     If store_states_pred is True, states matrix is stored for visualizing</span>
+<span class="err">     reservoir neurons activity during prediction (test).</span>
 </code></pre>
 </div>
 <div class="doc doc-children">
