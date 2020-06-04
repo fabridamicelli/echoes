@@ -197,6 +197,15 @@
 <a class="md-nav__link" href="#echoes.esn._regressor.ESNRegressor">
     echoes.esn._regressor.ESNRegressor
   </a>
+<nav aria-label="echoes.esn._regressor.ESNRegressor" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#attributes">
+    Attributes:
+  </a>
+</li>
+</ul>
+</nav>
 </li>
 <li class="md-nav__item">
 <a class="md-nav__link" href="#echoes.esn._regressor.ESNRegressor.fit">
@@ -254,6 +263,15 @@
 <a class="md-nav__link" href="#echoes.esn._regressor.ESNRegressor">
     echoes.esn._regressor.ESNRegressor
   </a>
+<nav aria-label="echoes.esn._regressor.ESNRegressor" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#attributes">
+    Attributes:
+  </a>
+</li>
+</ul>
+</nav>
 </li>
 <li class="md-nav__item">
 <a class="md-nav__link" href="#echoes.esn._regressor.ESNRegressor.fit">
@@ -285,6 +303,340 @@
 <h2 class="hidden-toc" href="#echoes.esn._regressor.ESNRegressor" id="echoes.esn._regressor.ESNRegressor" style="visibility: hidden; width: 0; height: 0;">
 <a class="headerlink" href="#echoes.esn._regressor.ESNRegressor" title="Permanent link">¶</a></h2>
 <div class="doc doc-contents first">
+<p>n_inputs and n_outputs are infered from passed data.</p>
+<p><strong>Parameters:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>n_reservoir</code></td>
+<td><code></code></td>
+<td>
+<p>int, optional, default=100
+Number of reservoir neurons. Only used if W is not passed.
+If W is passed, n_reservoir gets overwritten with len(W).
+Either n_reservoir or W must be passed.</p>
+</td>
+<td><em>required</em></td>
+</tr>
+<tr>
+<td><code>W</code></td>
+<td><code></code></td>
+<td>
+<p>np.ndarray of shape (n_reservoir, n_reservoir), optional, default=None
+Reservoir weights matrix. If None, random weights are used (uniformly
+distributed around 0, ie., in [-0.5, 0.5).
+Be careful with the distribution of W values. Wrong W initialization
+might drastically affect test performance (even with reasonable good
+training fit).
+Spectral radius will be adjusted in all cases.
+Either n_reservoir or W must be passed.</p>
+</td>
+<td><em>required</em></td>
+</tr>
+<tr>
+<td><code>spectral_radius</code></td>
+<td><code></code></td>
+<td>
+<p>float, default=.99
+Spectral radius of the reservoir weights matrix (W).
+Spectral radius will be adjusted in all cases (also with user specified W).</p>
+</td>
+<td><em>required</em></td>
+</tr>
+<tr>
+<td><code>W_in</code></td>
+<td><code></code></td>
+<td>
+<p>np.ndarray of shape (n_reservoir, 1+n_inputs) (1-&gt;bias), optional, default None.
+Input weights matrix by which input signal is multiplied.
+If None, random weights are used.</p>
+</td>
+<td><em>required</em></td>
+</tr>
+<tr>
+<td><code>W_fb</code></td>
+<td><code></code></td>
+<td>
+<p>np.ndarray of shape(n_reservoir, n_outputs), optional, default None.
+Feedback weights matrix by which feedback is multiplied in case of feedback.</p>
+</td>
+<td><em>required</em></td>
+</tr>
+<tr>
+<td><code>sparsity</code></td>
+<td><code></code></td>
+<td>
+<p>float, optional, default=0
+Proportion of the reservoir matrix weights forced to be zero.
+Note that with default W (centered around 0), the actual sparsity will
+be slightly more than the specified.
+If W is passed, sparsity will be ignored.</p>
+</td>
+<td><em>required</em></td>
+</tr>
+<tr>
+<td><code>noise</code></td>
+<td><code></code></td>
+<td>
+<p>float, optional, default=0
+Magnitud of the noise input added to neurons at each step.
+This is used for regularization purposes and should typically be
+very small, e.g. 0.0001 or 1e-5.</p>
+</td>
+<td><em>required</em></td>
+</tr>
+<tr>
+<td><code>leak_rate</code></td>
+<td><code></code></td>
+<td>
+<p>float, optional, default=1
+Leaking rate applied to the neurons at each step.
+Default is 1, which is no leaking. 0 would be total leakeage.</p>
+</td>
+<td><em>required</em></td>
+</tr>
+<tr>
+<td><code>bias</code></td>
+<td><code></code></td>
+<td>
+<p>float, optional, default=1
+Value of the bias neuron, injected at each time step together with input.</p>
+</td>
+<td><em>required</em></td>
+</tr>
+<tr>
+<td><code>input_scaling</code></td>
+<td><code></code></td>
+<td>
+<p>float or np.ndarray of length n_inputs, default=None
+Scalar to multiply each input before feeding it to the network.
+If float, all inputs get multiplied by same value.
+If array, it must match n_inputs length (X.shape[1]), specifying the scaling
+factor for each input.</p>
+</td>
+<td><em>required</em></td>
+</tr>
+<tr>
+<td><code>input_shift</code></td>
+<td><code></code></td>
+<td>
+<p>float or np.ndarray of length n_inputs, default=None
+Scalar to add to each input before feeding it to the network.
+If float, multiplied same value is added to all inputs.
+If array, it must match n_inputs length (X.shape[1]), specifying the value to
+add to each input.</p>
+</td>
+<td><em>required</em></td>
+</tr>
+<tr>
+<td><code>feedback</code></td>
+<td><code></code></td>
+<td>
+<p>bool, optional, default=False
+If True, the reservoir also receives the outout signal as input.</p>
+</td>
+<td><em>required</em></td>
+</tr>
+<tr>
+<td><code>activation</code></td>
+<td><code></code></td>
+<td>
+<p>function, optional, default=tanh
+Non-linear activation function applied to the neurons at each step.</p>
+</td>
+<td><em>required</em></td>
+</tr>
+<tr>
+<td><code>activation_out</code></td>
+<td><code></code></td>
+<td>
+<p>function, optional, default=identity
+Activation function applied to the outputs. In other words, it is assumed
+that targets = f(outputs). So the output produced must be transformed.</p>
+</td>
+<td><em>required</em></td>
+</tr>
+<tr>
+<td><code>inv_activation_out</code></td>
+<td><code></code></td>
+<td>
+<p>function, optional, default=identity
+Inverse of acivation function applied to the outputs. This is used to first
+transform targets.</p>
+</td>
+<td><em>required</em></td>
+</tr>
+<tr>
+<td><code>fit_only_states</code></td>
+<td><code></code></td>
+<td>
+<p>bool,default=False
+If True, outgoing weights (W_out) are computed fitting only the reservoir
+states. Inputs and bias are still use to drive reservoir activity, but
+ignored for fitting W_out, both in the training and prediction phase.</p>
+</td>
+<td><em>required</em></td>
+</tr>
+<tr>
+<td><code>regression_method</code></td>
+<td><code></code></td>
+<td>
+<p>str, optional, default "pinv" (pseudoinverse).
+Method to solve the linear regression to find out outgoing weights.
+One of ["pinv", "ridge"].
+If "ridge", ridge_* parameters will be used.</p>
+</td>
+<td><em>required</em></td>
+</tr>
+<tr>
+<td><code>ridge_alpha</code></td>
+<td><code></code></td>
+<td>
+<p>float, ndarray of shape (n_outputs,), default=1
+Regularization coefficient used for Ridge regression.
+Larger values specify stronger regularization.
+If an array is passed, penalties are assumed to be specific to the targets.
+Hence they must correspond in number.
+Default is None to make sure one deliberately sets this since it is
+a crucial parameter. See sklearn Ridge documentation for details.</p>
+</td>
+<td><em>required</em></td>
+</tr>
+<tr>
+<td><code>ridge_fit_intercept</code></td>
+<td><code></code></td>
+<td>
+<p>bool, optional, default=False
+If True, intercept is fit in Ridge regression. Default False.
+See sklearn Ridge documentation for details.</p>
+</td>
+<td><em>required</em></td>
+</tr>
+<tr>
+<td><code>ridge_normalize</code></td>
+<td><code></code></td>
+<td>
+<p>bool, default=False
+This parameter is ignored when fit_intercept is set to False.
+If True, the regressors X will be normalized before regression by
+subtracting the mean and dividing by the l2-norm.
+See sklearn Ridge documentation for details.</p>
+</td>
+<td><em>required</em></td>
+</tr>
+<tr>
+<td><code>ridge_max_iter</code></td>
+<td><code></code></td>
+<td>
+<p>int, default=None
+Maximum number of iterations for conjugate gradient solver.
+See sklearn Ridge documentation for details.</p>
+</td>
+<td><em>required</em></td>
+</tr>
+<tr>
+<td><code>ridge_tol</code></td>
+<td><code></code></td>
+<td>
+<p>float, default=1e-3
+Precision of the solution.
+See sklearn Ridge documentation for details.</p>
+</td>
+<td><em>required</em></td>
+</tr>
+<tr>
+<td><code>ridge_solver</code></td>
+<td><code></code></td>
+<td>
+<p>str, optional, default="auto"
+Solver to use in the Ridge regression.
+One of ["auto", "svd", "cholesky", "lsqr", "sparse_cg", "sag", "saga"].
+See sklearn Ridge documentation for details.</p>
+</td>
+<td><em>required</em></td>
+</tr>
+<tr>
+<td><code>ridge_sample_weight</code></td>
+<td><code></code></td>
+<td>
+<p>float or ndarray of shape (n_samples,), default=None
+Individual weights for each sample.
+If given a float, every sample will have the same weight.
+See sklearn Ridge documentation for details.</p>
+</td>
+<td><em>required</em></td>
+</tr>
+<tr>
+<td><code>n_transient</code></td>
+<td><code></code></td>
+<td>
+<p>int, optional, default=0
+Number of activity initial steps removed (not considered for training)
+in order to avoid initial instabilities.
+Default is 0, but this is something one definitely might want to tweak.</p>
+</td>
+<td><em>required</em></td>
+</tr>
+<tr>
+<td><code>random_state</code></td>
+<td><code></code></td>
+<td>
+<p>int, RandomState instance, default=None
+The seed of the pseudo random number generator used to generate weight
+matrices, to generate noise inyected to reservoir neurons (regularization)
+and it is passed to the ridge solver in case regression_method=ridge.
+From sklearn:
+  If int, random_state is the seed used by the random number generator;
+  If RandomState instance, random_state is the random number generator;
+  If None, the random number generator is the RandomState instance used
+  by <code>np.random</code>.</p>
+</td>
+<td><em>required</em></td>
+</tr>
+<tr>
+<td><code>store_states_train</code></td>
+<td><code></code></td>
+<td>
+<p>bool, optional, default=False
+If True, time series series of reservoir neurons during training are stored
+in the object attribute states_train_.</p>
+</td>
+<td><em>required</em></td>
+</tr>
+<tr>
+<td><code>store_states_pred</code></td>
+<td><code></code></td>
+<td>
+<p>bool, optional, default=False
+If True, time series series of reservoir neurons during prediction are stored
+in the object attribute states_pred_.</p>
+</td>
+<td><em>required</em></td>
+</tr>
+</tbody>
+</table>
+<h3 id="attributes">Attributes:<a class="headerlink" href="#attributes" title="Permanent link">¶</a></h3>
+<div class="codehilite">
+<pre><span></span><code><span class="n">W_out_</span> <span class="o">:</span> <span class="n">array</span> <span class="n">of</span> <span class="n">shape</span> <span class="o">(</span><span class="n">n_outputs</span><span class="o">,</span> <span class="n">n_inputs</span> <span class="o">+</span> <span class="n">n_reservoir</span> <span class="o">+</span> <span class="mi">1</span><span class="o">)</span>
+    <span class="n">Outgoing</span> <span class="n">weights</span> <span class="n">after</span> <span class="n">fitting</span> <span class="n">linear</span> <span class="n">regression</span> <span class="n">model</span> <span class="n">to</span> <span class="n">predict</span> <span class="n">outputs</span><span class="o">.</span>
+<span class="o">!!!</span> <span class="n">training_prediction_</span> <span class="s2">"array of shape (n_samples, n_outputs)"</span>
+    <span class="n">Predicted</span> <span class="n">output</span> <span class="n">on</span> <span class="n">training</span> <span class="n">data</span><span class="o">.</span>
+<span class="o">!!!</span> <span class="n">states_train_</span> <span class="s2">"array of shape (n_samples, n_reservoir), default False."</span>
+    <span class="n">If</span> <span class="n">store_states_train</span> <span class="k">is</span> <span class="n">True</span><span class="o">,</span> <span class="n">states</span> <span class="n">matrix</span> <span class="k">is</span> <span class="n">stored</span> <span class="k">for</span> <span class="n">visualizing</span>
+    <span class="n">reservoir</span> <span class="n">neurons</span> <span class="n">activity</span> <span class="n">during</span> <span class="n">training</span><span class="o">.</span>
+<span class="o">!!!</span> <span class="n">states_pred_</span> <span class="s2">"array of shape (n_samples, n_reservoir), default False."</span>
+    <span class="n">If</span> <span class="n">store_states_pred</span> <span class="k">is</span> <span class="n">True</span><span class="o">,</span> <span class="n">states</span> <span class="n">matrix</span> <span class="k">is</span> <span class="n">stored</span> <span class="k">for</span> <span class="n">visualizing</span>
+    <span class="n">reservoir</span> <span class="n">neurons</span> <span class="n">activity</span> <span class="n">during</span> <span class="n">prediction</span> <span class="o">(</span><span class="n">test</span><span class="o">).</span>
+</code></pre>
+</div>
 <div class="doc doc-children">
 <div class="doc doc-object doc-method">
 <h2 class="doc doc-heading" id="echoes.esn._regressor.ESNRegressor.fit">
@@ -337,76 +689,76 @@ Training output, i.e., y, the target.</p>
 <tr>
 <td class="linenos">
 <div class="linenodiv">
-<pre><span></span>20
-21
-22
-23
-24
-25
-26
-27
-28
-29
-30
-31
-32
-33
-34
-35
-36
-37
-38
-39
-40
-41
-42
-43
-44
-45
-46
-47
-48
-49
-50
-51
-52
-53
-54
-55
-56
-57
-58
-59
-60
-61
-62
-63
-64
-65
-66
-67
-68
-69
-70
-71
-72
-73
-74
-75
-76
-77
-78
-79
-80
-81
-82
-83
-84
-85
-86
-87
-88
-89</pre>
+<pre><span></span>147
+148
+149
+150
+151
+152
+153
+154
+155
+156
+157
+158
+159
+160
+161
+162
+163
+164
+165
+166
+167
+168
+169
+170
+171
+172
+173
+174
+175
+176
+177
+178
+179
+180
+181
+182
+183
+184
+185
+186
+187
+188
+189
+190
+191
+192
+193
+194
+195
+196
+197
+198
+199
+200
+201
+202
+203
+204
+205
+206
+207
+208
+209
+210
+211
+212
+213
+214
+215
+216</pre>
 </div>
 </td>
 <td class="code">
@@ -547,67 +899,67 @@ Testing input, i.e., X, the features.</p>
 <tr>
 <td class="linenos">
 <div class="linenodiv">
-<pre><span></span> 91
- 92
- 93
- 94
- 95
- 96
- 97
- 98
- 99
-100
-101
-102
-103
-104
-105
-106
-107
-108
-109
-110
-111
-112
-113
-114
-115
-116
-117
-118
-119
-120
-121
-122
-123
-124
-125
-126
-127
-128
-129
-130
-131
-132
-133
-134
-135
-136
-137
-138
-139
-140
-141
-142
-143
-144
-145
-146
-147
-148
-149
-150
-151</pre>
+<pre><span></span>218
+219
+220
+221
+222
+223
+224
+225
+226
+227
+228
+229
+230
+231
+232
+233
+234
+235
+236
+237
+238
+239
+240
+241
+242
+243
+244
+245
+246
+247
+248
+249
+250
+251
+252
+253
+254
+255
+256
+257
+258
+259
+260
+261
+262
+263
+264
+265
+266
+267
+268
+269
+270
+271
+272
+273
+274
+275
+276
+277
+278</pre>
 </div>
 </td>
 <td class="code">
@@ -733,7 +1085,7 @@ Sample weights.
 If None, the transient is left out.
 To consider all steps or leave out a different transient, pass a different
 sample_weight array with same length as outputs 1 dimension.
-Example:</p>
+<strong>Usage</strong></p>
 <blockquote>
 <blockquote>
 <p>n_steps_to_remove = 10
@@ -771,46 +1123,46 @@ score(inputs, outputs, sample_weight=weights)</p>
 <tr>
 <td class="linenos">
 <div class="linenodiv">
-<pre><span></span>154
-155
-156
-157
-158
-159
-160
-161
-162
-163
-164
-165
-166
-167
-168
-169
-170
-171
-172
-173
-174
-175
-176
-177
-178
-179
-180
-181
-182
-183
-184
-185
-186
-187
-188
-189
-190
-191
-192
-193</pre>
+<pre><span></span>281
+282
+283
+284
+285
+286
+287
+288
+289
+290
+291
+292
+293
+294
+295
+296
+297
+298
+299
+300
+301
+302
+303
+304
+305
+306
+307
+308
+309
+310
+311
+312
+313
+314
+315
+316
+317
+318
+319
+320</pre>
 </div>
 </td>
 <td class="code">
@@ -838,7 +1190,7 @@ score(inputs, outputs, sample_weight=weights)</p>
 <span class="sd">            If None, the transient is left out.</span>
 <span class="sd">            To consider all steps or leave out a different transient, pass a different</span>
 <span class="sd">            sample_weight array with same length as outputs 1 dimension.</span>
-<span class="sd">            Example:</span>
+<span class="sd">            **Usage**</span>
 <span class="sd">              &gt;&gt; n_steps_to_remove = 10</span>
 <span class="sd">              &gt;&gt; weights = np.ones(outputs.shape[0])</span>
 <span class="sd">              &gt;&gt; weights[: n_steps_to_remove] = 0</span>
