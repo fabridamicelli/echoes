@@ -1,9 +1,13 @@
 # echoes 
 (work in progress!)
+High level API for machine learning with Echo State Networks (ESN).
 
-Scikit-learn compatible, high level API for machine learning with Echo State Networks (ESN).
+Check out the examples for a quick start and [What are Echo State Networks?](https://fabridamicelli.github.io/echoes/tutorial/index.md) section for a little intro about Echo State Networks.
 
-Check out the examples for a quick start.
+The librabry is scikit-learn compatible, thus you can directly use sklearn utils, such as ```GridSearchCV```.
+Moreover, it tries to stick to the intuitions that you might bring from using sklearn.
+For example, models can be initialized without passing arguments (but kwargs are enforced if you choose to pass any); attributes generated during fitting are stored with trailing underscore; etc.
+
 
 ## Installation
 You can install the package via pip
@@ -28,10 +32,10 @@ If you find echoes useful for a publication, then please use the following BibTe
 ## Requirements
 ### Dependencies
  - numpy
- - sklearn
+ - scikit-learn
  - pandas
  - matplotlib
- - seaborn
+ - seaborn 
  - tests: mypy, pytest 
 
 The code has been tested with Python 3.7 on Ubuntu 16.04. and 18.04.4
