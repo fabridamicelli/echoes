@@ -6,18 +6,18 @@
 <meta charset="utf-8"/>
 <meta content="width=device-width,initial-scale=1" name="viewport"/>
 <meta content="Pythonic Echo State Networks" name="description"/>
-<link href="https://fabridamicelli.github.io/echoes/examples/plot_regressor_sincos/" rel="canonical"/>
+<link href="https://fabridamicelli.github.io/echoes/tutorial/" rel="canonical"/>
 <meta content="Fabrizio Damicelli" name="author"/>
-<link href="../../assets/images/favicon.png" rel="shortcut icon"/>
+<link href="../assets/images/favicon.png" rel="shortcut icon"/>
 <meta content="mkdocs-1.1.2, mkdocs-material-5.2.2" name="generator"/>
-<title>ESNRegressor (sin-cos) - echoes</title>
-<link href="../../assets/stylesheets/main.a2408e81.min.css" rel="stylesheet"/>
-<link href="../../assets/stylesheets/palette.a46bcfb3.min.css" rel="stylesheet"/>
+<title>What are Echo State Networks? - echoes</title>
+<link href="../assets/stylesheets/main.a2408e81.min.css" rel="stylesheet"/>
+<link href="../assets/stylesheets/palette.a46bcfb3.min.css" rel="stylesheet"/>
 <meta content="#3f51b5" name="theme-color"/>
 <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
 <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700%7CRoboto+Mono&amp;display=fallback" rel="stylesheet"/>
 <style>body,input{font-family:"Roboto",-apple-system,BlinkMacSystemFont,Helvetica,Arial,sans-serif}code,kbd,pre{font-family:"Roboto Mono",SFMono-Regular,Consolas,Menlo,monospace}</style>
-<link href="../../custom.css" rel="stylesheet"/>
+<link href="../custom.css" rel="stylesheet"/>
 </head>
 <body data-md-color-accent="orange" data-md-color-primary="indigo" data-md-color-scheme="" dir="ltr">
 <input autocomplete="off" class="md-toggle" data-md-toggle="drawer" id="__drawer" type="checkbox"/>
@@ -42,7 +42,7 @@
           </span>
 <span class="md-header-nav__topic md-ellipsis">
             
-              ESNRegressor (sin-cos)
+              What are Echo State Networks?
             
           </span>
 </div>
@@ -112,17 +112,18 @@
 </div>
 <ul class="md-nav__list" data-md-scrollfix="">
 <li class="md-nav__item">
-<a class="md-nav__link" href="../.." title="Home">
+<a class="md-nav__link" href=".." title="Home">
       Home
     </a>
 </li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="../../tutorial/" title="What are Echo State Networks?">
+<li class="md-nav__item md-nav__item--active">
+<input class="md-nav__toggle md-toggle" data-md-toggle="toc" id="__toc" type="checkbox"/>
+<a class="md-nav__link md-nav__link--active" href="./" title="What are Echo State Networks?">
       What are Echo State Networks?
     </a>
 </li>
-<li class="md-nav__item md-nav__item--active md-nav__item--nested">
-<input checked="" class="md-nav__toggle md-toggle" data-md-toggle="nav-3" id="nav-3" type="checkbox"/>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" data-md-toggle="nav-3" id="nav-3" type="checkbox"/>
 <label class="md-nav__link" for="nav-3">
       Examples
       <span class="md-nav__icon md-icon">
@@ -137,19 +138,18 @@
         Examples
       </label>
 <ul class="md-nav__list" data-md-scrollfix="">
-<li class="md-nav__item md-nav__item--active">
-<input class="md-nav__toggle md-toggle" data-md-toggle="toc" id="__toc" type="checkbox"/>
-<a class="md-nav__link md-nav__link--active" href="./" title="ESNRegressor (sin-cos)">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../examples/plot_regressor_sincos/" title="ESNRegressor (sin-cos)">
       ESNRegressor (sin-cos)
     </a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="../plot_generator_mackeyglass17/" title="ESNGenerator (Mackey-Glass)">
+<a class="md-nav__link" href="../examples/plot_generator_mackeyglass17/" title="ESNGenerator (Mackey-Glass)">
       ESNGenerator (Mackey-Glass)
     </a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="../plot_reservoir_activity/" title="Plot Reservoir Activity">
+<a class="md-nav__link" href="../examples/plot_reservoir_activity/" title="Plot Reservoir Activity">
       Plot Reservoir Activity
     </a>
 </li>
@@ -173,22 +173,22 @@
       </label>
 <ul class="md-nav__list" data-md-scrollfix="">
 <li class="md-nav__item">
-<a class="md-nav__link" href="../../api/ESNRegressor/" title="ESNRegressor">
+<a class="md-nav__link" href="../api/ESNRegressor/" title="ESNRegressor">
       ESNRegressor
     </a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="../../api/ESNGenerator/" title="ESNGenerator">
+<a class="md-nav__link" href="../api/ESNGenerator/" title="ESNGenerator">
       ESNGenerator
     </a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="../../api/plotting/" title="plotting">
+<a class="md-nav__link" href="../api/plotting/" title="plotting">
       plotting
     </a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="../../api/utils/" title="utils">
+<a class="md-nav__link" href="../api/utils/" title="utils">
       utils
     </a>
 </li>
@@ -202,66 +202,11 @@
 </div>
 <div class="md-content">
 <article class="md-content__inner md-typeset">
-<a class="md-content__button md-icon" href="https://github.com/fabridamicelli/echoes/edit/master/docs/examples/plot_regressor_sincos/index.md" title="Edit this page">
+<a class="md-content__button md-icon" href="https://github.com/fabridamicelli/echoes/edit/master/docs/tutorial/index.md" title="Edit this page">
 <svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25z"></path></svg>
 </a>
-<h1>ESNRegressor (sin-cos)</h1>
-<p>ESNRegressor example</p>
-<p>This example shows a minimal example of Echo State Network
-applied to a regression problem.</p>
-<div class="codehilite"><pre><span></span><code><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">from</span> <span class="nn">sklearn.metrics</span> <span class="kn">import</span> <span class="n">r2_score</span>
-<span class="kn">from</span> <span class="nn">sklearn.model_selection</span> <span class="kn">import</span> <span class="n">train_test_split</span>
-
-<span class="kn">from</span> <span class="nn">echoes</span> <span class="kn">import</span> <span class="n">ESNRegressor</span>
-<span class="kn">from</span> <span class="nn">echoes.plotting</span> <span class="kn">import</span> <span class="n">set_mystyle</span>
-
-<span class="n">set_mystyle</span><span class="p">()</span>  <span class="c1"># optional: set aesthetics</span>
-
-
-<span class="c1"># Prepare synthetic data </span>
-<span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">30</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">,</span> <span class="mi">1000</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
-<span class="n">inputs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">scale</span><span class="o">=.</span><span class="mi">1</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
-<span class="n">outputs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">scale</span><span class="o">=.</span><span class="mi">1</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
-
-<span class="n">X_train</span><span class="p">,</span> <span class="n">X_test</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">y_test</span> <span class="o">=</span> <span class="n">train_test_split</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="n">outputs</span><span class="p">,</span> <span class="n">test_size</span><span class="o">=.</span><span class="mi">3</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-
-<span class="n">esn</span> <span class="o">=</span> <span class="n">ESNRegressor</span><span class="p">(</span>
-    <span class="n">spectral_radius</span><span class="o">=.</span><span class="mi">95</span><span class="p">,</span>
-    <span class="n">leak_rate</span><span class="o">=.</span><span class="mi">4</span><span class="p">,</span>
-    <span class="n">n_transient</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
-    <span class="n">regression_method</span><span class="o">=</span><span class="s2">"pinv"</span><span class="p">,</span>
-    <span class="n">random_state</span><span class="o">=</span><span class="mi">42</span>
-<span class="p">)</span>
-<span class="n">esn</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">)</span>
-
-<span class="nb">print</span><span class="p">(</span><span class="s2">"training r2 score: "</span><span class="p">,</span> <span class="n">esn</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">))</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">"test r2 score: "</span><span class="p">,</span> <span class="n">esn</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">X_test</span><span class="p">,</span> <span class="n">y_test</span><span class="p">))</span>
-
-<span class="c1"># Get prediction for plotting</span>
-<span class="n">y_pred</span> <span class="o">=</span> <span class="n">esn</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X_test</span><span class="p">)</span>
-
-<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">15</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">y_test</span><span class="p">[</span><span class="n">esn</span><span class="o">.</span><span class="n">n_transient</span><span class="p">:],</span> <span class="n">label</span><span class="o">=</span><span class="s1">'target signal'</span><span class="p">,</span>
-         <span class="n">color</span><span class="o">=</span><span class="s2">"steelblue"</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mf">5.5</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">y_pred</span><span class="p">[</span><span class="n">esn</span><span class="o">.</span><span class="n">n_transient</span><span class="p">:],</span> <span class="n">label</span><span class="o">=</span><span class="s1">'predicted signal'</span><span class="p">,</span>
-         <span class="n">linestyle</span><span class="o">=</span><span class="s1">'--'</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">"orange"</span><span class="p">,</span>  <span class="n">linewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">,)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">"oscillator"</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">'time'</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">fontsize</span><span class="o">=</span><span class="p">(</span><span class="s2">"small"</span><span class="p">),</span> <span class="n">loc</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
-
-<span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="sa">r</span><span class="s2">"$W^</span><span class="si">{out}</span><span class="s2">$ weights distribution"</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">'weight'</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">'frequency'</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span><span class="n">esn</span><span class="o">.</span><span class="n">W_out_</span><span class="o">.</span><span class="n">flat</span><span class="p">);</span>
-</code></pre></div>
-<div class="codehilite"><pre><span></span><code><span class="err">training r2 score:  0.9840476267330117</span>
-<span class="err">test r2 score:  0.9733774695460478</span>
-</code></pre></div>
-<p><img alt="png" src="plot_regressor_sincos_0_1.png"/></p>
+<h1>What are Echo State Networks?</h1>
+<p>Coming soon!</p>
 </article>
 </div>
 </div>
@@ -269,7 +214,7 @@ applied to a regression problem.</p>
 <footer class="md-footer">
 <div class="md-footer-nav">
 <nav aria-label="Footer" class="md-footer-nav__inner md-grid">
-<a class="md-footer-nav__link md-footer-nav__link--prev" href="../../tutorial/" rel="prev" title="What are Echo State Networks?">
+<a class="md-footer-nav__link md-footer-nav__link--prev" href=".." rel="prev" title="Home">
 <div class="md-footer-nav__button md-icon">
 <svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"></path></svg>
 </div>
@@ -278,17 +223,17 @@ applied to a regression problem.</p>
 <span class="md-footer-nav__direction">
                   Previous
                 </span>
-                What are Echo State Networks?
+                Home
               </div>
 </div>
 </a>
-<a class="md-footer-nav__link md-footer-nav__link--next" href="../plot_generator_mackeyglass17/" rel="next" title="ESNGenerator (Mackey-Glass)">
+<a class="md-footer-nav__link md-footer-nav__link--next" href="../examples/plot_regressor_sincos/" rel="next" title="ESNRegressor (sin-cos)">
 <div class="md-footer-nav__title">
 <div class="md-ellipsis">
 <span class="md-footer-nav__direction">
                   Next
                 </span>
-                ESNGenerator (Mackey-Glass)
+                ESNRegressor (sin-cos)
               </div>
 </div>
 <div class="md-footer-nav__button md-icon">
@@ -324,14 +269,14 @@ applied to a regression problem.</p>
 </div>
 </footer>
 </div>
-<script src="../../assets/javascripts/vendor.d710d30a.min.js"></script>
-<script src="../../assets/javascripts/bundle.5f27aba8.min.js"></script><script id="__lang" type="application/json">{"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents"}</script>
+<script src="../assets/javascripts/vendor.d710d30a.min.js"></script>
+<script src="../assets/javascripts/bundle.5f27aba8.min.js"></script><script id="__lang" type="application/json">{"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents"}</script>
 <script>
         app = initialize({
-          base: "../..",
+          base: "..",
           features: [],
           search: Object.assign({
-            worker: "../../assets/javascripts/worker/search.27c6a5e6.min.js"
+            worker: "../assets/javascripts/worker/search.27c6a5e6.min.js"
           }, typeof search !== "undefined" && search)
         })
       </script>

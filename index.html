@@ -166,7 +166,7 @@
 </nav>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="tutorial/index.md" title="What are Echo State Networks?">
+<a class="md-nav__link" href="tutorial/" title="What are Echo State Networks?">
       What are Echo State Networks?
     </a>
 </li>
@@ -299,9 +299,12 @@
 <svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25z"></path></svg>
 </a>
 <h1 id="echoes">echoes<a class="headerlink" href="#echoes" title="Permanent link">¶</a></h1>
-<p>(work in progress!)</p>
-<p>Scikit-learn compatible, high level API for machine learning with Echo State Networks (ESN).</p>
-<p>Check out the examples for a quick start.</p>
+<p>(work in progress!)
+High level API for machine learning with Echo State Networks (ESN).</p>
+<p>Check out the examples for a quick start and <a href="https://fabridamicelli.github.io/echoes/tutorial/index.md">What are Echo State Networks?</a> section for a little intro about Echo State Networks.</p>
+<p>The librabry is scikit-learn compatible, thus you can directly use sklearn utils, such as <code>GridSearchCV</code>.
+Moreover, it tries to stick to the intuitions that you might bring from using sklearn.
+For example, models can be initialized without passing arguments (but kwargs are enforced if you choose to pass any); attributes generated during fitting are stored with trailing underscore; etc.</p>
 <h2 id="installation">Installation<a class="headerlink" href="#installation" title="Permanent link">¶</a></h2>
 <p>You can install the package via pip</p>
 <div class="codehilite"><pre><span></span><code>pip install echoes
@@ -321,10 +324,10 @@
 <h3 id="dependencies">Dependencies<a class="headerlink" href="#dependencies" title="Permanent link">¶</a></h3>
 <ul>
 <li>numpy</li>
-<li>sklearn</li>
+<li>scikit-learn</li>
 <li>pandas</li>
 <li>matplotlib</li>
-<li>seaborn</li>
+<li>seaborn </li>
 <li>tests: mypy, pytest </li>
 </ul>
 <p>The code has been tested with Python 3.7 on Ubuntu 16.04. and 18.04.4</p>
@@ -339,13 +342,13 @@
 <footer class="md-footer">
 <div class="md-footer-nav">
 <nav aria-label="Footer" class="md-footer-nav__inner md-grid">
-<a class="md-footer-nav__link md-footer-nav__link--next" href="examples/plot_regressor_sincos/" rel="next" title="ESNRegressor (sin-cos)">
+<a class="md-footer-nav__link md-footer-nav__link--next" href="tutorial/" rel="next" title="What are Echo State Networks?">
 <div class="md-footer-nav__title">
 <div class="md-ellipsis">
 <span class="md-footer-nav__direction">
                   Next
                 </span>
-                ESNRegressor (sin-cos)
+                What are Echo State Networks?
               </div>
 </div>
 <div class="md-footer-nav__button md-icon">
