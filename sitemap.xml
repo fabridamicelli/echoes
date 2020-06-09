@@ -1,39 +1,39 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"><url>
      <loc>https://fabridamicelli.github.io/echoes/</loc>
-     <lastmod>2020-06-05</lastmod>
+     <lastmod>2020-06-09</lastmod>
      <changefreq>daily</changefreq>
     </url><url>
      <loc>https://fabridamicelli.github.io/echoes/tutorial/</loc>
-     <lastmod>2020-06-05</lastmod>
+     <lastmod>2020-06-09</lastmod>
      <changefreq>daily</changefreq>
     </url><url>
      <loc>https://fabridamicelli.github.io/echoes/examples/plot_regressor_sincos/</loc>
-     <lastmod>2020-06-05</lastmod>
+     <lastmod>2020-06-09</lastmod>
      <changefreq>daily</changefreq>
     </url><url>
      <loc>https://fabridamicelli.github.io/echoes/examples/plot_generator_mackeyglass17/</loc>
-     <lastmod>2020-06-05</lastmod>
+     <lastmod>2020-06-09</lastmod>
      <changefreq>daily</changefreq>
     </url><url>
      <loc>https://fabridamicelli.github.io/echoes/examples/plot_reservoir_activity/</loc>
-     <lastmod>2020-06-05</lastmod>
+     <lastmod>2020-06-09</lastmod>
      <changefreq>daily</changefreq>
     </url><url>
      <loc>https://fabridamicelli.github.io/echoes/api/ESNRegressor/</loc>
-     <lastmod>2020-06-05</lastmod>
+     <lastmod>2020-06-09</lastmod>
      <changefreq>daily</changefreq>
     </url><url>
      <loc>https://fabridamicelli.github.io/echoes/api/ESNGenerator/</loc>
-     <lastmod>2020-06-05</lastmod>
+     <lastmod>2020-06-09</lastmod>
      <changefreq>daily</changefreq>
     </url><url>
      <loc>https://fabridamicelli.github.io/echoes/api/plotting/</loc>
-     <lastmod>2020-06-05</lastmod>
+     <lastmod>2020-06-09</lastmod>
      <changefreq>daily</changefreq>
     </url><url>
      <loc>https://fabridamicelli.github.io/echoes/api/utils/</loc>
-     <lastmod>2020-06-05</lastmod>
+     <lastmod>2020-06-09</lastmod>
      <changefreq>daily</changefreq>
     </url>
 </urlset>
