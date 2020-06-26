@@ -2,7 +2,7 @@
 (work in progress!)
 High level API for machine learning with Echo State Networks (ESN).
 
-Check out the examples for a quick start and [What are Echo State Networks?](https://fabridamicelli.github.io/echoes/tutorial/index.md) section for a little intro about Echo State Networks.
+Check out the examples for a quick start and [What are Echo State Networks?](https://fabridamicelli.github.io/echoes/tutorial/) section for a little intro about Echo State Networks.
 
 The library is scikit-learn compatible, thus you can directly use sklearn utils, such as ```GridSearchCV```.
 Moreover, it tries to stick to the intuitions that you might bring from using sklearn.
