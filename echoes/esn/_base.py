@@ -68,9 +68,6 @@ class ESNBase(BaseEstimator):
         activation_out: function, optional, default=identity
             Activation function applied to the outputs. In other words, it is assumed
             that targets = f(outputs). So the output produced must be transformed.
-        inv_activation_out: function, optional, default=identity
-            Inverse of acivation function applied to the outputs. This is used to first
-            transform targets.
         fit_only_states: bool,default=False
             If True, outgoing weights (W_out) are computed fitting only the reservoir
             states. Inputs and bias are still use to drive reservoir activity, but
@@ -157,7 +154,6 @@ class ESNBase(BaseEstimator):
         feedback: bool = False,
         activation: Callable = np.tanh,
         activation_out: Callable = identity,
-        inv_activation_out: Callable = identity,
         fit_only_states: bool = False,
         regression_method: str = "pinv",
         ridge_alpha: float = 1,
@@ -187,7 +183,6 @@ class ESNBase(BaseEstimator):
         self.feedback = feedback
         self.activation = activation
         self.activation_out = activation_out
-        self.inv_activation_out = inv_activation_out
         self.fit_only_states = fit_only_states
         self.n_transient = n_transient
         self.store_states_train = store_states_train
@@ -322,6 +317,7 @@ class ESNBase(BaseEstimator):
             state_preac = W @ state + W_in @ inputs + W_fb @ outputs
         else:
             state_preac = W @ state + W_in @ inputs
+        #TODO: check noise addition: is 0.5 shift necessary?
         new_state = self.activation(state_preac) + self.noise * (
             self.random_state_.rand(self.n_reservoir_) - 0.5
         )
@@ -336,7 +332,7 @@ class ESNBase(BaseEstimator):
         Solve for outgoing weights with linear regression, i.e., the equation:
                 W_out = Y X.T inv(X X.T)
 
-        Solution is achieved according to the parameters in regression_params.
+        Solution is found according to regression_method.
 
         Parameters
         ----------
@@ -371,5 +367,5 @@ class ESNBase(BaseEstimator):
             linreg.fit(full_states, outputs, sample_weight=self.ridge_sample_weight)
             W_out = linreg.coef_
         else:
-            raise ValueError("regression_method must be one of pinv, ridge")
+            raise ValueError("regression_method must be 'pinv' or 'ridge'")
         return W_out

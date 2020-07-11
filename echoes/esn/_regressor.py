@@ -71,9 +71,6 @@ class ESNRegressor(ESNBase, MultiOutputMixin, RegressorMixin):
         activation_out: function, optional, default=identity
             Activation function applied to the outputs. In other words, it is assumed
             that targets = f(outputs). So the output produced must be transformed.
-        inv_activation_out: function, optional, default=identity
-            Inverse of acivation function applied to the outputs. This is used to first
-            transform targets.
         fit_only_states: bool,default=False
             If True, outgoing weights (W_out) are computed fitting only the reservoir
             states. Inputs and bias are still use to drive reservoir activity, but
@@ -180,9 +177,6 @@ class ESNRegressor(ESNBase, MultiOutputMixin, RegressorMixin):
         #######--#####
         # Scale and shift inputs
         inputs = self._scale_shift_inputs(inputs)
-
-        # Inverse transform outputs (map them into inner, latent space)
-        outputs = self.inv_activation_out(outputs)
 
         n_samples = inputs.shape[0]
         # Append the bias to inputs -> [1; u(t)]

@@ -65,9 +65,6 @@ class ESNGenerator(ESNBase, MultiOutputMixin, RegressorMixin):
         activation_out: function, optional, default=identity
             Activation function applied to the outputs. In other words, it is assumed
             that targets = f(outputs). So the output produced must be transformed.
-        inv_activation_out: function, optional, default=identity
-            Inverse of acivation function applied to the outputs. This is used to first
-            transform targets (during training).
         fit_only_states: bool,default=False
             If True, outgoing weights (W_out) are computed fitting only the reservoir
             states. Inputs and bias are still use to drive reservoir activity, but
@@ -190,9 +187,6 @@ class ESNGenerator(ESNBase, MultiOutputMixin, RegressorMixin):
         inputs = np.zeros(shape=(outputs.shape[0], self.n_inputs_))
 
         check_consistent_length(inputs, outputs)  # sanity check
-
-        # Inverse transform outputs (map them into inner, latent space)
-        outputs = self.inv_activation_out(outputs)
 
         n_samples = inputs.shape[0]
         # Append the bias to inputs -> [1; u(t)]
