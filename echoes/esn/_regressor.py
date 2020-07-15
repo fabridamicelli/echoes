@@ -13,6 +13,7 @@ from sklearn.metrics import r2_score
 
 from ._base import ESNBase
 from echoes.utils import check_model_params
+from echoes.reservoirs import ReservoirLeakyNeurons
 
 
 class ESNRegressor(ESNBase, MultiOutputMixin, RegressorMixin):
@@ -52,8 +53,10 @@ class ESNRegressor(ESNBase, MultiOutputMixin, RegressorMixin):
         leak_rate: float, optional, default=1
             Leaking rate applied to the neurons at each step.
             Default is 1, which is no leaking. 0 would be total leakeage.
-        bias: float, optional, default=1
-            Value of the bias neuron, injected at each time step together with input.
+        bias: int, float or np.ndarray, optional, default=1
+            Value of the bias neuron, injected at each time to the reservoir neurons.
+            If int or float, all neurons receive the same.
+            If np.ndarray is must be of length n_reservoir.
         input_scaling: float or np.ndarray of length n_inputs, default=None
             Scalar to multiply each input before feeding it to the network.
             If float, all inputs get multiplied by same value.
@@ -162,44 +165,33 @@ class ESNRegressor(ESNBase, MultiOutputMixin, RegressorMixin):
         X, y = check_X_y(X, y, multi_output=True)
         if y.ndim == 1:
             y = y.reshape(-1, 1)
-        inputs, outputs = X, y
 
         # Initialize matrices and random state
         self.random_state_ = check_random_state(self.random_state)
-        self.n_inputs_ = inputs.shape[1]
+        self.n_inputs_ = X.shape[1]
         self.n_reservoir_ = len(self.W) if self.W is not None else self.n_reservoir
-        self.n_outputs_ = outputs.shape[1]
+        self.n_outputs_ = y.shape[1]
         self.W_in_ = self._init_incoming_weights()
         self.W_ = self._init_reservoir_weights()
         self.W_fb_ = self._init_feedback_weights()
 
+        # breakpoint()
+
         check_model_params(self.__dict__)
+        X = self._scale_shift_inputs(X)
+        #  --  #
+        # Initialize reservoir neurons
+        self.reservoir_ = self._init_reservoir_neurons()
+
         #######--#####
-        # Scale and shift inputs
-        inputs = self._scale_shift_inputs(inputs)
+        states = self.reservoir_.harvest_states(X, y, initial_state=None)
 
-        n_samples = inputs.shape[0]
-        # Append the bias to inputs -> [1; u(t)]
-        bias = np.ones((n_samples, 1)) * self.bias
-        inputs = np.hstack((bias, inputs))
-        # Collect reservoir states through the given input,output pairs
-        states = np.zeros((n_samples, self.n_reservoir_))
-        for step in range(1, n_samples):
-            states[step, :] = self._update_state(
-                states[step - 1],
-                inputs[step, :],
-                outputs[step - 1, :],
-                self.W_in_,
-                self.W_,
-                self.W_fb_,
-            )
-
-        # Extend states matrix with inputs (and bias); i.e., make [x(t); 1; u(t)]
-        full_states = states if self.fit_only_states else np.hstack((states, inputs))
+        # Extend states matrix with inputs, except we only train based on states
+        full_states = states if self.fit_only_states else np.hstack((states, X))
 
         # Solve for W_out using full states and outputs, excluding transient
         self.W_out_ = self._solve_W_out(
-            full_states[self.n_transient :, :], outputs[self.n_transient :, :]
+            full_states[self.n_transient :, :], y[self.n_transient :, :]
         )
         # Predict on training set (map them back to original space with activation)
         self.training_prediction_ = self.activation_out(full_states @ self.W_out_.T)
@@ -220,56 +212,49 @@ class ESNRegressor(ESNBase, MultiOutputMixin, RegressorMixin):
 
         Arguments:
             X: 2D np.ndarray of shape (n_samples, n_inputs)
-                Testing input, i.e., X, the features.
+                Input, i.e., X, the features.
 
         Returns:
-            outputs: 2D np.ndarray of shape (n_samples, n_outputs)
+            y_pred: 2D np.ndarray of shape (n_samples, n_outputs)
                 Predicted outputs.
         """
         check_is_fitted(self)
         X = check_array(X)
 
         inputs = X
-        n_samples = inputs.shape[0]
+        n_time_steps = X.shape[0]
 
         # Scale and shift inputs
-        inputs = self._scale_shift_inputs(inputs)
-
-        # Append the bias to inputs -> [1; u(t)]
-        bias = np.ones((n_samples, 1)) * self.bias
-        inputs = np.hstack((bias, inputs))
+        X = self._scale_shift_inputs(X)
 
         # Initialize predictions
-        states = np.zeros((n_samples, self.n_reservoir_))
-        outputs = np.zeros((n_samples, self.n_outputs_))
+        states = np.zeros((n_time_steps, self.n_reservoir_))
+        y_pred = np.zeros((n_time_steps, self.n_outputs_))
 
-        check_consistent_length(inputs, outputs)  # sanity check
+        check_consistent_length(X, y_pred)  # sanity check
 
         # Go through samples (steps) and predict for each of them
-        for step in range(1, n_samples):
-            states[step, :] = self._update_state(
-                states[step - 1, :],
-                inputs[step, :],
-                outputs[step - 1, :],
-                self.W_in_,
-                self.W_,
-                self.W_fb_,
+        for t in range(1, n_time_steps):
+            states[t, :] = self.reservoir_.update_state(
+                state_t=states[t - 1, :],
+                X_t=X[t, :],
+                y_t=y_pred[t - 1, :],
             )
 
             if self.fit_only_states:
-                full_states = states[step, :]
+                full_states = states[t, :]
             else:
-                full_states = np.concatenate([states[step, :], inputs[step, :]])
+                full_states = np.concatenate([states[t, :], X[t, :]])
             # Predict
-            outputs[step, :] = self.W_out_ @ full_states
+            y_pred[t, :] = self.W_out_ @ full_states
 
         # Store reservoir activity
         if self.store_states_pred:
             self.states_pred_ = states
 
-        # Map outputs back to actual target space with activation function
-        outputs = self.activation_out(outputs)
-        return outputs
+        # Apply output non-linearity
+        y_pred = self.activation_out(y_pred)
+        return y_pred
 
     # TODO: handle transient
     def score(self, X=None, y=None, sample_weight=None) -> float:
@@ -281,7 +266,7 @@ class ESNRegressor(ESNBase, MultiOutputMixin, RegressorMixin):
 
         From sklearn:
           Best possible score is 1.0 and it can be negative (because the model can be
-          arbitrarily worse).
+          arbitrarily bad).
           A constant model that always predicts the expected value of y,
           disregarding the input features, would get a R^2 score of 0.0.
 
@@ -297,9 +282,9 @@ class ESNRegressor(ESNBase, MultiOutputMixin, RegressorMixin):
                 sample_weight array with same length as outputs 1 dimension.
                 **Usage**
                   >> n_steps_to_remove = 10
-                  >> weights = np.ones(outputs.shape[0])
+                  >> weights = np.ones(y_true.shape[0])
                   >> weights[: n_steps_to_remove] = 0
-                  >> score(inputs, outputs, sample_weight=weights)
+                  >> score(X, y_true, sample_weight=weights)
 
         Returns:
             score: float

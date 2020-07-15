@@ -34,8 +34,8 @@ def check_matrices_shapes(W_in, W, W_fb, n_inputs, n_reservoir, n_outputs, feedb
     assert len(W) == n_reservoir, "W does not match n_reservoir"
     assert W_in.shape[0] == n_reservoir, "W_in first dimension must equal n_reservoir"
     assert (
-        W_in.shape[1] == n_inputs + 1
-    ), "W_in second dimension must equal n_inputs + 1 (bias)"
+        W_in.shape[1] == n_inputs
+    ), "W_in second dimension must equal n_inputs"
     if feedback:
         assert W_fb is not None, "W_fb must be specified if feedback=True"
     if W_fb is not None:
@@ -82,7 +82,6 @@ def check_model_params(params: Mapping,) -> None:
     input_shift = params["input_shift"]
 
     check_matrices_shapes(W_in, W, W_fb, n_inputs, n_reservoir, n_outputs, feedback)
-    check_func_inverse(params["activation_out"], params["inv_activation_out"])
     check_sparsity(params["sparsity"])
     check_input_scaling(input_scaling, n_inputs)
     check_input_shift(input_scaling, n_inputs)

@@ -1,7 +1,7 @@
 """
-Echo State Network (ESN) base class.
-It implements common code for predictive and generative ESN's.
-It should not be instanciated, use ESNGenerative and ESNPredictive instead.
+Echo State Network (ESN) estimator base class.
+It implements common code for ESN estimators (ESNRegressor, ESNGenerator).
+It should not be instanciated.
 """
 from typing import Union, Callable
 
@@ -10,6 +10,7 @@ from sklearn.base import BaseEstimator
 from sklearn.linear_model import Ridge
 
 from echoes.utils import set_spectral_radius, identity
+from echoes.reservoirs import ReservoirLeakyNeurons
 
 
 class ESNBase(BaseEstimator):
@@ -49,8 +50,10 @@ class ESNBase(BaseEstimator):
         leak_rate: float, optional, default=1
             Leaking rate applied to the neurons at each step.
             Default is 1, which is no leaking. 0 would be total leakeage.
-        bias: float, optional, default=1
-            Value of the bias neuron, injected at each time step together with input.
+        bias: int, float or np.ndarray, optional, default=1
+            Value of the bias neuron, injected at each time to the reservoir neurons.
+            If int or float, all neurons receive the same.
+            If np.ndarray is must be of length n_reservoir.
         input_scaling: float or np.ndarray of length n_inputs, default=None
             Scalar to multiply each input before feeding it to the network.
             If float, all inputs get multiplied by same value.
@@ -148,7 +151,7 @@ class ESNBase(BaseEstimator):
         sparsity: float = 0,
         noise: float = 0,
         leak_rate: float = 1,
-        bias: Union[int, float] = 1,
+        bias: Union[int, float, np.ndarray] = 1,
         input_scaling: Union[float, np.ndarray] = None,
         input_shift: Union[float, np.ndarray] = None,
         feedback: bool = False,
@@ -208,7 +211,7 @@ class ESNBase(BaseEstimator):
         if self.W_in is not None:
             return self.W_in
         W_in = self.random_state_.uniform(
-            low=-1, high=1, size=(self.n_reservoir_, self.n_inputs_ + 1)  # +1 ->bias
+            low=-1, high=1, size=(self.n_reservoir_, self.n_inputs_)
         )
         return W_in
 
@@ -226,6 +229,23 @@ class ESNBase(BaseEstimator):
         )
         W[self.random_state_.rand(*W.shape) < self.sparsity] = 0
         return set_spectral_radius(W, self.spectral_radius)
+
+    def _init_reservoir_neurons(self) -> "ReservoirLeakyNeurons":
+        """
+        Instantiate the dynamical model that governs reservoir activity.
+        The returned reservoir knows how to update one time step and to harvest states.
+        """
+        reservoir = ReservoirLeakyNeurons(
+            W_in=self.W_in_,
+            W=self.W_,
+            W_fb=self.W_fb_,
+            bias=self.bias,
+            feedback=self.feedback,
+            activation=self.activation,
+            leak_rate=self.leak_rate,
+            noise=self.noise,
+        )
+        return reservoir
 
     def _init_feedback_weights(self) -> Union[None, np.ndarray]:
         """Return feedback weights. Shape (n_reservoir, n_outputs)."""

@@ -58,8 +58,10 @@ class ESNGenerator(ESNBase, MultiOutputMixin, RegressorMixin):
         leak_rate: float, optional, default=1
             Leaking rate applied to the neurons at each step.
             Default is 1, which is no leaking. 0 would be total leakeage.
-        bias: float, optional, default=1
-            Value of the bias neuron, injected at each time step together with input.
+        bias: int, float or np.ndarray, optional, default=1
+            Value of the bias neuron, injected at each time to the reservoir neurons.
+            If int or float, all neurons receive the same.
+            If np.ndarray is must be of length n_reservoir.
         activation: function, optional, default=tanh
             Non-linear activation function applied to the neurons at each step.
         activation_out: function, optional, default=identity
