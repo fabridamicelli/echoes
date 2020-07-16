@@ -3,7 +3,7 @@
 
 Scikit-learn compatible, high level API for machine learning with Echo State Networks(ESN).
 
-See [Documentation](https://fabridamicelli.github.io/echoes/) and examples for a quick start.
+Quick start: See [Documentation](https://fabridamicelli.github.io/echoes/) and examples.
 
 ## Installation
 ```sh
@@ -25,19 +25,18 @@ If you find echoes useful for a publication, then please use the following BibTe
 }
 ```
 
-## Requirements
-### Dependencies
+## Dependencies 
  - numpy
  - sklearn
  - pandas
  - matplotlib
  - seaborn
+ - numba
  - tests:
    - mypy
    - pytest 
 
-The code has been tested with Python 3.7 on Ubuntu 16.04.
-
+The code has been tested with Python 3.7 on Ubuntu 16.04 and 18.04.
 
 ## Tests 
 Run tests with 

@@ -4,6 +4,7 @@ Auxiliar functions
 from typing import Union, Callable, Mapping
 import warnings
 
+from numba import njit
 import numpy as np
 
 
@@ -98,3 +99,20 @@ def check_model_params(params: Mapping,) -> None:
         warnings.warn(
             "ridge_sample_weight will be ignored since regression_method is not ridge"
         )
+
+@njit
+def tanh(x: Union[float, int, np.ndarray]) -> Union[float, np.ndarray]:
+    """Numba jitted tanh function. Return tanh(x)"""
+    return np.tanh(x)
+
+@njit
+def relu(x: Union[float, int, np.ndarray]) -> Union[float, np.ndarray]:
+    """Numba jitted ReLu (rectified linear unit) function. Return ReLu(x)"""
+    return np.maximum(0, x)
+
+@njit
+def sigmoid(x: Union[float, int, np.ndarray], a: float = 1) -> Union[float, np.ndarray]:
+    """
+    Return  f(x) = 1 / (1 + np.exp(-x * a)). Numba jitted sigmoid function.
+    """
+    return 1/(1 + np.exp(-x * a))
