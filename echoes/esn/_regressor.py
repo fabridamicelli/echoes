@@ -13,12 +13,12 @@ from sklearn.metrics import r2_score
 
 from ._base import ESNBase
 from echoes.utils import check_model_params
-from echoes.reservoirs import ReservoirLeakyNeurons
+from echoes.reservoir import ReservoirLeakyNeurons
 
 
 class ESNRegressor(ESNBase, MultiOutputMixin, RegressorMixin):
     """
-    n_inputs and n_outputs are infered from passed data.
+    Number of input and output neurons are infered from passed data.
 
     Arguments:
         n_reservoir: int, optional, default=100
@@ -47,7 +47,7 @@ class ESNRegressor(ESNBase, MultiOutputMixin, RegressorMixin):
             be slightly more than the specified.
             If W is passed, sparsity will be ignored.
         noise: float, optional, default=0
-            Magnitud of the noise input added to neurons at each step.
+            Scaling factor of the (uniform) noise input added to neurons at each step.
             This is used for regularization purposes and should typically be
             very small, e.g. 0.0001 or 1e-5.
         leak_rate: float, optional, default=1
@@ -69,8 +69,12 @@ class ESNRegressor(ESNBase, MultiOutputMixin, RegressorMixin):
             add to each input.
         feedback: bool, optional, default=False
             If True, the reservoir also receives the outout signal as input.
-        activation: function, optional, default=tanh
+        activation: function (numba jitted), optional, default=tanh
             Non-linear activation function applied to the neurons at each step.
+            For numba acceleration, it must be a jitted function.
+            Basic activation functions as tanh, sigmoid, relu are already available
+            in echoe.utils. Either use those or write a custom one decorated with
+            numba njit.
         activation_out: function, optional, default=identity
             Activation function applied to the outputs. In other words, it is assumed
             that targets = f(outputs). So the output produced must be transformed.
@@ -175,12 +179,10 @@ class ESNRegressor(ESNBase, MultiOutputMixin, RegressorMixin):
         self.W_ = self._init_reservoir_weights()
         self.W_fb_ = self._init_feedback_weights()
 
-        # breakpoint()
-
         check_model_params(self.__dict__)
         X = self._scale_shift_inputs(X)
         #  --  #
-        # Initialize reservoir neurons
+        # Initialize reservoir model
         self.reservoir_ = self._init_reservoir_neurons()
 
         #######--#####
@@ -193,7 +195,7 @@ class ESNRegressor(ESNBase, MultiOutputMixin, RegressorMixin):
         self.W_out_ = self._solve_W_out(
             full_states[self.n_transient :, :], y[self.n_transient :, :]
         )
-        # Predict on training set (map them back to original space with activation)
+        # Predict on training set (including the pass through the output nonlinearity)
         self.training_prediction_ = self.activation_out(full_states @ self.W_out_.T)
 
         # Store reservoir activity

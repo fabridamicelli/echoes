@@ -52,7 +52,7 @@ class ESNGenerator(ESNBase, MultiOutputMixin, RegressorMixin):
             be slightly more than the specified.
             If W is passed, sparsity will be ignored.
         noise: float, optional, default=0
-            Magnitud of the noise input added to neurons at each step.
+            Scaling factor of the (uniform) noise input added to neurons at each step.
             This is used for regularization purposes and should typically be
             very small, e.g. 0.0001 or 1e-5.
         leak_rate: float, optional, default=1
@@ -62,8 +62,12 @@ class ESNGenerator(ESNBase, MultiOutputMixin, RegressorMixin):
             Value of the bias neuron, injected at each time to the reservoir neurons.
             If int or float, all neurons receive the same.
             If np.ndarray is must be of length n_reservoir.
-        activation: function, optional, default=tanh
+        activation: function (numba jitted), optional, default=tanh
             Non-linear activation function applied to the neurons at each step.
+            For numba acceleration, it must be a jitted function.
+            Basic activation functions as tanh, sigmoid, relu are already available
+            in echoe.utils. Either use those or write a custom one decorated with
+            numba njit.
         activation_out: function, optional, default=identity
             Activation function applied to the outputs. In other words, it is assumed
             that targets = f(outputs). So the output produced must be transformed.
@@ -189,22 +193,11 @@ class ESNGenerator(ESNBase, MultiOutputMixin, RegressorMixin):
         inputs = np.zeros(shape=(outputs.shape[0], self.n_inputs_))
 
         check_consistent_length(inputs, outputs)  # sanity check
+        #  --  #
+        # Initialize reservoir model
+        self.reservoir_ = self._init_reservoir_neurons()
 
-        n_samples = inputs.shape[0]
-        # Append the bias to inputs -> [1; u(t)]
-        bias = np.ones((n_samples, 1)) * self.bias
-        inputs = np.hstack((bias, inputs))
-        # Collect reservoir states through the given input,output pairs
-        states = np.zeros((n_samples, self.n_reservoir_))
-        for step in range(1, n_samples):
-            states[step, :] = self._update_state(
-                states[step - 1],
-                inputs[step, :],
-                outputs[step - 1, :],
-                self.W_in_,
-                self.W_,
-                self.W_fb_,
-            )
+        states = self.reservoir_.harvest_states(inputs, outputs, initial_state=None)
 
         # Extend states matrix with inputs (and bias); i.e., make [x(t); 1; u(t)]
         full_states = states if self.fit_only_states else np.hstack((states, inputs))
@@ -213,13 +206,13 @@ class ESNGenerator(ESNBase, MultiOutputMixin, RegressorMixin):
         self.W_out_ = self._solve_W_out(
             full_states[self.n_transient :, :], outputs[self.n_transient :, :]
         )
-        # Predict on training set (map them back to original space with activation)
+        # Predict on training set (including the pass through the output nonlinearity)
         self.training_prediction_ = self.activation_out(full_states @ self.W_out_.T)
 
         # Keep last state for later
-        self.last_state = states[-1, :]
-        self.last_input = inputs[-1, :]
-        self.last_output = outputs[-1, :]
+        self.last_state_ = states[-1, :]
+        self.last_input_ = inputs[-1, :]
+        self.last_output_ = outputs[-1, :]
 
         # Store reservoir activity
         if self.store_states_train:
@@ -242,48 +235,40 @@ class ESNGenerator(ESNBase, MultiOutputMixin, RegressorMixin):
         if X is not None:
             warnings.warn("X will be ignored – ESNGenerator takes no X for prediction")
 
-        n_steps = self.n_steps
-        assert n_steps >= 1, "n_steps must be >= 1"
-
-        # Scale and shift inputs are ignored, since only bias should contribute to
-        # next state and inputs should be zero
-        inputs = np.zeros(shape=(n_steps, self.n_inputs_))
-
-        # Append the bias to inputs -> [1; u(t)]
-        bias = np.ones((n_steps, 1)) * self.bias
-        inputs = np.hstack((bias, inputs))
+        assert self.n_steps >= 1, "n_steps must be >= 1"
+        n_steps = self.n_steps  # shorthand
 
         # Initialize predictions: begin with last state as first state
-        inputs = np.vstack([self.last_input, inputs])
-        states = np.vstack([self.last_state, np.zeros((n_steps, self.n_reservoir_))])
-        outputs = np.vstack([self.last_output, np.zeros((n_steps, self.n_outputs_))])
+        inputs = np.zeros(shape=(n_steps, self.n_inputs_))
+        inputs = np.vstack([self.last_input_, inputs])
+        states = np.vstack([self.last_state_, np.zeros((n_steps, self.n_reservoir_))])
+        outputs = np.vstack([self.last_output_, np.zeros((n_steps, self.n_outputs_))])
 
         check_consistent_length(inputs, outputs)  # sanity check
 
         # Go through samples (steps) and predict for each of them
-        for step in range(1, outputs.shape[0]):
-            states[step, :] = self._update_state(
-                states[step - 1, :],
-                inputs[step, :],
-                outputs[step - 1, :],
-                self.W_in_,
-                self.W_,
-                self.W_fb_,
+        for t in range(1, outputs.shape[0]):
+            states[t, :] = self.reservoir_.update_state(
+                state_t=states[t - 1, :],
+                X_t=inputs[t, :],
+                y_t=outputs[t - 1, :],
             )
             if self.fit_only_states:
-                full_states = states[step, :]
+                full_states = states[t, :]
             else:
-                full_states = np.concatenate([states[step, :], inputs[step, :]])
+                full_states = np.concatenate([states[t, :], inputs[t, :]])
             # Predict
-            outputs[step, :] = self.W_out_ @ full_states
+            outputs[t, :] = self.W_out_ @ full_states
+
+            #TODO: Update last_{input, states, outputs}_
 
         # Store reservoir activity
         if self.store_states_pred:
             self.states_pred_ = states[1:, :]  # discard first step (comes from fitting)
 
-        # Map outputs back to actual target space with activation function
+        # Apply output non-linearity
         outputs = self.activation_out(outputs)
-        return outputs[1:, :]  # discard initial step (comes from fitting)
+        return outputs[1:, :]  # discard initial step (comes from training)
 
     def score(self, X=None, y=None, sample_weight=None) -> float:
         """

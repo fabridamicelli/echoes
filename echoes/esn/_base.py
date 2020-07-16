@@ -9,13 +9,13 @@ import numpy as np
 from sklearn.base import BaseEstimator
 from sklearn.linear_model import Ridge
 
-from echoes.utils import set_spectral_radius, identity
-from echoes.reservoirs import ReservoirLeakyNeurons
+from echoes.utils import set_spectral_radius, identity, tanh
+from echoes.reservoir import ReservoirLeakyNeurons
 
 
 class ESNBase(BaseEstimator):
     """
-    n_inputs and n_outputs are infered from passed data.
+    Number of input and output neurons are infered from passed data.
 
     Arguments:
         n_reservoir: int, optional, default=100
@@ -44,7 +44,7 @@ class ESNBase(BaseEstimator):
             be slightly more than the specified.
             If W is passed, sparsity will be ignored.
         noise: float, optional, default=0
-            Magnitud of the noise input added to neurons at each step.
+            Scaling factor of the (uniform) noise input added to neurons at each step.
             This is used for regularization purposes and should typically be
             very small, e.g. 0.0001 or 1e-5.
         leak_rate: float, optional, default=1
@@ -66,8 +66,12 @@ class ESNBase(BaseEstimator):
             add to each input.
         feedback: bool, optional, default=False
             If True, the reservoir also receives the outout signal as input.
-        activation: function, optional, default=tanh
+        activation: function (numba jitted), optional, default=tanh
             Non-linear activation function applied to the neurons at each step.
+            For numba acceleration, it must be a jitted function.
+            Basic activation functions as tanh, sigmoid, relu are already available
+            in echoe.utils. Either use those or write a custom one decorated with
+            numba njit.
         activation_out: function, optional, default=identity
             Activation function applied to the outputs. In other words, it is assumed
             that targets = f(outputs). So the output produced must be transformed.
@@ -155,7 +159,7 @@ class ESNBase(BaseEstimator):
         input_scaling: Union[float, np.ndarray] = None,
         input_shift: Union[float, np.ndarray] = None,
         feedback: bool = False,
-        activation: Callable = np.tanh,
+        activation: Callable = tanh,
         activation_out: Callable = identity,
         fit_only_states: bool = False,
         regression_method: str = "pinv",
@@ -233,7 +237,7 @@ class ESNBase(BaseEstimator):
     def _init_reservoir_neurons(self) -> "ReservoirLeakyNeurons":
         """
         Instantiate the dynamical model that governs reservoir activity.
-        The returned reservoir knows how to update one time step and to harvest states.
+        The returned reservoir will be used to update and harvest reservoir states.
         """
         reservoir = ReservoirLeakyNeurons(
             W_in=self.W_in_,

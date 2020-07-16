@@ -1,9 +1,10 @@
 """
-Reservoir of Leaky Neurons.
+Plain Python implementation reservoir of leaky neurons.
 """
 from typing import Callable, Optional, Union
 
 import numpy as np
+from numba import njit
 
 
 class ReservoirLeakyNeurons:
@@ -21,10 +22,10 @@ class ReservoirLeakyNeurons:
         self.W_in = W_in
         self.W = W
         self.W_fb = W_fb
+        self.feedback = feedback
         self.bias = bias
         self.activation = activation
         self.noise = noise
-        self.feedback = feedback
         self.leak_rate = leak_rate
         self.n_reservoir = len(W)
 
@@ -59,7 +60,7 @@ class ReservoirLeakyNeurons:
         self,
         X: np.ndarray,
         y: np.ndarray,
-        initial_state: Union[np.ndarray, None] = None
+        initial_state: Union[np.ndarray, None] = None,
     ) -> np.ndarray:
         """
         Given inputs/outputs X/y, run activity and harvest reservoir states.
@@ -77,44 +78,26 @@ class ReservoirLeakyNeurons:
             )
         return states
 
-# def harvest_states(
-    # self,
-    # X: np.ndarray,
-    # y: np.ndarray,
-    # initial_state: Union[np.ndarray, None] = None
-# ) -> np.ndarray:
-
-    # states = leaky.harvest_states(
-        # X=X,
-        # y=y,
-        # initial_state=initial_state,
-        # W_in=self.W_in,
-        # W=self.W,
-        # W_fb=self.W_fb,
-        # bias=self.bias,
-        # feedback=self.feedback,
-        # activation=self.activation,
-        # leak_rate=self.leak_rate,
-        # noise=self.noise,
-    # )
-    # return states
-
-
 
 if __name__ == "__main__":
+    from functools import partial
+
     n_reservoir = 1000
     n_inputs = 2
     n_outputs = 2
     state = np.random.rand(n_reservoir)
 
-    X = np.random.rand(10_000, n_inputs)
-    y = np.random.rand(10_000, n_outputs)
+    X = np.random.rand(20_000, n_inputs)
+    y = np.random.rand(20_000, n_outputs)
 
-    from numba import njit
-
-    @njit
-    def tanh(x):
-        return np.tanh(x)
+    W_in = np.random.rand(n_reservoir, n_inputs)
+    W = np.random.rand(n_reservoir, n_reservoir)
+    W_fb = np.random.rand(n_reservoir, n_outputs)
+    bias = 1.2
+    feedback = True
+    activation = np.tanh
+    leak_rate = .9
+    noise = .001
 
     reservoir = ReservoirLeakyNeurons(
         W_in = np.random.rand(n_reservoir, n_inputs),
@@ -122,7 +105,7 @@ if __name__ == "__main__":
         W_fb = np.random.rand(n_reservoir, n_outputs),
         bias = 1.2,
         feedback = True,
-        activation = tanh,
+        activation = activation,
         leak_rate = .9,
         noise = .001,
     )
