@@ -287,70 +287,6 @@ class ESNBase(BaseEstimator):
 
         return inputs
 
-    def _update_state(
-        self,
-        state: np.ndarray,
-        inputs: np.ndarray,
-        outputs: np.ndarray,
-        W_in: np.ndarray,
-        W: np.ndarray,
-        W_fb: np.ndarray,
-    ) -> np.ndarray:
-        """
-        Update reservoir states one time step with the following equations.
-        There are two cases, a) without and b) with feedback:
-
-        a.1)    x'(t) = f(W x(t-1) + W_in [1; u(t)]) + e
-
-        a.2)    x(t) = (1-a) * x(t-1) + a * x(t)'
-
-
-        b.1)    x'(t) = f(W x(t-1) + W_in [1; u(t)] + W_fb y(t-1)) + e
-
-        b.2)    x(t) = (1-a) * x(t-1) + a * x(t)'
-
-        Where
-            x(t): states vector at time t
-            x'(t): states at time t before applying leakeage
-            a: leakeage rate (1 is no leakeage, 0 is complete leakeage)
-            f: activation function
-            e: random noise applied to neurons (regularization)
-            W: reservoir weights matrix
-            W_in: incoming weights matrix
-            W_fb: feedback matrix
-            u(t): inputs vector at time t
-            y(t): outputs vector at time t
-            1: bias input.
-
-        Notes
-        -----
-        It is asssumed that:
-          - inputs already include bias.
-          - states and outputs already correpond to time = t-1, while inputs
-          correspond to time = t so that the code implementation corresponds
-          to the described update equations. This is actually handled automa-
-          tically (see fit and predict functions), so you don't have to worry
-          about it.
-
-        Returns
-        -------
-        states: 2D np.ndarray of shape (1, n_reservoir)
-            Reservoir states vector after update.
-        """
-        if self.feedback:
-            state_preac = W @ state + W_in @ inputs + W_fb @ outputs
-        else:
-            state_preac = W @ state + W_in @ inputs
-        #TODO: check noise addition: is 0.5 shift necessary?
-        new_state = self.activation(state_preac) + self.noise * (
-            self.random_state_.rand(self.n_reservoir_) - 0.5
-        )
-        # Apply leakage
-        if self.leak_rate < 1:
-            new_state = self.leak_rate * new_state + (1 - self.leak_rate) * state
-
-        return new_state
-
     def _solve_W_out(self, full_states: np.ndarray, outputs: np.ndarray) -> np.ndarray:
         """
         Solve for outgoing weights with linear regression, i.e., the equation:
@@ -360,19 +296,20 @@ class ESNBase(BaseEstimator):
 
         Parameters
         ----------
-        full_states: 2D np.ndarray of shape (n_samples, n_reservoir + n_inputs + 1)
-            Extended states of reservoir, i.e., the X which accumulates [x(t); 1; u(t)]
-            for all times t during training. Where x are reservoir neurons states,
-            1 is the bias and u are the inputs.
+        full_states: 2D np.ndarray of shape (n_samples, n_reservoir + n_inputs)
+            Extended states of reservoir, i.e., the X which stacks horizontally the
+            inputs and the reservoir states for all times t during training, ie.
+            full_states = [X(t); h(t)] for all (t)ime steps; where X is the inputs and
+            h the hidden reservoir states.
             If fit_only_states is True, the shape of full_states should be
             (n_samples, n_reservoir).
         outputs: 2D np.ndarray of shape (n_samples, n_outputs)
-            Target output of the training set, i.e., [y(t)] for all t during training.
+            Target output of the training set, i.e., y(t) for all t during training.
 
         Returns
         -------
-        W_out: 2D np.ndarray of shape (1, n_reservoir + n_outputs + 1).
-               If fit_only_states is True, shape is (1, n_reservoir + n_outputs).
+        W_out: 2D np.ndarray of shape (n_outputs, n_reservoir + n_inputs).
+               If fit_only_states is True, shape is (n_outputs, n_reservoir + n_inputs).
             Outgoing weights matrix.
             Second dimension matches the reservoir neurons, n_outputs and bias.
         """
