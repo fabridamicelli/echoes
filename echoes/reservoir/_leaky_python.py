@@ -8,6 +8,57 @@ from numba import njit
 
 
 class ReservoirLeakyNeurons:
+    """
+    Reservoir of leaky neurons (see Notes for equations).
+
+    Arguments:
+        W_in: np.ndarray of shape (n_reservoir, 1+n_inputs) (1->bias), optional, default None.
+            Input weights matrix by which input signal is multiplied.
+        W: np.ndarray of shape (n_reservoir, n_reservoir)
+            Reservoir weights matrix.
+        W_fb: np.ndarray of shape(n_reservoir, n_outputs), optional, default None.
+            Feedback weights matrix by which feedback is multiplied in case of feedback.
+        feedback: bool, optional, default=False
+            If True, the reservoir also receives the outout signal as input.
+        bias: int, float or np.ndarray, optional, default=1
+            Value of the bias neuron, injected at each time to the reservoir neurons.
+            If int or float, all neurons receive the same.
+            If np.ndarray is must be of length n_reservoir.
+        activation: function (numba jitted)
+            Non-linear activation function applied to the neurons at each step.
+            For numba acceleration, it must be a jitted function.
+            Basic activation functions as tanh, sigmoid, relu are already available
+            in echoe.utils. Either use those or write a custom one decorated with
+            numba njit.
+        leak_rate: float, optional, default=1
+            Leaking rate applied to the neurons at each step.
+            Default is 1, which is no leaking. 0 would be total leakeage.
+        noise: float, optional, default=0
+            Scaling factor of the (uniform) noise input added to neurons at each step.
+            This is used for regularization purposes and should typically be
+            very small, e.g. 0.0001 or 1e-5.
+
+    Notes:
+        Reservoir of leaky neurons, where the actvity of the neurons is governed by the
+        following equations:
+
+        1) h'(t) = f(W_in @ X(t) + W @ h(t-1) + W_fb @ y(t-1) + b)) + noise
+        2) h(t)  = (1-a) * h(t-1) + a * h(t)'
+
+        Where:
+          @: dot product
+          h'(t): reservoir states at time t before applying leakeage
+          h(t): reservoir (hidden) states vector at time t after applying leakeage
+          a: leak rate (1 is no leakeage, 0 is complete leakeage)
+          f: activation function
+          noise: random noise applied to neurons (regularization)
+          W: reservoir weights matrix
+          W_in: incoming weights matrix
+          W_fb: feedback matrix
+          X(t): inputs vector at time t
+          y(t): outputs vector at time t
+          b: bias vector applied to the reservoir neurons
+    """
     def __init__(
         self,
         W_in: np.ndarray = None,
