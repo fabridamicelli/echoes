@@ -125,7 +125,7 @@ class ReservoirLeakyNeurons:
         )
         return states
 
-#@njit
+@njit
 def update_state(
     state_t: np.ndarray = None,
     X_t: np.ndarray = None,
@@ -164,7 +164,7 @@ def update_state(
 
     return new_state
 
-#@njit
+@njit
 def harvest_states(
     X: np.ndarray,
     y: np.ndarray,
@@ -202,32 +202,3 @@ def harvest_states(
             leak_rate=leak_rate
         )
     return states
-
-
-if __name__ == "__main__":
-    n_reservoir = 1000
-    n_inputs = 2
-    n_outputs = 2
-    state = np.random.rand(n_reservoir)
-
-    X = np.random.rand(20_000, n_inputs)
-    y = np.random.rand(20_000, n_outputs)
-
-    from numba import njit
-
-    @njit
-    def tanh(x):
-        return np.tanh(x)
-
-    reservoir = ReservoirLeakyNeurons(
-        W_in = np.random.rand(n_reservoir, n_inputs),
-        W = np.random.rand(n_reservoir, n_reservoir),
-        # W_fb = np.random.rand(n_reservoir, n_outputs),
-        bias = 1.2,
-        feedback = False,
-        activation = tanh,
-        leak_rate = .9,
-        noise = .001,
-    )
-    states = reservoir.harvest_states(X, y)
-    print(states.shape)
