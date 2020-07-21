@@ -1,6 +1,5 @@
 # echoes 
-(work in progress!)
-High level API for machine learning with Echo State Networks (ESN).
+High level API for machine learning with Echo State Networks (ESN) – work in progress!.
 
 Check out the examples for a quick start and [What are Echo State Networks?](https://fabridamicelli.github.io/echoes/tutorial/) section for a little intro about Echo State Networks.
 
@@ -32,13 +31,14 @@ If you find echoes useful for a publication, then please use the following BibTe
 ## Requirements
 ### Dependencies
  - numpy
+ - numba
  - scikit-learn
  - pandas
  - matplotlib
  - seaborn 
  - tests: mypy, pytest 
 
-The code has been tested with Python 3.7 on Ubuntu 16.04. and 18.04.4
+The code has been tested with Python 3.7 on Ubuntu 16.04/18.04.
 
 ## Tests 
 Run tests with 
