@@ -310,14 +310,14 @@ check_func_inverse<span class="p">(</span><span class="n">func</span><span class
 <tr>
 <td class="linenos">
 <div class="linenodiv">
-<pre><span></span>21
-22
+<pre><span></span>22
 23
 24
 25
 26
 27
-28</pre>
+28
+29</pre>
 </div>
 </td>
 <td class="code">
@@ -351,8 +351,7 @@ check_matrices_shapes<span class="p">(</span><span class="n">W_in</span><span cl
 <tr>
 <td class="linenos">
 <div class="linenodiv">
-<pre><span></span>31
-32
+<pre><span></span>32
 33
 34
 35
@@ -367,7 +366,8 @@ check_matrices_shapes<span class="p">(</span><span class="n">W_in</span><span cl
 44
 45
 46
-47</pre>
+47
+48</pre>
 </div>
 </td>
 <td class="code">
@@ -378,8 +378,8 @@ check_matrices_shapes<span class="p">(</span><span class="n">W_in</span><span cl
     <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">W</span><span class="p">)</span> <span class="o">==</span> <span class="n">n_reservoir</span><span class="p">,</span> <span class="s2">"W does not match n_reservoir"</span>
     <span class="k">assert</span> <span class="n">W_in</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">n_reservoir</span><span class="p">,</span> <span class="s2">"W_in first dimension must equal n_reservoir"</span>
     <span class="k">assert</span> <span class="p">(</span>
-        <span class="n">W_in</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="n">n_inputs</span> <span class="o">+</span> <span class="mi">1</span>
-    <span class="p">),</span> <span class="s2">"W_in second dimension must equal n_inputs + 1 (bias)"</span>
+        <span class="n">W_in</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="n">n_inputs</span>
+    <span class="p">),</span> <span class="s2">"W_in second dimension must equal n_inputs"</span>
     <span class="k">if</span> <span class="n">feedback</span><span class="p">:</span>
         <span class="k">assert</span> <span class="n">W_fb</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">"W_fb must be specified if feedback=True"</span>
     <span class="k">if</span> <span class="n">W_fb</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -410,8 +410,7 @@ check_model_params<span class="p">(</span><span class="n">params</span><span cla
 <tr>
 <td class="linenos">
 <div class="linenodiv">
-<pre><span></span> 72
- 73
+<pre><span></span> 73
  74
  75
  76
@@ -457,7 +456,6 @@ check_model_params<span class="p">(</span><span class="n">params</span><span cla
     <span class="n">input_shift</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="s2">"input_shift"</span><span class="p">]</span>
 
     <span class="n">check_matrices_shapes</span><span class="p">(</span><span class="n">W_in</span><span class="p">,</span> <span class="n">W</span><span class="p">,</span> <span class="n">W_fb</span><span class="p">,</span> <span class="n">n_inputs</span><span class="p">,</span> <span class="n">n_reservoir</span><span class="p">,</span> <span class="n">n_outputs</span><span class="p">,</span> <span class="n">feedback</span><span class="p">)</span>
-    <span class="n">check_func_inverse</span><span class="p">(</span><span class="n">params</span><span class="p">[</span><span class="s2">"activation_out"</span><span class="p">],</span> <span class="n">params</span><span class="p">[</span><span class="s2">"inv_activation_out"</span><span class="p">])</span>
     <span class="n">check_sparsity</span><span class="p">(</span><span class="n">params</span><span class="p">[</span><span class="s2">"sparsity"</span><span class="p">])</span>
     <span class="n">check_input_scaling</span><span class="p">(</span><span class="n">input_scaling</span><span class="p">,</span> <span class="n">n_inputs</span><span class="p">)</span>
     <span class="n">check_input_shift</span><span class="p">(</span><span class="n">input_scaling</span><span class="p">,</span> <span class="n">n_inputs</span><span class="p">)</span>
@@ -495,11 +493,11 @@ set_spectral_radius<span class="p">(</span><span class="n">matrix</span><span cl
 <tr>
 <td class="linenos">
 <div class="linenodiv">
-<pre><span></span>10
-11
+<pre><span></span>11
 12
 13
-14</pre>
+14
+15</pre>
 </div>
 </td>
 <td class="code">

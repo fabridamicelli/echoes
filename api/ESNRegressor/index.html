@@ -303,7 +303,7 @@
 <h2 class="hidden-toc" href="#echoes.esn._regressor.ESNRegressor" id="echoes.esn._regressor.ESNRegressor" style="visibility: hidden; width: 0; height: 0;">
 <a class="headerlink" href="#echoes.esn._regressor.ESNRegressor" title="Permanent link">¶</a></h2>
 <div class="doc doc-contents first">
-<p>n_inputs and n_outputs are infered from passed data.</p>
+<p>Number of input and output neurons are infered from passed data.</p>
 <p><strong>Parameters:</strong></p>
 <table>
 <thead>
@@ -387,7 +387,7 @@ If W is passed, sparsity will be ignored.</p>
 <td><code></code></td>
 <td>
 <p>float, optional, default=0
-Magnitud of the noise input added to neurons at each step.
+Scaling factor of the (uniform) noise input added to neurons at each step.
 This is used for regularization purposes and should typically be
 very small, e.g. 0.0001 or 1e-5.</p>
 </td>
@@ -407,8 +407,10 @@ Default is 1, which is no leaking. 0 would be total leakeage.</p>
 <td><code>bias</code></td>
 <td><code></code></td>
 <td>
-<p>float, optional, default=1
-Value of the bias neuron, injected at each time step together with input.</p>
+<p>int, float or np.ndarray, optional, default=1
+Value of the bias neuron, injected at each time to the reservoir neurons.
+If int or float, all neurons receive the same.
+If np.ndarray is must be of length n_reservoir.</p>
 </td>
 <td><em>required</em></td>
 </tr>
@@ -449,8 +451,12 @@ If True, the reservoir also receives the outout signal as input.</p>
 <td><code>activation</code></td>
 <td><code></code></td>
 <td>
-<p>function, optional, default=tanh
-Non-linear activation function applied to the neurons at each step.</p>
+<p>function (numba jitted), optional, default=tanh
+Non-linear activation function applied to the neurons at each step.
+For numba acceleration, it must be a jitted function.
+Basic activation functions as tanh, sigmoid, relu are already available
+in echoe.utils. Either use those or write a custom one decorated with
+numba njit.</p>
 </td>
 <td><em>required</em></td>
 </tr>
@@ -461,16 +467,6 @@ Non-linear activation function applied to the neurons at each step.</p>
 <p>function, optional, default=identity
 Activation function applied to the outputs. In other words, it is assumed
 that targets = f(outputs). So the output produced must be transformed.</p>
-</td>
-<td><em>required</em></td>
-</tr>
-<tr>
-<td><code>inv_activation_out</code></td>
-<td><code></code></td>
-<td>
-<p>function, optional, default=identity
-Inverse of acivation function applied to the outputs. This is used to first
-transform targets.</p>
 </td>
 <td><em>required</em></td>
 </tr>
@@ -689,11 +685,7 @@ Training output, i.e., y, the target.</p>
 <tr>
 <td class="linenos">
 <div class="linenodiv">
-<pre><span></span>147
-148
-149
-150
-151
+<pre><span></span>151
 152
 153
 154
@@ -746,19 +738,7 @@ Training output, i.e., y, the target.</p>
 201
 202
 203
-204
-205
-206
-207
-208
-209
-210
-211
-212
-213
-214
-215
-216</pre>
+204</pre>
 </div>
 </td>
 <td class="code">
@@ -784,49 +764,33 @@ Training output, i.e., y, the target.</p>
     <span class="n">X</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">check_X_y</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">multi_output</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">y</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
         <span class="n">y</span> <span class="o">=</span> <span class="n">y</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-    <span class="n">inputs</span><span class="p">,</span> <span class="n">outputs</span> <span class="o">=</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span>
 
     <span class="c1"># Initialize matrices and random state</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">random_state_</span> <span class="o">=</span> <span class="n">check_random_state</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">random_state</span><span class="p">)</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">n_inputs_</span> <span class="o">=</span> <span class="n">inputs</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">n_inputs_</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">n_reservoir_</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">W</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">W</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_reservoir</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">n_outputs_</span> <span class="o">=</span> <span class="n">outputs</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">n_outputs_</span> <span class="o">=</span> <span class="n">y</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">W_in_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_init_incoming_weights</span><span class="p">()</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">W_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_init_reservoir_weights</span><span class="p">()</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">W_fb_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_init_feedback_weights</span><span class="p">()</span>
 
     <span class="n">check_model_params</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">)</span>
+    <span class="n">X</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_scale_shift_inputs</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+    <span class="c1">#  --  #</span>
+    <span class="c1"># Initialize reservoir model</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">reservoir_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_init_reservoir_neurons</span><span class="p">()</span>
+
     <span class="c1">#######--#####</span>
-    <span class="c1"># Scale and shift inputs</span>
-    <span class="n">inputs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_scale_shift_inputs</span><span class="p">(</span><span class="n">inputs</span><span class="p">)</span>
+    <span class="n">states</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">reservoir_</span><span class="o">.</span><span class="n">harvest_states</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">initial_state</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
 
-    <span class="c1"># Inverse transform outputs (map them into inner, latent space)</span>
-    <span class="n">outputs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">inv_activation_out</span><span class="p">(</span><span class="n">outputs</span><span class="p">)</span>
-
-    <span class="n">n_samples</span> <span class="o">=</span> <span class="n">inputs</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-    <span class="c1"># Append the bias to inputs -&gt; [1; u(t)]</span>
-    <span class="n">bias</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="n">n_samples</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">bias</span>
-    <span class="n">inputs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">((</span><span class="n">bias</span><span class="p">,</span> <span class="n">inputs</span><span class="p">))</span>
-    <span class="c1"># Collect reservoir states through the given input,output pairs</span>
-    <span class="n">states</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">n_samples</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_reservoir_</span><span class="p">))</span>
-    <span class="k">for</span> <span class="n">step</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">n_samples</span><span class="p">):</span>
-        <span class="n">states</span><span class="p">[</span><span class="n">step</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_update_state</span><span class="p">(</span>
-            <span class="n">states</span><span class="p">[</span><span class="n">step</span> <span class="o">-</span> <span class="mi">1</span><span class="p">],</span>
-            <span class="n">inputs</span><span class="p">[</span><span class="n">step</span><span class="p">,</span> <span class="p">:],</span>
-            <span class="n">outputs</span><span class="p">[</span><span class="n">step</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="p">:],</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">W_in_</span><span class="p">,</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">W_</span><span class="p">,</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">W_fb_</span><span class="p">,</span>
-        <span class="p">)</span>
-
-    <span class="c1"># Extend states matrix with inputs (and bias); i.e., make [x(t); 1; u(t)]</span>
-    <span class="n">full_states</span> <span class="o">=</span> <span class="n">states</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">fit_only_states</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">((</span><span class="n">states</span><span class="p">,</span> <span class="n">inputs</span><span class="p">))</span>
+    <span class="c1"># Extend states matrix with inputs, except we only train based on states</span>
+    <span class="n">full_states</span> <span class="o">=</span> <span class="n">states</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">fit_only_states</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">((</span><span class="n">states</span><span class="p">,</span> <span class="n">X</span><span class="p">))</span>
 
     <span class="c1"># Solve for W_out using full states and outputs, excluding transient</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">W_out_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solve_W_out</span><span class="p">(</span>
-        <span class="n">full_states</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">n_transient</span> <span class="p">:,</span> <span class="p">:],</span> <span class="n">outputs</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">n_transient</span> <span class="p">:,</span> <span class="p">:]</span>
+        <span class="n">full_states</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">n_transient</span> <span class="p">:,</span> <span class="p">:],</span> <span class="n">y</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">n_transient</span> <span class="p">:,</span> <span class="p">:]</span>
     <span class="p">)</span>
-    <span class="c1"># Predict on training set (map them back to original space with activation)</span>
+    <span class="c1"># Predict on training set (including the pass through the output nonlinearity)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">training_prediction_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">activation_out</span><span class="p">(</span><span class="n">full_states</span> <span class="o">@</span> <span class="bp">self</span><span class="o">.</span><span class="n">W_out_</span><span class="o">.</span><span class="n">T</span><span class="p">)</span>
 
     <span class="c1"># Store reservoir activity</span>
@@ -869,7 +833,7 @@ parameter n_transient during training).</p>
 <td><code>ndarray</code></td>
 <td>
 <p>2D np.ndarray of shape (n_samples, n_inputs)
-Testing input, i.e., X, the features.</p>
+Input, i.e., X, the features.</p>
 </td>
 <td><em>required</em></td>
 </tr>
@@ -887,7 +851,7 @@ Testing input, i.e., X, the features.</p>
 <tr>
 <td><code>ndarray</code></td>
 <td>
-<p>outputs: 2D np.ndarray of shape (n_samples, n_outputs)
+<p>y_pred: 2D np.ndarray of shape (n_samples, n_outputs)
     Predicted outputs.</p>
 </td>
 </tr>
@@ -899,7 +863,19 @@ Testing input, i.e., X, the features.</p>
 <tr>
 <td class="linenos">
 <div class="linenodiv">
-<pre><span></span>218
+<pre><span></span>206
+207
+208
+209
+210
+211
+212
+213
+214
+215
+216
+217
+218
 219
 220
 221
@@ -940,26 +916,7 @@ Testing input, i.e., X, the features.</p>
 256
 257
 258
-259
-260
-261
-262
-263
-264
-265
-266
-267
-268
-269
-270
-271
-272
-273
-274
-275
-276
-277
-278</pre>
+259</pre>
 </div>
 </td>
 <td class="code">
@@ -975,56 +932,49 @@ Testing input, i.e., X, the features.</p>
 
 <span class="sd">    Arguments:</span>
 <span class="sd">        X: 2D np.ndarray of shape (n_samples, n_inputs)</span>
-<span class="sd">            Testing input, i.e., X, the features.</span>
+<span class="sd">            Input, i.e., X, the features.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        outputs: 2D np.ndarray of shape (n_samples, n_outputs)</span>
+<span class="sd">        y_pred: 2D np.ndarray of shape (n_samples, n_outputs)</span>
 <span class="sd">            Predicted outputs.</span>
 <span class="sd">    """</span>
     <span class="n">check_is_fitted</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
     <span class="n">X</span> <span class="o">=</span> <span class="n">check_array</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
 
     <span class="n">inputs</span> <span class="o">=</span> <span class="n">X</span>
-    <span class="n">n_samples</span> <span class="o">=</span> <span class="n">inputs</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">n_time_steps</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
     <span class="c1"># Scale and shift inputs</span>
-    <span class="n">inputs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_scale_shift_inputs</span><span class="p">(</span><span class="n">inputs</span><span class="p">)</span>
-
-    <span class="c1"># Append the bias to inputs -&gt; [1; u(t)]</span>
-    <span class="n">bias</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="n">n_samples</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">bias</span>
-    <span class="n">inputs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">((</span><span class="n">bias</span><span class="p">,</span> <span class="n">inputs</span><span class="p">))</span>
+    <span class="n">X</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_scale_shift_inputs</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
 
     <span class="c1"># Initialize predictions</span>
-    <span class="n">states</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">n_samples</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_reservoir_</span><span class="p">))</span>
-    <span class="n">outputs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">n_samples</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_outputs_</span><span class="p">))</span>
+    <span class="n">states</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">n_time_steps</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_reservoir_</span><span class="p">))</span>
+    <span class="n">y_pred</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">n_time_steps</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_outputs_</span><span class="p">))</span>
 
-    <span class="n">check_consistent_length</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="n">outputs</span><span class="p">)</span>  <span class="c1"># sanity check</span>
+    <span class="n">check_consistent_length</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">)</span>  <span class="c1"># sanity check</span>
 
     <span class="c1"># Go through samples (steps) and predict for each of them</span>
-    <span class="k">for</span> <span class="n">step</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">n_samples</span><span class="p">):</span>
-        <span class="n">states</span><span class="p">[</span><span class="n">step</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_update_state</span><span class="p">(</span>
-            <span class="n">states</span><span class="p">[</span><span class="n">step</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="p">:],</span>
-            <span class="n">inputs</span><span class="p">[</span><span class="n">step</span><span class="p">,</span> <span class="p">:],</span>
-            <span class="n">outputs</span><span class="p">[</span><span class="n">step</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="p">:],</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">W_in_</span><span class="p">,</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">W_</span><span class="p">,</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">W_fb_</span><span class="p">,</span>
+    <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">n_time_steps</span><span class="p">):</span>
+        <span class="n">states</span><span class="p">[</span><span class="n">t</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">reservoir_</span><span class="o">.</span><span class="n">update_state</span><span class="p">(</span>
+            <span class="n">state_t</span><span class="o">=</span><span class="n">states</span><span class="p">[</span><span class="n">t</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="p">:],</span>
+            <span class="n">X_t</span><span class="o">=</span><span class="n">X</span><span class="p">[</span><span class="n">t</span><span class="p">,</span> <span class="p">:],</span>
+            <span class="n">y_t</span><span class="o">=</span><span class="n">y_pred</span><span class="p">[</span><span class="n">t</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="p">:],</span>
         <span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">fit_only_states</span><span class="p">:</span>
-            <span class="n">full_states</span> <span class="o">=</span> <span class="n">states</span><span class="p">[</span><span class="n">step</span><span class="p">,</span> <span class="p">:]</span>
+            <span class="n">full_states</span> <span class="o">=</span> <span class="n">states</span><span class="p">[</span><span class="n">t</span><span class="p">,</span> <span class="p">:]</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">full_states</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">states</span><span class="p">[</span><span class="n">step</span><span class="p">,</span> <span class="p">:],</span> <span class="n">inputs</span><span class="p">[</span><span class="n">step</span><span class="p">,</span> <span class="p">:]])</span>
+            <span class="n">full_states</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">states</span><span class="p">[</span><span class="n">t</span><span class="p">,</span> <span class="p">:],</span> <span class="n">X</span><span class="p">[</span><span class="n">t</span><span class="p">,</span> <span class="p">:]])</span>
         <span class="c1"># Predict</span>
-        <span class="n">outputs</span><span class="p">[</span><span class="n">step</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">W_out_</span> <span class="o">@</span> <span class="n">full_states</span>
+        <span class="n">y_pred</span><span class="p">[</span><span class="n">t</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">W_out_</span> <span class="o">@</span> <span class="n">full_states</span>
 
     <span class="c1"># Store reservoir activity</span>
     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">store_states_pred</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">states_pred_</span> <span class="o">=</span> <span class="n">states</span>
 
-    <span class="c1"># Map outputs back to actual target space with activation function</span>
-    <span class="n">outputs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">activation_out</span><span class="p">(</span><span class="n">outputs</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">outputs</span>
+    <span class="c1"># Apply output non-linearity</span>
+    <span class="n">y_pred</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">activation_out</span><span class="p">(</span><span class="n">y_pred</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">y_pred</span>
 </code></pre>
 </div>
 </td>
@@ -1044,7 +994,7 @@ score<span class="p">(</span><span class="bp">self</span><span class="p">,</span
 to compute the score - modify sample_weight to change that behaviour (see below).</p>
 <p>From sklearn:
   Best possible score is 1.0 and it can be negative (because the model can be
-  arbitrarily worse).
+  arbitrarily bad).
   A constant model that always predicts the expected value of y,
   disregarding the input features, would get a R^2 score of 0.0.</p>
 <p><strong>Parameters:</strong></p>
@@ -1089,9 +1039,9 @@ sample_weight array with same length as outputs 1 dimension.
 <blockquote>
 <blockquote>
 <p>n_steps_to_remove = 10
-weights = np.ones(outputs.shape[0])
+weights = np.ones(y_true.shape[0])
 weights[: n_steps_to_remove] = 0
-score(inputs, outputs, sample_weight=weights)</p>
+score(X, y_true, sample_weight=weights)</p>
 </blockquote>
 </blockquote>
 </td>
@@ -1123,7 +1073,26 @@ score(inputs, outputs, sample_weight=weights)</p>
 <tr>
 <td class="linenos">
 <div class="linenodiv">
-<pre><span></span>281
+<pre><span></span>262
+263
+264
+265
+266
+267
+268
+269
+270
+271
+272
+273
+274
+275
+276
+277
+278
+279
+280
+281
 282
 283
 284
@@ -1143,26 +1112,7 @@ score(inputs, outputs, sample_weight=weights)</p>
 298
 299
 300
-301
-302
-303
-304
-305
-306
-307
-308
-309
-310
-311
-312
-313
-314
-315
-316
-317
-318
-319
-320</pre>
+301</pre>
 </div>
 </td>
 <td class="code">
@@ -1176,7 +1126,7 @@ score(inputs, outputs, sample_weight=weights)</p>
 
 <span class="sd">    From sklearn:</span>
 <span class="sd">      Best possible score is 1.0 and it can be negative (because the model can be</span>
-<span class="sd">      arbitrarily worse).</span>
+<span class="sd">      arbitrarily bad).</span>
 <span class="sd">      A constant model that always predicts the expected value of y,</span>
 <span class="sd">      disregarding the input features, would get a R^2 score of 0.0.</span>
 
@@ -1192,9 +1142,9 @@ score(inputs, outputs, sample_weight=weights)</p>
 <span class="sd">            sample_weight array with same length as outputs 1 dimension.</span>
 <span class="sd">            **Usage**</span>
 <span class="sd">              &gt;&gt; n_steps_to_remove = 10</span>
-<span class="sd">              &gt;&gt; weights = np.ones(outputs.shape[0])</span>
+<span class="sd">              &gt;&gt; weights = np.ones(y_true.shape[0])</span>
 <span class="sd">              &gt;&gt; weights[: n_steps_to_remove] = 0</span>
-<span class="sd">              &gt;&gt; score(inputs, outputs, sample_weight=weights)</span>
+<span class="sd">              &gt;&gt; score(X, y_true, sample_weight=weights)</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        score: float</span>
