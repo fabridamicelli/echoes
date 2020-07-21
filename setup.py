@@ -24,7 +24,7 @@ setup(
     name='echoes',
     version='0.0.3',
     description=DESCRIPTION,
-    long_description=LONG_DESCRIPTION,
+    # long_description=LONG_DESCRIPTION,
     author='Fabrizio Damicelli',
     author_email='f.damicelli@uke.de',
     url="https://github.com/fabridamicelli/echoes",
