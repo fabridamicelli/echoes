@@ -146,7 +146,6 @@ def update_state(
 
     new_state = W_in @ X_t + W @ state_t + bias
 
-
     if not feedback:  # hack for numba, otherwise type(W_fb) is None and cannot compile
         W_fb = np.zeros_like(y_t)
     else:

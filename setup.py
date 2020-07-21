@@ -11,7 +11,7 @@ base_packages = [
     "pandas>=1.0.3",
     "matplotlib>=3.2.0",
     "seaborn>=0.10.1",
-    "numba>=0.47.0"
+    "numba==0.47.0"
 ]
 
 test_packages = [
