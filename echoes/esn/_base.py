@@ -146,7 +146,8 @@ class ESNBase(BaseEstimator):
     """
 
     def __init__(
-        self, *,
+        self,
+        *,
         n_reservoir: int = 100,
         W: np.ndarray = None,
         spectral_radius: float = 0.99,
@@ -217,7 +218,7 @@ class ESNBase(BaseEstimator):
         W_in = self.random_state_.uniform(
             low=-1, high=1, size=(self.n_reservoir_, self.n_inputs_)
         )
-        return W_in
+        return W_in.astype(self._dtype_)
 
     def _init_reservoir_weights(self) -> np.ndarray:
         """
@@ -232,7 +233,7 @@ class ESNBase(BaseEstimator):
             low=-0.5, high=0.5, size=(self.n_reservoir_, self.n_reservoir_)
         )
         W[self.random_state_.rand(*W.shape) < self.sparsity] = 0
-        return set_spectral_radius(W, self.spectral_radius)
+        return set_spectral_radius(W, self.spectral_radius).astype(self._dtype_)
 
     def _init_reservoir_neurons(self) -> "ReservoirLeakyNeurons":
         """
@@ -260,7 +261,7 @@ class ESNBase(BaseEstimator):
         W_fb = self.random_state_.uniform(
             low=-1, high=1, size=(self.n_reservoir_, self.n_outputs_)
         )
-        return W_fb
+        return W_fb.astype(self._dtype_)
 
     # TODO maybe move to utils and/or replace by sklearn scaler
     def _scale_shift_inputs(self, inputs: np.ndarray) -> np.ndarray:

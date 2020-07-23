@@ -141,7 +141,7 @@ class ESNGenerator(ESNBase, MultiOutputMixin, RegressorMixin):
             reservoir neurons activity during prediction (test).
     """
 
-    def __init__(self, *,  n_steps: int = 100, **kwargs) -> None:
+    def __init__(self, *, n_steps: int = 100, **kwargs) -> None:
         super().__init__(**kwargs)
         self.n_steps = n_steps
         if "feedback" in kwargs:
@@ -249,9 +249,7 @@ class ESNGenerator(ESNBase, MultiOutputMixin, RegressorMixin):
         # Go through samples (steps) and predict for each of them
         for t in range(1, outputs.shape[0]):
             states[t, :] = self.reservoir_.update_state(
-                state_t=states[t - 1, :],
-                X_t=inputs[t, :],
-                y_t=outputs[t - 1, :],
+                state_t=states[t - 1, :], X_t=inputs[t, :], y_t=outputs[t - 1, :],
             )
             if self.fit_only_states:
                 full_states = states[t, :]
@@ -260,7 +258,7 @@ class ESNGenerator(ESNBase, MultiOutputMixin, RegressorMixin):
             # Predict
             outputs[t, :] = self.W_out_ @ full_states
 
-            #TODO: Update last_{input, states, outputs}_
+            # TODO: Update last_{input, states, outputs}_
 
         # Store reservoir activity
         if self.store_states_pred:

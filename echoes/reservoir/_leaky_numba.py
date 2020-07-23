@@ -72,15 +72,23 @@ class ReservoirLeakyNeurons:
         noise: float = 0,
         leak_rate: float = 1,
     ):
-        self.W_in = W_in
+        _dtype = W.dtype
+        self.W_in = W_in.astype(_dtype)
         self.W = W
-        self.W_fb = W_fb
+        self.W_fb = W_fb.astype(_dtype) if W_fb else W_fb
         self.feedback = feedback
-        self.bias = bias
+        self.bias = np.array(bias).astype(_dtype)
         self.activation = activation
-        self.noise = noise
-        self.leak_rate = leak_rate
+        self.noise = np.array(noise).astype(_dtype)
+        self.leak_rate = np.array(leak_rate).astype(_dtype)
         self.n_reservoir = len(W)
+
+        assert len(
+            np.unique([
+            param.dtype
+            for param in (self.W_in, self.W, self.W_fb, self.bias, self.noise, self.leak_rate)
+            if param is not None
+        ])) == 1, "type inconsistency"
 
     def update_state(
         self,
@@ -147,14 +155,14 @@ def update_state(
     new_state = W_in @ X_t + W @ state_t + bias
 
     if not feedback:  # hack for numba, otherwise type(W_fb) is None and cannot compile
-        W_fb = np.zeros_like(y_t)
+        W_fb = np.zeros_like(y_t, dtype=X_t.dtype)
     else:
         new_state += W_fb @ y_t
 
     new_state = activation(new_state)
 
     #TODO: check noise: is -0.5 shift necessary?
-    if noise:
+    if noise > 0:
         new_state += noise * (np.random.rand(n_reservoir) - 0.5)
 
     # Apply leakage
@@ -182,7 +190,7 @@ def harvest_states(
     """
     n_reservoir = len(W)
     n_time_steps = X.shape[0]
-    states = np.zeros((n_time_steps, n_reservoir))
+    states = np.zeros((n_time_steps, n_reservoir), dtype=X.dtype)
     if initial_state is not None:
         states[0, :] = initial_state
 

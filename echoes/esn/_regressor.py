@@ -166,7 +166,9 @@ class ESNRegressor(ESNBase, MultiOutputMixin, RegressorMixin):
         Returns
             self: returns an instance of self.
         """
-        X, y = check_X_y(X, y, multi_output=True)
+        self._dtype_ = X.dtype
+        X, y = check_X_y(X, y, multi_output=True, dtype=self._dtype_)
+        y = check_array(y, dtype=self._dtype_)
         if y.ndim == 1:
             y = y.reshape(-1, 1)
 
@@ -221,7 +223,7 @@ class ESNRegressor(ESNBase, MultiOutputMixin, RegressorMixin):
                 Predicted outputs.
         """
         check_is_fitted(self)
-        X = check_array(X)
+        X = check_array(X, dtype=self._dtype_)
 
         inputs = X
         n_time_steps = X.shape[0]
@@ -230,17 +232,15 @@ class ESNRegressor(ESNBase, MultiOutputMixin, RegressorMixin):
         X = self._scale_shift_inputs(X)
 
         # Initialize predictions
-        states = np.zeros((n_time_steps, self.n_reservoir_))
-        y_pred = np.zeros((n_time_steps, self.n_outputs_))
+        states = np.zeros((n_time_steps, self.n_reservoir_), dtype=self._dtype_)
+        y_pred = np.zeros((n_time_steps, self.n_outputs_), dtype=self._dtype_)
 
         check_consistent_length(X, y_pred)  # sanity check
 
         # Go through samples (steps) and predict for each of them
         for t in range(1, n_time_steps):
             states[t, :] = self.reservoir_.update_state(
-                state_t=states[t - 1, :],
-                X_t=X[t, :],
-                y_t=y_pred[t - 1, :],
+                state_t=states[t - 1, :], X_t=X[t, :], y_t=y_pred[t - 1, :],
             )
 
             if self.fit_only_states:
