@@ -13,7 +13,7 @@ def plot_forgetting_curve(
     lags: Union[List, np.ndarray],
     forgetting_curve: np.ndarray,
     ax: plt.Axes = None,
-    **kwargs
+    **kwargs,
 ) -> None:
     """
     Plot forgetting curve, ie, memory capacity (MC) vs lag.

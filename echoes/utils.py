@@ -34,18 +34,14 @@ def check_matrices_shapes(W_in, W, W_fb, n_inputs, n_reservoir, n_outputs, feedb
     assert W.shape[0] == W.shape[1], "W must be square"
     assert len(W) == n_reservoir, "W does not match n_reservoir"
     assert W_in.shape[0] == n_reservoir, "W_in first dimension must equal n_reservoir"
-    assert (
-        W_in.shape[1] == n_inputs
-    ), "W_in second dimension must equal n_inputs"
+    assert W_in.shape[1] == n_inputs, "W_in second dimension must equal n_inputs"
     if feedback:
         assert W_fb is not None, "W_fb must be specified if feedback=True"
     if W_fb is not None:
         assert (
             W_fb.shape[0] == n_reservoir
         ), "W_fb first dimension must equal n_reservoir"
-        assert (
-            W_fb.shape[1] == n_outputs
-        ), "W_fb second dimension must equal n_outputs"
+        assert W_fb.shape[1] == n_outputs, "W_fb second dimension must equal n_outputs"
 
 
 def check_input_shift(input_shift, n_inputs):
@@ -100,19 +96,22 @@ def check_model_params(params: Mapping,) -> None:
             "ridge_sample_weight will be ignored since regression_method is not ridge"
         )
 
+
 @njit
 def tanh(x: Union[float, int, np.ndarray]) -> Union[float, np.ndarray]:
     """Numba jitted tanh function. Return tanh(x)"""
     return np.tanh(x)
+
 
 @njit
 def relu(x: Union[float, int, np.ndarray]) -> Union[float, np.ndarray]:
     """Numba jitted ReLu (rectified linear unit) function. Return ReLu(x)"""
     return np.maximum(0, x)
 
+
 @njit
 def sigmoid(x: Union[float, int, np.ndarray], a: float = 1) -> Union[float, np.ndarray]:
     """
     Return  f(x) = 1 / (1 + np.exp(-x * a)). Numba jitted sigmoid function.
     """
-    return 1/(1 + np.exp(-x * a))
+    return 1 / (1 + np.exp(-x * a))

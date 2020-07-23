@@ -61,6 +61,7 @@ class ReservoirLeakyNeurons:
           y(t): outputs vector at time t
           b: bias vector applied to the reservoir neurons
     """
+
     def __init__(
         self,
         W_in: np.ndarray = None,
@@ -83,12 +84,25 @@ class ReservoirLeakyNeurons:
         self.leak_rate = np.array(leak_rate).astype(_dtype)
         self.n_reservoir = len(W)
 
-        assert len(
-            np.unique([
-            param.dtype
-            for param in (self.W_in, self.W, self.W_fb, self.bias, self.noise, self.leak_rate)
-            if param is not None
-        ])) == 1, "type inconsistency"
+        assert (
+            len(
+                np.unique(
+                    [
+                        param.dtype
+                        for param in (
+                            self.W_in,
+                            self.W,
+                            self.W_fb,
+                            self.bias,
+                            self.noise,
+                            self.leak_rate,
+                        )
+                        if param is not None
+                    ]
+                )
+            )
+            == 1
+        ), "type inconsistency"
 
     def update_state(
         self,
@@ -107,7 +121,7 @@ class ReservoirLeakyNeurons:
             bias=self.bias,
             activation=self.activation,
             noise=self.noise,
-            leak_rate=self.leak_rate
+            leak_rate=self.leak_rate,
         )
         return new_state
 
@@ -115,7 +129,7 @@ class ReservoirLeakyNeurons:
         self,
         X: np.ndarray,
         y: np.ndarray,
-        initial_state: Union[np.ndarray, None] = None
+        initial_state: Union[np.ndarray, None] = None,
     ) -> np.ndarray:
 
         states = harvest_states(
@@ -129,9 +143,10 @@ class ReservoirLeakyNeurons:
             bias=self.bias,
             activation=self.activation,
             noise=self.noise,
-            leak_rate=self.leak_rate
+            leak_rate=self.leak_rate,
         )
         return states
+
 
 @njit
 def update_state(
@@ -161,7 +176,7 @@ def update_state(
 
     new_state = activation(new_state)
 
-    #TODO: check noise: is -0.5 shift necessary?
+    # TODO: check noise: is -0.5 shift necessary?
     if noise > 0:
         new_state += noise * (np.random.rand(n_reservoir) - 0.5)
 
@@ -170,6 +185,7 @@ def update_state(
         new_state = leak_rate * new_state + (1 - leak_rate) * state_t
 
     return new_state
+
 
 @njit
 def harvest_states(
@@ -206,6 +222,6 @@ def harvest_states(
             bias=bias,
             activation=activation,
             noise=noise,
-            leak_rate=leak_rate
+            leak_rate=leak_rate,
         )
     return states

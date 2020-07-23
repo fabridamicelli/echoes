@@ -59,6 +59,7 @@ class ReservoirLeakyNeurons:
           y(t): outputs vector at time t
           b: bias vector applied to the reservoir neurons
     """
+
     def __init__(
         self,
         W_in: np.ndarray = None,
@@ -97,7 +98,7 @@ class ReservoirLeakyNeurons:
 
         new_state = self.activation(new_state)
 
-        #TODO: check noise: is -0.5 shift necessary?
+        # TODO: check noise: is -0.5 shift necessary?
         if self.noise:
             new_state += self.noise * (np.random.rand(self.n_reservoir) - 0.5)
 
@@ -123,9 +124,7 @@ class ReservoirLeakyNeurons:
 
         for t in range(1, n_time_steps):
             states[t, :] = self.update_state(
-                state_t=states[t - 1],
-                X_t=X[t, :],
-                y_t=y[t - 1, :],
+                state_t=states[t - 1], X_t=X[t, :], y_t=y[t - 1, :],
             )
         return states
 
@@ -147,18 +146,18 @@ if __name__ == "__main__":
     bias = 1.2
     feedback = True
     activation = np.tanh
-    leak_rate = .9
-    noise = .001
+    leak_rate = 0.9
+    noise = 0.001
 
     reservoir = ReservoirLeakyNeurons(
-        W_in = np.random.rand(n_reservoir, n_inputs),
-        W = np.random.rand(n_reservoir, n_reservoir),
-        W_fb = np.random.rand(n_reservoir, n_outputs),
-        bias = 1.2,
-        feedback = True,
-        activation = activation,
-        leak_rate = .9,
-        noise = .001,
+        W_in=np.random.rand(n_reservoir, n_inputs),
+        W=np.random.rand(n_reservoir, n_reservoir),
+        W_fb=np.random.rand(n_reservoir, n_outputs),
+        bias=1.2,
+        feedback=True,
+        activation=activation,
+        leak_rate=0.9,
+        noise=0.001,
     )
     states = reservoir.harvest_states(X, y)
     print(states.shape)

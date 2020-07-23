@@ -91,7 +91,7 @@ def plot_reservoir_activity(
     start: int = None,
     end: int = None,
     figsize: Tuple = (15, 9),
-    **kwargs
+    **kwargs,
 ):
     """
     Plot the activity, ie time series of states, of the reservoir
@@ -133,7 +133,8 @@ def plot_reservoir_activity(
 
     # Plot test
     fig, axes = plt.subplots(
-        nrows=int(np.ceil(n_neurons / 3)), ncols=3, figsize=figsize)
+        nrows=int(np.ceil(n_neurons / 3)), ncols=3, figsize=figsize
+    )
 
     if "linewidth" in kwargs:
         linewidth = kwargs.pop("linewidht")
