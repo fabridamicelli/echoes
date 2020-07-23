@@ -255,7 +255,7 @@ class ESNBase(BaseEstimator):
     def _init_feedback_weights(self) -> Union[None, np.ndarray]:
         """Return feedback weights. Shape (n_reservoir, n_outputs)."""
         if not self.feedback:
-            return None
+            return np.zeros((self.n_reservoir_, self.n_outputs_), dtype=self._dtype_)
         if self.W_fb is not None:
             return self.W_fb
         W_fb = self.random_state_.uniform(

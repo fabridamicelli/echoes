@@ -76,7 +76,7 @@ class ReservoirLeakyNeurons:
         _dtype = W.dtype
         self.W_in = W_in.astype(_dtype)
         self.W = W
-        self.W_fb = W_fb.astype(_dtype) if W_fb else W_fb
+        self.W_fb = W_fb.astype(_dtype) if W_fb is not None else W_fb
         self.feedback = feedback
         self.bias = np.array(bias).astype(_dtype)
         self.activation = activation
@@ -84,25 +84,20 @@ class ReservoirLeakyNeurons:
         self.leak_rate = np.array(leak_rate).astype(_dtype)
         self.n_reservoir = len(W)
 
-        assert (
-            len(
-                np.unique(
-                    [
-                        param.dtype
-                        for param in (
-                            self.W_in,
-                            self.W,
-                            self.W_fb,
-                            self.bias,
-                            self.noise,
-                            self.leak_rate,
-                        )
-                        if param is not None
-                    ]
-                )
+        types = [
+            param.dtype
+            for param in (
+                self.W_in,
+                self.W,
+                self.W_fb,
+                self.bias,
+                self.noise,
+                self.leak_rate,
             )
-            == 1
-        ), "type inconsistency"
+            if param is not None
+        ]
+
+        assert (len(np.unique(types)) == 1), "type inconsistency"
 
     def update_state(
         self,
@@ -165,20 +160,11 @@ def update_state(
     """
     Return states vector after one time step.
     """
-    n_reservoir = len(W)
-
-    new_state = W_in @ X_t + W @ state_t + bias
-
-    if not feedback:  # hack for numba, otherwise type(W_fb) is None and cannot compile
-        W_fb = np.zeros_like(y_t, dtype=X_t.dtype)
-    else:
-        new_state += W_fb @ y_t
-
-    new_state = activation(new_state)
+    new_state = activation(W_in @ X_t + W @ state_t + W_fb @ y_t + bias)
 
     # TODO: check noise: is -0.5 shift necessary?
     if noise > 0:
-        new_state += noise * (np.random.rand(n_reservoir) - 0.5)
+        new_state += noise * (np.random.rand(W.shape[0]) - 0.5)
 
     # Apply leakage
     if leak_rate < 1:

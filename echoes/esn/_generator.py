@@ -171,7 +171,8 @@ class ESNGenerator(ESNBase, MultiOutputMixin, RegressorMixin):
         """
         if X is not None:
             warnings.warn("X will be ignored – ESNGenerator only takes y for training")
-        y = check_array(y, ensure_2d=False)
+        y = check_array(y, ensure_2d=False, dtype=np.float64)
+        self._dtype_ = y.dtype
         if y.ndim == 1:
             y = y.reshape(-1, 1)
         outputs = y
@@ -190,7 +191,7 @@ class ESNGenerator(ESNBase, MultiOutputMixin, RegressorMixin):
         check_model_params(self.__dict__)
 
         # Make inputs zero
-        inputs = np.zeros(shape=(outputs.shape[0], self.n_inputs_))
+        inputs = np.zeros(shape=(outputs.shape[0], self.n_inputs_), dtype=self._dtype_)
 
         check_consistent_length(inputs, outputs)  # sanity check
         #  --  #
@@ -199,7 +200,7 @@ class ESNGenerator(ESNBase, MultiOutputMixin, RegressorMixin):
 
         states = self.reservoir_.harvest_states(inputs, outputs, initial_state=None)
 
-        # Extend states matrix with inputs (and bias); i.e., make [x(t); 1; u(t)]
+        # Extend states matrix with inputs; i.e., make [h(t); x(t)]
         full_states = states if self.fit_only_states else np.hstack((states, inputs))
 
         # Solve for W_out using full states and outputs, excluding transient
@@ -239,10 +240,14 @@ class ESNGenerator(ESNBase, MultiOutputMixin, RegressorMixin):
         n_steps = self.n_steps  # shorthand
 
         # Initialize predictions: begin with last state as first state
-        inputs = np.zeros(shape=(n_steps, self.n_inputs_))
+        inputs = np.zeros(shape=(n_steps, self.n_inputs_), dtype=self._dtype_)
         inputs = np.vstack([self.last_input_, inputs])
-        states = np.vstack([self.last_state_, np.zeros((n_steps, self.n_reservoir_))])
-        outputs = np.vstack([self.last_output_, np.zeros((n_steps, self.n_outputs_))])
+        states = np.vstack([
+            self.last_state_, np.zeros((n_steps, self.n_reservoir_), dtype=self._dtype_)
+        ])
+        outputs = np.vstack([
+            self.last_output_, np.zeros((n_steps, self.n_outputs_), dtype=self._dtype_)
+        ])
 
         check_consistent_length(inputs, outputs)  # sanity check
 
