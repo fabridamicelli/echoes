@@ -20,8 +20,6 @@ class ReservoirLeakyNeurons:
             Reservoir weights matrix.
         W_fb: np.ndarray of shape(n_reservoir, n_outputs), optional, default None.
             Feedback weights matrix by which feedback is multiplied in case of feedback.
-        feedback: bool, optional, default=False
-            If True, the reservoir also receives the outout signal as input.
         bias: int, float or np.ndarray, optional, default=1
             Value of the bias neuron, injected at each time to the reservoir neurons.
             If int or float, all neurons receive the same.
@@ -67,7 +65,6 @@ class ReservoirLeakyNeurons:
         W_in: np.ndarray = None,
         W: np.ndarray = None,
         W_fb: np.ndarray = None,
-        feedback: bool = False,
         bias: Union[np.ndarray, float] = 1,
         activation: Callable = None,
         noise: float = 0,
@@ -77,7 +74,6 @@ class ReservoirLeakyNeurons:
         self.W_in = W_in.astype(_dtype)
         self.W = W
         self.W_fb = W_fb.astype(_dtype) if W_fb is not None else W_fb
-        self.feedback = feedback
         self.bias = np.array(bias).astype(_dtype)
         self.activation = activation
         self.noise = np.array(noise).astype(_dtype)
@@ -112,7 +108,6 @@ class ReservoirLeakyNeurons:
             W_in=self.W_in,
             W=self.W,
             W_fb=self.W_fb,
-            feedback=self.feedback,
             bias=self.bias,
             activation=self.activation,
             noise=self.noise,
@@ -134,7 +129,6 @@ class ReservoirLeakyNeurons:
             W_in=self.W_in,
             W=self.W,
             W_fb=self.W_fb,
-            feedback=self.feedback,
             bias=self.bias,
             activation=self.activation,
             noise=self.noise,
@@ -151,7 +145,6 @@ def update_state(
     W_in: np.ndarray = None,
     W: np.ndarray = None,
     W_fb: np.ndarray = None,
-    feedback: bool = False,
     bias: np.ndarray = None,
     activation: Callable = None,
     noise: float = 0,
@@ -181,7 +174,6 @@ def harvest_states(
     W_in: np.ndarray = None,
     W: np.ndarray = None,
     W_fb: np.ndarray = None,
-    feedback: bool = False,
     bias: np.ndarray = None,
     activation: Callable = None,
     noise: float = 0,
@@ -204,7 +196,6 @@ def harvest_states(
             W_in=W_in,
             W=W,
             W_fb=W_fb,
-            feedback=feedback,
             bias=bias,
             activation=activation,
             noise=noise,
