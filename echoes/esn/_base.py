@@ -245,7 +245,6 @@ class ESNBase(BaseEstimator):
             W=self.W_,
             W_fb=self.W_fb_,
             bias=self.bias,
-            feedback=self.feedback,
             activation=self.activation,
             leak_rate=self.leak_rate,
             noise=self.noise,
