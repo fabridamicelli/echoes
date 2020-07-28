@@ -11,7 +11,7 @@ base_packages = [
     "pandas>=1.0.3",
     "matplotlib>=3.2.0",
     "seaborn>=0.10.1",
-    "numba==0.47.0"
+    "numba==0.49.1"
 ]
 
 test_packages = [
@@ -29,7 +29,6 @@ setup(
     author_email='f.damicelli@uke.de',
     url="https://github.com/fabridamicelli/echoes",
     packages=find_packages(exclude=['notebooks', 'docs']),
-    install_requires=base_packages,
     classifiers=[
         "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3.6",
@@ -40,4 +39,6 @@ setup(
         "Topic :: Scientific/Engineering :: Artificial Intelligence",
     ],
     python_requires='>=3.6',
+    install_requires=base_packages,
+    include_package_data=True
 )
