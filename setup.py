@@ -22,7 +22,7 @@ test_packages = [
 
 setup(
     name='echoes',
-    version='0.0.3.2',
+    version='0.0.3.3',
     description=DESCRIPTION,
     # long_description=LONG_DESCRIPTION,
     author='Fabrizio Damicelli',
