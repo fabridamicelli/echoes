@@ -9,7 +9,8 @@ import numpy as np
 
 
 def set_spectral_radius(matrix: np.ndarray, target_radius: float) -> np.ndarray:
-    """Rescale weights matrix to match target spectral radius"""
+    """Return a copy of matrix with rescaled weights to match target spectral radius"""
+    matrix = matrix.copy()
     current_radius = np.max(np.abs(np.linalg.eigvals(matrix)))
     matrix *= target_radius / current_radius
     return matrix
