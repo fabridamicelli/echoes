@@ -26,7 +26,7 @@ setup(
     description=DESCRIPTION,
     # long_description=LONG_DESCRIPTION,
     author='Fabrizio Damicelli',
-    author_email='f.damicelli@uke.de',
+    author_email='fabridamicelli@gmail.com',
     url="https://github.com/fabridamicelli/echoes",
     packages=find_packages(exclude=['notebooks', 'docs']),
     classifiers=[
