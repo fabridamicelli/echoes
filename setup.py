@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 
 DESCRIPTION = 'Machine Learning with Echo State Networks in Python'
-with open('README.md') as f:
+with open('README.md', encoding='utf-8') as f:
     LONG_DESCRIPTION = f.read()
 
 base_packages = [
@@ -22,9 +22,10 @@ test_packages = [
 
 setup(
     name='echoes',
-    version='0.0.3.3',
+    version='0.0.4',
     description=DESCRIPTION,
-    # long_description=LONG_DESCRIPTION,
+    long_description=LONG_DESCRIPTION,
+    long_description_content_type='text/markdown',
     author='Fabrizio Damicelli',
     author_email='fabridamicelli@gmail.com',
     url="https://github.com/fabridamicelli/echoes",
