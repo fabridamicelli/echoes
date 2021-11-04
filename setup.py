@@ -11,7 +11,7 @@ base_packages = [
     "pandas>=1.0.3",
     "matplotlib>=3.2.0",
     "seaborn>=0.10.1",
-    "numba==0.49.1"
+    "numba==0.53.1"
 ]
 
 test_packages = [
@@ -22,7 +22,7 @@ test_packages = [
 
 setup(
     name='echoes',
-    version='0.0.4',
+    version='0.0.5',
     description=DESCRIPTION,
     long_description=LONG_DESCRIPTION,
     long_description_content_type='text/markdown',
@@ -34,6 +34,8 @@ setup(
         "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
         "License :: OSI Approved :: MIT License",
         "Intended Audience :: Science/Research",
         "Topic :: Scientific/Engineering",

@@ -1,5 +1,4 @@
 # echoes 
-(work in progress!)
 
 Scikit-learn compatible, high level API for machine learning with Echo State Networks(ESN).
 
@@ -36,7 +35,7 @@ If you find echoes useful for a publication, then please use the following BibTe
    - mypy
    - pytest 
 
-The code has been tested with Python 3.7 on Ubuntu 16.04 and 18.04.
+The code has been tested with Python 3.8.12 and 3.9.7 on Ubuntu 20.04.3 LTS.
 
 ## Tests 
 Run tests with 
