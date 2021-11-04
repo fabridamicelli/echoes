@@ -11,7 +11,7 @@ base_packages = [
     "pandas>=1.0.3",
     "matplotlib>=3.2.0",
     "seaborn>=0.10.1",
-    "numba==0.53.1"
+    "numba==0.54.1"
 ]
 
 test_packages = [
@@ -22,7 +22,7 @@ test_packages = [
 
 setup(
     name='echoes',
-    version='0.0.5',
+    version='0.0.6',
     description=DESCRIPTION,
     long_description=LONG_DESCRIPTION,
     long_description_content_type='text/markdown',
