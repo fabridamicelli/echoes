@@ -168,9 +168,10 @@ class ESNRegressor(ESNBase, MultiOutputMixin, RegressorMixin):
         """
         self._dtype_ = X.dtype
         X, y = check_X_y(X, y, multi_output=True, dtype=self._dtype_)
-        y = check_array(y, dtype=self._dtype_)
         if y.ndim == 1:
             y = y.reshape(-1, 1)
+        # Check y again (enforcing 2D for multiple outputs)
+        y = check_array(y, dtype=self._dtype_)
 
         # Initialize matrices and random state
         self.random_state_ = check_random_state(self.random_state)
@@ -183,11 +184,11 @@ class ESNRegressor(ESNBase, MultiOutputMixin, RegressorMixin):
 
         check_model_params(self.__dict__)
         X = self._scale_shift_inputs(X)
-        #  --  #
+
         # Initialize reservoir model
         self.reservoir_ = self._init_reservoir_neurons()
 
-        #######--#####
+        # Run "neuronal activity"
         states = self.reservoir_.harvest_states(X, y, initial_state=None)
 
         # Extend states matrix with inputs, except we only train based on states
@@ -225,7 +226,6 @@ class ESNRegressor(ESNBase, MultiOutputMixin, RegressorMixin):
         check_is_fitted(self)
         X = check_array(X, dtype=self._dtype_)
 
-        inputs = X
         n_time_steps = X.shape[0]
 
         # Scale and shift inputs
@@ -255,10 +255,8 @@ class ESNRegressor(ESNBase, MultiOutputMixin, RegressorMixin):
             self.states_pred_ = states
 
         # Apply output non-linearity
-        y_pred = self.activation_out(y_pred)
-        return y_pred
+        return self.activation_out(y_pred)
 
-    # TODO: handle transient
     def score(self, X=None, y=None, sample_weight=None) -> float:
         """
         R^2 (coefficient of determination) regression score function.
@@ -293,6 +291,7 @@ class ESNRegressor(ESNBase, MultiOutputMixin, RegressorMixin):
                 R2 score
         """
         y_pred = self.predict(X)
+        # If no sample_weight passed, compute the score without considering transient
         if sample_weight is None:
             weights = np.ones(y.shape[0])
             weights[: self.n_transient] = 0
