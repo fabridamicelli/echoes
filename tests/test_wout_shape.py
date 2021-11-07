@@ -17,6 +17,7 @@ def test_W_out_shape_fullstates():
 
     assert esn.W_out_.shape == (1, esn.n_reservoir_ + esn.n_inputs_)
 
+
 def test_W_out_shape_onlystates():
     """check shape of W_out when trained without input and bias (fit_only_states=True)"""
     data = load_mackeyglasst17().reshape(-1, 1)

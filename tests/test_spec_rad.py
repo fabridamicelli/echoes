@@ -11,15 +11,13 @@ def test_spectral_rad_regressor():
     y_train = load_mackeyglasst17()
 
     for radius in radia:
-        esn = ESNRegressor(spectral_radius=radius, feedback=True)
+        esn = ESNRegressor(spectral_radius=radius)
         n_steps = 50
         # Mock fit to call esn.fit()
         esn.fit(X=np.random.random(size=(n_steps, 1)), y=y_train[:n_steps])
 
         assert (np.max(np.abs(np.linalg.eigvals(esn.W_))).round(decimals=decimals)
                 == np.round(radius, decimals=decimals))
-
-        #TODO without feedback
 
 
 def test_spectral_rad_generator():
@@ -50,7 +48,6 @@ def test_spec_rad_inputW_regressor():
                 n_reservoir=n_reservoir,
                 W=W,
                 spectral_radius=radius,
-                feedback=True,
             )
             # Mock fit only to call esn.fit()
             n_steps = 50
@@ -58,7 +55,6 @@ def test_spec_rad_inputW_regressor():
 
             assert (np.max(np.abs(np.linalg.eigvals(esn.W_))).round(decimals=decimals)
                     == np.round(radius, decimals=decimals))
-        #TODO without feedback
 
 
 def test_spec_rad_inputW_generator():

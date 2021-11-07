@@ -1,6 +1,7 @@
 """
 Echo State Network Generator (pattern generator).
 """
+from typing import Callable, Union
 import warnings
 
 import numpy as np
@@ -14,10 +15,9 @@ from sklearn.base import MultiOutputMixin, RegressorMixin
 from sklearn.metrics import r2_score
 
 from ._base import ESNBase
-from echoes.utils import check_model_params
+from echoes.utils import check_model_params, tanh, identity
 
 
-# TODO: is this inheritance conceptually correct?
 class ESNGenerator(ESNBase, MultiOutputMixin, RegressorMixin):
     """
     The number of inputs (n_inputs) is always 1 and n_outputs is infered from passed data.
@@ -141,16 +141,65 @@ class ESNGenerator(ESNBase, MultiOutputMixin, RegressorMixin):
             reservoir neurons activity during prediction (test).
     """
 
-    def __init__(self, *, n_steps: int = 100, **kwargs) -> None:
-        super().__init__(**kwargs)
+    def __init__(
+        self,
+        *,
+        n_steps: int = 100,
+        n_reservoir: int = 100,
+        W: np.ndarray = None,
+        spectral_radius: float = 0.99,
+        W_in: np.ndarray = None,
+        W_fb: np.ndarray = None,
+        sparsity: float = 0,
+        noise: float = 0,
+        leak_rate: float = 1,
+        bias: Union[int, float, np.ndarray] = 1,
+        input_scaling: Union[float, np.ndarray] = None,
+        input_shift: Union[float, np.ndarray] = None,
+        activation: Callable = tanh,
+        activation_out: Callable = identity,
+        fit_only_states: bool = False,
+        regression_method: str = "pinv",
+        ridge_alpha: float = 1,
+        ridge_fit_intercept: bool = False,
+        ridge_normalize: bool = False,
+        ridge_max_iter: int = None,
+        ridge_tol: float = 1e-3,
+        ridge_solver: str = "auto",
+        ridge_sample_weight: Union[float, np.ndarray] = None,
+        n_transient: int = 0,
+        store_states_train: bool = False,
+        store_states_pred: bool = False,
+        random_state: Union[int, np.random.RandomState, None] = None,
+    ) -> None:
         self.n_steps = n_steps
-        if "feedback" in kwargs:
-            if kwargs["feedback"] == False:
-                warnings.warn(
-                    "feedback is forced to be True – required for ESNGenerator."
-                    "You may simply skip this parameter"
-                )
-        self.feedback = True
+        self.n_reservoir = n_reservoir
+        self.spectral_radius = spectral_radius
+        self.W = W
+        self.W_in = W_in
+        self.W_fb = W_fb
+        self.sparsity = sparsity
+        self.noise = noise
+        self.leak_rate = leak_rate
+        self.bias = bias
+        self.input_scaling = input_scaling
+        self.input_shift = input_shift
+        self.activation = activation
+        self.activation_out = activation_out
+        self.fit_only_states = fit_only_states
+        self.n_transient = n_transient
+        self.store_states_train = store_states_train
+        self.store_states_pred = store_states_pred
+        self.regression_method = regression_method
+        self.ridge_alpha = ridge_alpha
+        self.ridge_fit_intercept = ridge_fit_intercept
+        self.ridge_normalize = ridge_normalize
+        self.ridge_max_iter = ridge_max_iter
+        self.ridge_tol = ridge_tol
+        self.ridge_solver = ridge_solver
+        self.ridge_sample_weight = ridge_sample_weight
+        self.random_state = random_state
+        self.feedback = True   # Generator uses feedback always
 
     def fit(self, X=None, y=None) -> "ESNGenerator":
         """
@@ -194,7 +243,7 @@ class ESNGenerator(ESNBase, MultiOutputMixin, RegressorMixin):
         inputs = np.zeros(shape=(outputs.shape[0], self.n_inputs_), dtype=self._dtype_)
 
         check_consistent_length(inputs, outputs)  # sanity check
-        #  --  #
+
         # Initialize reservoir model
         self.reservoir_ = self._init_reservoir_neurons()
 
