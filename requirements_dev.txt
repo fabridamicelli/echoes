@@ -1,0 +1,12 @@
+numba==0.54.1
+numpy
+jupyterlab
+jupyterlab-vim
+matplotlib
+mkdocs-material
+mkdocstrings
+mypy
+pandas
+pytest
+seaborn
+sklearn
