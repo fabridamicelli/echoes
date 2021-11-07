@@ -40,7 +40,6 @@ esn = ESNGenerator(
     n_reservoir=200,
     n_steps=n_test_steps,
     spectral_radius=1.25,
-    feedback=True,
     leak_rate=.4,
     regression_method="pinv",
     store_states_pred=True,   # store states to plot later
@@ -53,8 +52,8 @@ prediction = esn.predict()
 
 ```python
 ax = plot_predicted_ts(
-    y_test, 
-    prediction, 
+    y_test,
+    prediction,
     end=500,
     figsize=(12, 3)
 )
