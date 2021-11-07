@@ -1,591 +1,812 @@
 
-<!DOCTYPE html>
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Pythonic Echo State Networks">
+      
+      
+      
+        <meta name="author" content="Fabrizio Damicelli">
+      
+      
+        <link rel="canonical" href="https://fabridamicelli.github.io/echoes/api/ESNRegressor/">
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.2.3, mkdocs-material-7.3.6">
+    
+    
+      
+        <title>ESNRegressor - echoes</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.a57b2b03.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.3f5d1f46.min.css">
+        
+          
+          
+          <meta name="theme-color" content="#4051b5">
+        
+      
+    
+    
+    
+      
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700%7CRoboto+Mono&display=fallback">
+        <style>:root{--md-text-font-family:"Roboto";--md-code-font-family:"Roboto Mono"}</style>
+      
+    
+    
+    
+      <link rel="stylesheet" href="../../assets/_mkdocstrings.css">
+    
+      <link rel="stylesheet" href="../../custom.css">
+    
+    
+      
 
-<html class="no-js" lang="en">
-<head>
-<meta charset="utf-8"/>
-<meta content="width=device-width,initial-scale=1" name="viewport"/>
-<meta content="Pythonic Echo State Networks" name="description"/>
-<link href="https://fabridamicelli.github.io/echoes/api/ESNRegressor/" rel="canonical"/>
-<meta content="Fabrizio Damicelli" name="author"/>
-<link href="../../assets/images/favicon.png" rel="shortcut icon"/>
-<meta content="mkdocs-1.1.2, mkdocs-material-5.2.2" name="generator"/>
-<title>ESNRegressor - echoes</title>
-<link href="../../assets/stylesheets/main.a2408e81.min.css" rel="stylesheet"/>
-<link href="../../assets/stylesheets/palette.a46bcfb3.min.css" rel="stylesheet"/>
-<meta content="#3f51b5" name="theme-color"/>
-<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
-<link href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700%7CRoboto+Mono&amp;display=fallback" rel="stylesheet"/>
-<style>body,input{font-family:"Roboto",-apple-system,BlinkMacSystemFont,Helvetica,Arial,sans-serif}code,kbd,pre{font-family:"Roboto Mono",SFMono-Regular,Consolas,Menlo,monospace}</style>
-<link href="../../custom.css" rel="stylesheet"/>
-</head>
-<body data-md-color-accent="orange" data-md-color-primary="indigo" data-md-color-scheme="" dir="ltr">
-<input autocomplete="off" class="md-toggle" data-md-toggle="drawer" id="__drawer" type="checkbox"/>
-<input autocomplete="off" class="md-toggle" data-md-toggle="search" id="__search" type="checkbox"/>
-<label class="md-overlay" for="__drawer"></label>
-<div data-md-component="skip">
-<a class="md-skip" href="#echoes.esn._regressor.ESNRegressor">
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="" data-md-color-primary="indigo" data-md-color-accent="orange">
+  
+    
+    <script>function __prefix(e){return new URL("../..",location).pathname+"."+e}function __get(e,t=localStorage){return JSON.parse(t.getItem(__prefix(e)))}</script>
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#echoes.esn._regressor.ESNRegressor" class="md-skip">
           Skip to content
         </a>
-</div>
-<div data-md-component="announce">
-</div>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      
+
 <header class="md-header" data-md-component="header">
-<nav aria-label="Header" class="md-header-nav md-grid">
-<a aria-label="echoes" class="md-header-nav__button md-logo" href="https://fabridamicelli.github.io/echoes/" title="echoes">
-<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8a3 3 0 003-3 3 3 0 00-3-3 3 3 0 00-3 3 3 3 0 003 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54z"></path></svg>
-</a>
-<label class="md-header-nav__button md-icon" for="__drawer">
-<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2z"></path></svg>
-</label>
-<div class="md-header-nav__title" data-md-component="header-title">
-<div class="md-header-nav__ellipsis">
-<span class="md-header-nav__topic md-ellipsis">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="echoes" class="md-header__button md-logo" aria-label="echoes" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
             echoes
           </span>
-<span class="md-header-nav__topic md-ellipsis">
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
             
               ESNRegressor
             
           </span>
-</div>
-</div>
-<label class="md-header-nav__button md-icon" for="__search">
-<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0116 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 019.5 16 6.5 6.5 0 013 9.5 6.5 6.5 0 019.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"></path></svg>
-</label>
+        </div>
+      </div>
+    </div>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
+      </label>
+      
 <div class="md-search" data-md-component="search" role="dialog">
-<label class="md-search__overlay" for="__search"></label>
-<div class="md-search__inner" role="search">
-<form class="md-search__form" name="search">
-<input aria-label="Search" autocapitalize="off" autocomplete="off" autocorrect="off" class="md-search__input" data-md-component="search-query" data-md-state="active" name="query" placeholder="Search" spellcheck="false" type="text"/>
-<label class="md-search__icon md-icon" for="__search">
-<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0116 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 019.5 16 6.5 6.5 0 013 9.5 6.5 6.5 0 019.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"></path></svg>
-<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"></path></svg>
-</label>
-<button aria-label="Clear" class="md-search__icon md-icon" data-md-component="search-reset" tabindex="-1" type="reset">
-<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"></path></svg>
-</button>
-</form>
-<div class="md-search__output">
-<div class="md-search__scrollwrap" data-md-scrollfix="">
-<div class="md-search-result" data-md-component="search-result">
-<div class="md-search-result__meta">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" aria-label="Clear" tabindex="-1">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
             Initializing search
           </div>
-<ol class="md-search-result__list"></ol>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
-</div>
-</div>
-</div>
-</div>
-<div class="md-header-nav__source">
-<a class="md-source" href="https://github.com/fabridamicelli/echoes/" title="Go to repository">
-<div class="md-source__icon md-icon">
-<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><path d="M439.55 236.05L244 40.45a28.87 28.87 0 00-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 01-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 000 40.81l195.61 195.6a28.86 28.86 0 0040.8 0l194.69-194.69a28.86 28.86 0 000-40.81z"></path></svg>
-</div>
-<div class="md-source__repository">
+    
+    
+      <div class="md-header__source">
+        
+<a href="https://github.com/fabridamicelli/echoes/" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
     GitHub
   </div>
 </a>
-</div>
-</nav>
+      </div>
+    
+  </nav>
+  
 </header>
-<div class="md-container" data-md-component="container">
-<main class="md-main" data-md-component="main">
-<div class="md-main__inner md-grid">
-<div class="md-sidebar md-sidebar--primary" data-md-component="navigation">
-<div class="md-sidebar__scrollwrap">
-<div class="md-sidebar__inner">
-<nav aria-label="Navigation" class="md-nav md-nav--primary" data-md-level="0">
-<label class="md-nav__title" for="__drawer">
-<a aria-label="echoes" class="md-nav__button md-logo" href="https://fabridamicelli.github.io/echoes/" title="echoes">
-<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8a3 3 0 003-3 3 3 0 00-3-3 3 3 0 00-3 3 3 3 0 003 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54z"></path></svg>
-</a>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="echoes" class="md-nav__button md-logo" aria-label="echoes" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54z"/></svg>
+
+    </a>
     echoes
   </label>
-<div class="md-nav__source">
-<a class="md-source" href="https://github.com/fabridamicelli/echoes/" title="Go to repository">
-<div class="md-source__icon md-icon">
-<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><path d="M439.55 236.05L244 40.45a28.87 28.87 0 00-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 01-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 000 40.81l195.61 195.6a28.86 28.86 0 0040.8 0l194.69-194.69a28.86 28.86 0 000-40.81z"></path></svg>
-</div>
-<div class="md-source__repository">
+  
+    <div class="md-nav__source">
+      
+<a href="https://github.com/fabridamicelli/echoes/" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
     GitHub
   </div>
 </a>
-</div>
-<ul class="md-nav__list" data-md-scrollfix="">
-<li class="md-nav__item">
-<a class="md-nav__link" href="../.." title="Home">
-      Home
-    </a>
-</li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="../../tutorial/" title="What are Echo State Networks?">
-      What are Echo State Networks?
-    </a>
-</li>
-<li class="md-nav__item md-nav__item--nested">
-<input class="md-nav__toggle md-toggle" data-md-toggle="nav-3" id="nav-3" type="checkbox"/>
-<label class="md-nav__link" for="nav-3">
-      Examples
-      <span class="md-nav__icon md-icon">
-<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M8.59 16.58L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.42z"></path></svg>
-</span>
-</label>
-<nav aria-label="Examples" class="md-nav" data-md-level="1">
-<label class="md-nav__title" for="nav-3">
-<span class="md-nav__icon md-icon">
-<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"></path></svg>
-</span>
-        Examples
-      </label>
-<ul class="md-nav__list" data-md-scrollfix="">
-<li class="md-nav__item">
-<a class="md-nav__link" href="../../examples/plot_regressor_sincos/" title="ESNRegressor (sin-cos)">
-      ESNRegressor (sin-cos)
-    </a>
-</li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="../../examples/plot_generator_mackeyglass17/" title="ESNGenerator (Mackey-Glass)">
-      ESNGenerator (Mackey-Glass)
-    </a>
-</li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="../../examples/plot_reservoir_activity/" title="Plot Reservoir Activity">
-      Plot Reservoir Activity
-    </a>
-</li>
-</ul>
-</nav>
-</li>
-<li class="md-nav__item md-nav__item--active md-nav__item--nested">
-<input checked="" class="md-nav__toggle md-toggle" data-md-toggle="nav-4" id="nav-4" type="checkbox"/>
-<label class="md-nav__link" for="nav-4">
-      API
-      <span class="md-nav__icon md-icon">
-<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M8.59 16.58L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.42z"></path></svg>
-</span>
-</label>
-<nav aria-label="API" class="md-nav" data-md-level="1">
-<label class="md-nav__title" for="nav-4">
-<span class="md-nav__icon md-icon">
-<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"></path></svg>
-</span>
-        API
-      </label>
-<ul class="md-nav__list" data-md-scrollfix="">
-<li class="md-nav__item md-nav__item--active">
-<input class="md-nav__toggle md-toggle" data-md-toggle="toc" id="__toc" type="checkbox"/>
-<label class="md-nav__link md-nav__link--active" for="__toc">
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        Home
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tutorial/" class="md-nav__link">
+        What are Echo State Networks?
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_3" type="checkbox" id="__nav_3" >
+      
+      
+      
+      
+        <label class="md-nav__link" for="__nav_3">
+          Examples
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Examples" data-md-level="1">
+        <label class="md-nav__title" for="__nav_3">
+          <span class="md-nav__icon md-icon"></span>
+          Examples
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../examples/plot_regressor_sincos/" class="md-nav__link">
+        ESNRegressor (sin-cos)
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../examples/plot_generator_mackeyglass17/" class="md-nav__link">
+        ESNGenerator (Mackey-Glass)
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../examples/plot_reservoir_activity/" class="md-nav__link">
+        Plot Reservoir Activity
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+    
+  
+  
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_4" type="checkbox" id="__nav_4" checked>
+      
+      
+      
+      
+        <label class="md-nav__link" for="__nav_4">
+          API
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="API" data-md-level="1">
+        <label class="md-nav__title" for="__nav_4">
+          <span class="md-nav__icon md-icon"></span>
+          API
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+      
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          ESNRegressor
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         ESNRegressor
-        <span class="md-nav__icon md-icon">
-<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 9h14V7H3v2m0 4h14v-2H3v2m0 4h14v-2H3v2m16 0h2v-2h-2v2m0-10v2h2V7h-2m0 6h2v-2h-2v2z"></path></svg>
-</span>
-</label>
-<a class="md-nav__link md-nav__link--active" href="./" title="ESNRegressor">
-      ESNRegressor
-    </a>
-<nav aria-label="Table of contents" class="md-nav md-nav--secondary">
-<label class="md-nav__title" for="__toc">
-<span class="md-nav__icon md-icon">
-<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"></path></svg>
-</span>
+      </a>
+      
+        
+
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
       Table of contents
     </label>
-<ul class="md-nav__list" data-md-scrollfix="">
-<li class="md-nav__item">
-<a class="md-nav__link" href="#echoes.esn._regressor.ESNRegressor">
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#echoes.esn._regressor.ESNRegressor" class="md-nav__link">
     echoes.esn._regressor.ESNRegressor
   </a>
-<nav aria-label="echoes.esn._regressor.ESNRegressor" class="md-nav">
-<ul class="md-nav__list">
-<li class="md-nav__item">
-<a class="md-nav__link" href="#attributes">
+  
+    <nav class="md-nav" aria-label="echoes.esn._regressor.ESNRegressor">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#echoes.esn._regressor.ESNRegressor--attributes" class="md-nav__link">
     Attributes:
   </a>
+  
 </li>
-</ul>
-</nav>
+        
+      </ul>
+    </nav>
+  
 </li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="#echoes.esn._regressor.ESNRegressor.fit">
+      
+        <li class="md-nav__item">
+  <a href="#echoes.esn._regressor.ESNRegressor.fit" class="md-nav__link">
     fit()
   </a>
+  
 </li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="#echoes.esn._regressor.ESNRegressor.predict">
+      
+        <li class="md-nav__item">
+  <a href="#echoes.esn._regressor.ESNRegressor.predict" class="md-nav__link">
     predict()
   </a>
+  
 </li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="#echoes.esn._regressor.ESNRegressor.score">
+      
+        <li class="md-nav__item">
+  <a href="#echoes.esn._regressor.ESNRegressor.score" class="md-nav__link">
     score()
   </a>
+  
 </li>
-</ul>
+      
+    </ul>
+  
 </nav>
-</li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="../ESNGenerator/" title="ESNGenerator">
-      ESNGenerator
-    </a>
-</li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="../plotting/" title="plotting">
-      plotting
-    </a>
-</li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="../utils/" title="utils">
-      utils
-    </a>
-</li>
-</ul>
+      
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ESNGenerator/" class="md-nav__link">
+        ESNGenerator
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../plotting/" class="md-nav__link">
+        plotting
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../utils/" class="md-nav__link">
+        utils
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+  </ul>
 </nav>
-</li>
-</ul>
-</nav>
-</div>
-</div>
-</div>
-<div class="md-sidebar md-sidebar--secondary" data-md-component="toc">
-<div class="md-sidebar__scrollwrap">
-<div class="md-sidebar__inner">
-<nav aria-label="Table of contents" class="md-nav md-nav--secondary">
-<label class="md-nav__title" for="__toc">
-<span class="md-nav__icon md-icon">
-<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"></path></svg>
-</span>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
       Table of contents
     </label>
-<ul class="md-nav__list" data-md-scrollfix="">
-<li class="md-nav__item">
-<a class="md-nav__link" href="#echoes.esn._regressor.ESNRegressor">
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#echoes.esn._regressor.ESNRegressor" class="md-nav__link">
     echoes.esn._regressor.ESNRegressor
   </a>
-<nav aria-label="echoes.esn._regressor.ESNRegressor" class="md-nav">
-<ul class="md-nav__list">
-<li class="md-nav__item">
-<a class="md-nav__link" href="#attributes">
+  
+    <nav class="md-nav" aria-label="echoes.esn._regressor.ESNRegressor">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#echoes.esn._regressor.ESNRegressor--attributes" class="md-nav__link">
     Attributes:
   </a>
+  
 </li>
-</ul>
-</nav>
+        
+      </ul>
+    </nav>
+  
 </li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="#echoes.esn._regressor.ESNRegressor.fit">
+      
+        <li class="md-nav__item">
+  <a href="#echoes.esn._regressor.ESNRegressor.fit" class="md-nav__link">
     fit()
   </a>
+  
 </li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="#echoes.esn._regressor.ESNRegressor.predict">
+      
+        <li class="md-nav__item">
+  <a href="#echoes.esn._regressor.ESNRegressor.predict" class="md-nav__link">
     predict()
   </a>
+  
 </li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="#echoes.esn._regressor.ESNRegressor.score">
+      
+        <li class="md-nav__item">
+  <a href="#echoes.esn._regressor.ESNRegressor.score" class="md-nav__link">
     score()
   </a>
+  
 </li>
-</ul>
+      
+    </ul>
+  
 </nav>
-</div>
-</div>
-</div>
-<div class="md-content">
-<article class="md-content__inner md-typeset">
-<a class="md-content__button md-icon" href="https://github.com/fabridamicelli/echoes/edit/master/docs/api/ESNRegressor.md" title="Edit this page">
-<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25z"></path></svg>
-</a>
-<h1>ESNRegressor</h1>
-<div class="doc doc-object doc-class">
-<h2 class="hidden-toc" href="#echoes.esn._regressor.ESNRegressor" id="echoes.esn._regressor.ESNRegressor" style="visibility: hidden; width: 0; height: 0;">
-<a class="headerlink" href="#echoes.esn._regressor.ESNRegressor" title="Permanent link">¶</a></h2>
-<div class="doc doc-contents first">
-<p>Number of input and output neurons are infered from passed data.</p>
+                  </div>
+                </div>
+              </div>
+            
+          
+          <div class="md-content" data-md-component="content">
+            <article class="md-content__inner md-typeset">
+              
+                
+                  <a href="https://github.com/fabridamicelli/echoes/edit/master/docs/api/ESNRegressor.md" title="Edit this page" class="md-content__button md-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25z"/></svg>
+                  </a>
+                
+                
+                  <h1>ESNRegressor</h1>
+                
+                <div class="doc doc-object doc-class">
+
+<a id="echoes.esn._regressor.ESNRegressor"></a>
+    <div class="doc doc-contents first">
+
+      <p>Number of input and output neurons are infered from passed data.</p>
+
 <p><strong>Parameters:</strong></p>
 <table>
-<thead>
-<tr>
-<th>Name</th>
-<th>Type</th>
-<th>Description</th>
-<th>Default</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>n_reservoir</code></td>
-<td><code></code></td>
-<td>
-<p>int, optional, default=100
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Description</th>
+      <th>Default</th>
+    </tr>
+  </thead>
+  <tbody>
+      <tr>
+        <td><code>n_reservoir</code></td>
+        <td></td>
+        <td><p>int, optional, default=100
 Number of reservoir neurons. Only used if W is not passed.
 If W is passed, n_reservoir gets overwritten with len(W).
-Either n_reservoir or W must be passed.</p>
-</td>
-<td><em>required</em></td>
-</tr>
-<tr>
-<td><code>W</code></td>
-<td><code></code></td>
-<td>
-<p>np.ndarray of shape (n_reservoir, n_reservoir), optional, default=None
+Either n_reservoir or W must be passed.</p></td>
+        <td><em>required</em></td>
+      </tr>
+      <tr>
+        <td><code>W</code></td>
+        <td></td>
+        <td><p>np.ndarray of shape (n_reservoir, n_reservoir), optional, default=None
 Reservoir weights matrix. If None, random weights are used (uniformly
 distributed around 0, ie., in [-0.5, 0.5).
 Be careful with the distribution of W values. Wrong W initialization
 might drastically affect test performance (even with reasonable good
 training fit).
 Spectral radius will be adjusted in all cases.
-Either n_reservoir or W must be passed.</p>
-</td>
-<td><em>required</em></td>
-</tr>
-<tr>
-<td><code>spectral_radius</code></td>
-<td><code></code></td>
-<td>
-<p>float, default=.99
+Either n_reservoir or W must be passed.</p></td>
+        <td><em>required</em></td>
+      </tr>
+      <tr>
+        <td><code>spectral_radius</code></td>
+        <td></td>
+        <td><p>float, default=.99
 Spectral radius of the reservoir weights matrix (W).
-Spectral radius will be adjusted in all cases (also with user specified W).</p>
-</td>
-<td><em>required</em></td>
-</tr>
-<tr>
-<td><code>W_in</code></td>
-<td><code></code></td>
-<td>
-<p>np.ndarray of shape (n_reservoir, 1+n_inputs) (1-&gt;bias), optional, default None.
+Spectral radius will be adjusted in all cases (also with user specified W).</p></td>
+        <td><em>required</em></td>
+      </tr>
+      <tr>
+        <td><code>W_in</code></td>
+        <td></td>
+        <td><p>np.ndarray of shape (n_reservoir, 1+n_inputs) (1-&gt;bias), optional, default None.
 Input weights matrix by which input signal is multiplied.
-If None, random weights are used.</p>
-</td>
-<td><em>required</em></td>
-</tr>
-<tr>
-<td><code>W_fb</code></td>
-<td><code></code></td>
-<td>
-<p>np.ndarray of shape(n_reservoir, n_outputs), optional, default None.
-Feedback weights matrix by which feedback is multiplied in case of feedback.</p>
-</td>
-<td><em>required</em></td>
-</tr>
-<tr>
-<td><code>sparsity</code></td>
-<td><code></code></td>
-<td>
-<p>float, optional, default=0
+If None, random weights are used.</p></td>
+        <td><em>required</em></td>
+      </tr>
+      <tr>
+        <td><code>W_fb</code></td>
+        <td></td>
+        <td><p>np.ndarray of shape(n_reservoir, n_outputs), optional, default None.
+Feedback weights matrix by which feedback is multiplied in case of feedback.</p></td>
+        <td><em>required</em></td>
+      </tr>
+      <tr>
+        <td><code>sparsity</code></td>
+        <td></td>
+        <td><p>float, optional, default=0
 Proportion of the reservoir matrix weights forced to be zero.
 Note that with default W (centered around 0), the actual sparsity will
 be slightly more than the specified.
-If W is passed, sparsity will be ignored.</p>
-</td>
-<td><em>required</em></td>
-</tr>
-<tr>
-<td><code>noise</code></td>
-<td><code></code></td>
-<td>
-<p>float, optional, default=0
+If W is passed, sparsity will be ignored.</p></td>
+        <td><em>required</em></td>
+      </tr>
+      <tr>
+        <td><code>noise</code></td>
+        <td></td>
+        <td><p>float, optional, default=0
 Scaling factor of the (uniform) noise input added to neurons at each step.
 This is used for regularization purposes and should typically be
-very small, e.g. 0.0001 or 1e-5.</p>
-</td>
-<td><em>required</em></td>
-</tr>
-<tr>
-<td><code>leak_rate</code></td>
-<td><code></code></td>
-<td>
-<p>float, optional, default=1
+very small, e.g. 0.0001 or 1e-5.</p></td>
+        <td><em>required</em></td>
+      </tr>
+      <tr>
+        <td><code>leak_rate</code></td>
+        <td></td>
+        <td><p>float, optional, default=1
 Leaking rate applied to the neurons at each step.
-Default is 1, which is no leaking. 0 would be total leakeage.</p>
-</td>
-<td><em>required</em></td>
-</tr>
-<tr>
-<td><code>bias</code></td>
-<td><code></code></td>
-<td>
-<p>int, float or np.ndarray, optional, default=1
+Default is 1, which is no leaking. 0 would be total leakeage.</p></td>
+        <td><em>required</em></td>
+      </tr>
+      <tr>
+        <td><code>bias</code></td>
+        <td></td>
+        <td><p>int, float or np.ndarray, optional, default=1
 Value of the bias neuron, injected at each time to the reservoir neurons.
 If int or float, all neurons receive the same.
-If np.ndarray is must be of length n_reservoir.</p>
-</td>
-<td><em>required</em></td>
-</tr>
-<tr>
-<td><code>input_scaling</code></td>
-<td><code></code></td>
-<td>
-<p>float or np.ndarray of length n_inputs, default=None
+If np.ndarray is must be of length n_reservoir.</p></td>
+        <td><em>required</em></td>
+      </tr>
+      <tr>
+        <td><code>input_scaling</code></td>
+        <td></td>
+        <td><p>float or np.ndarray of length n_inputs, default=None
 Scalar to multiply each input before feeding it to the network.
 If float, all inputs get multiplied by same value.
 If array, it must match n_inputs length (X.shape[1]), specifying the scaling
-factor for each input.</p>
-</td>
-<td><em>required</em></td>
-</tr>
-<tr>
-<td><code>input_shift</code></td>
-<td><code></code></td>
-<td>
-<p>float or np.ndarray of length n_inputs, default=None
+factor for each input.</p></td>
+        <td><em>required</em></td>
+      </tr>
+      <tr>
+        <td><code>input_shift</code></td>
+        <td></td>
+        <td><p>float or np.ndarray of length n_inputs, default=None
 Scalar to add to each input before feeding it to the network.
 If float, multiplied same value is added to all inputs.
 If array, it must match n_inputs length (X.shape[1]), specifying the value to
-add to each input.</p>
-</td>
-<td><em>required</em></td>
-</tr>
-<tr>
-<td><code>feedback</code></td>
-<td><code></code></td>
-<td>
-<p>bool, optional, default=False
-If True, the reservoir also receives the outout signal as input.</p>
-</td>
-<td><em>required</em></td>
-</tr>
-<tr>
-<td><code>activation</code></td>
-<td><code></code></td>
-<td>
-<p>function (numba jitted), optional, default=tanh
+add to each input.</p></td>
+        <td><em>required</em></td>
+      </tr>
+      <tr>
+        <td><code>feedback</code></td>
+        <td></td>
+        <td><p>bool, optional, default=False
+If True, the reservoir also receives the outout signal as input.</p></td>
+        <td><em>required</em></td>
+      </tr>
+      <tr>
+        <td><code>activation</code></td>
+        <td></td>
+        <td><p>function (numba jitted), optional, default=tanh
 Non-linear activation function applied to the neurons at each step.
 For numba acceleration, it must be a jitted function.
 Basic activation functions as tanh, sigmoid, relu are already available
 in echoe.utils. Either use those or write a custom one decorated with
-numba njit.</p>
-</td>
-<td><em>required</em></td>
-</tr>
-<tr>
-<td><code>activation_out</code></td>
-<td><code></code></td>
-<td>
-<p>function, optional, default=identity
+numba njit.</p></td>
+        <td><em>required</em></td>
+      </tr>
+      <tr>
+        <td><code>activation_out</code></td>
+        <td></td>
+        <td><p>function, optional, default=identity
 Activation function applied to the outputs. In other words, it is assumed
-that targets = f(outputs). So the output produced must be transformed.</p>
-</td>
-<td><em>required</em></td>
-</tr>
-<tr>
-<td><code>fit_only_states</code></td>
-<td><code></code></td>
-<td>
-<p>bool,default=False
+that targets = f(outputs). So the output produced must be transformed.</p></td>
+        <td><em>required</em></td>
+      </tr>
+      <tr>
+        <td><code>fit_only_states</code></td>
+        <td></td>
+        <td><p>bool,default=False
 If True, outgoing weights (W_out) are computed fitting only the reservoir
 states. Inputs and bias are still use to drive reservoir activity, but
-ignored for fitting W_out, both in the training and prediction phase.</p>
-</td>
-<td><em>required</em></td>
-</tr>
-<tr>
-<td><code>regression_method</code></td>
-<td><code></code></td>
-<td>
-<p>str, optional, default "pinv" (pseudoinverse).
+ignored for fitting W_out, both in the training and prediction phase.</p></td>
+        <td><em>required</em></td>
+      </tr>
+      <tr>
+        <td><code>regression_method</code></td>
+        <td></td>
+        <td><p>str, optional, default "pinv" (pseudoinverse).
 Method to solve the linear regression to find out outgoing weights.
 One of ["pinv", "ridge"].
-If "ridge", ridge_* parameters will be used.</p>
-</td>
-<td><em>required</em></td>
-</tr>
-<tr>
-<td><code>ridge_alpha</code></td>
-<td><code></code></td>
-<td>
-<p>float, ndarray of shape (n_outputs,), default=1
+If "ridge", ridge_* parameters will be used.</p></td>
+        <td><em>required</em></td>
+      </tr>
+      <tr>
+        <td><code>ridge_alpha</code></td>
+        <td></td>
+        <td><p>float, ndarray of shape (n_outputs,), default=1
 Regularization coefficient used for Ridge regression.
 Larger values specify stronger regularization.
 If an array is passed, penalties are assumed to be specific to the targets.
 Hence they must correspond in number.
 Default is None to make sure one deliberately sets this since it is
-a crucial parameter. See sklearn Ridge documentation for details.</p>
-</td>
-<td><em>required</em></td>
-</tr>
-<tr>
-<td><code>ridge_fit_intercept</code></td>
-<td><code></code></td>
-<td>
-<p>bool, optional, default=False
+a crucial parameter. See sklearn Ridge documentation for details.</p></td>
+        <td><em>required</em></td>
+      </tr>
+      <tr>
+        <td><code>ridge_fit_intercept</code></td>
+        <td></td>
+        <td><p>bool, optional, default=False
 If True, intercept is fit in Ridge regression. Default False.
-See sklearn Ridge documentation for details.</p>
-</td>
-<td><em>required</em></td>
-</tr>
-<tr>
-<td><code>ridge_normalize</code></td>
-<td><code></code></td>
-<td>
-<p>bool, default=False
+See sklearn Ridge documentation for details.</p></td>
+        <td><em>required</em></td>
+      </tr>
+      <tr>
+        <td><code>ridge_normalize</code></td>
+        <td></td>
+        <td><p>bool, default=False
 This parameter is ignored when fit_intercept is set to False.
 If True, the regressors X will be normalized before regression by
 subtracting the mean and dividing by the l2-norm.
-See sklearn Ridge documentation for details.</p>
-</td>
-<td><em>required</em></td>
-</tr>
-<tr>
-<td><code>ridge_max_iter</code></td>
-<td><code></code></td>
-<td>
-<p>int, default=None
+See sklearn Ridge documentation for details.</p></td>
+        <td><em>required</em></td>
+      </tr>
+      <tr>
+        <td><code>ridge_max_iter</code></td>
+        <td></td>
+        <td><p>int, default=None
 Maximum number of iterations for conjugate gradient solver.
-See sklearn Ridge documentation for details.</p>
-</td>
-<td><em>required</em></td>
-</tr>
-<tr>
-<td><code>ridge_tol</code></td>
-<td><code></code></td>
-<td>
-<p>float, default=1e-3
+See sklearn Ridge documentation for details.</p></td>
+        <td><em>required</em></td>
+      </tr>
+      <tr>
+        <td><code>ridge_tol</code></td>
+        <td></td>
+        <td><p>float, default=1e-3
 Precision of the solution.
-See sklearn Ridge documentation for details.</p>
-</td>
-<td><em>required</em></td>
-</tr>
-<tr>
-<td><code>ridge_solver</code></td>
-<td><code></code></td>
-<td>
-<p>str, optional, default="auto"
+See sklearn Ridge documentation for details.</p></td>
+        <td><em>required</em></td>
+      </tr>
+      <tr>
+        <td><code>ridge_solver</code></td>
+        <td></td>
+        <td><p>str, optional, default="auto"
 Solver to use in the Ridge regression.
 One of ["auto", "svd", "cholesky", "lsqr", "sparse_cg", "sag", "saga"].
-See sklearn Ridge documentation for details.</p>
-</td>
-<td><em>required</em></td>
-</tr>
-<tr>
-<td><code>ridge_sample_weight</code></td>
-<td><code></code></td>
-<td>
-<p>float or ndarray of shape (n_samples,), default=None
+See sklearn Ridge documentation for details.</p></td>
+        <td><em>required</em></td>
+      </tr>
+      <tr>
+        <td><code>ridge_sample_weight</code></td>
+        <td></td>
+        <td><p>float or ndarray of shape (n_samples,), default=None
 Individual weights for each sample.
 If given a float, every sample will have the same weight.
-See sklearn Ridge documentation for details.</p>
-</td>
-<td><em>required</em></td>
-</tr>
-<tr>
-<td><code>n_transient</code></td>
-<td><code></code></td>
-<td>
-<p>int, optional, default=0
+See sklearn Ridge documentation for details.</p></td>
+        <td><em>required</em></td>
+      </tr>
+      <tr>
+        <td><code>n_transient</code></td>
+        <td></td>
+        <td><p>int, optional, default=0
 Number of activity initial steps removed (not considered for training)
 in order to avoid initial instabilities.
-Default is 0, but this is something one definitely might want to tweak.</p>
-</td>
-<td><em>required</em></td>
-</tr>
-<tr>
-<td><code>random_state</code></td>
-<td><code></code></td>
-<td>
-<p>int, RandomState instance, default=None
+Default is 0, but this is something one definitely might want to tweak.</p></td>
+        <td><em>required</em></td>
+      </tr>
+      <tr>
+        <td><code>random_state</code></td>
+        <td></td>
+        <td><p>int, RandomState instance, default=None
 The seed of the pseudo random number generator used to generate weight
 matrices, to generate noise inyected to reservoir neurons (regularization)
 and it is passed to the ridge solver in case regression_method=ridge.
@@ -593,158 +814,104 @@ From sklearn:
   If int, random_state is the seed used by the random number generator;
   If RandomState instance, random_state is the random number generator;
   If None, the random number generator is the RandomState instance used
-  by <code>np.random</code>.</p>
-</td>
-<td><em>required</em></td>
-</tr>
-<tr>
-<td><code>store_states_train</code></td>
-<td><code></code></td>
-<td>
-<p>bool, optional, default=False
+  by <code>np.random</code>.</p></td>
+        <td><em>required</em></td>
+      </tr>
+      <tr>
+        <td><code>store_states_train</code></td>
+        <td></td>
+        <td><p>bool, optional, default=False
 If True, time series series of reservoir neurons during training are stored
-in the object attribute states_train_.</p>
-</td>
-<td><em>required</em></td>
-</tr>
-<tr>
-<td><code>store_states_pred</code></td>
-<td><code></code></td>
-<td>
-<p>bool, optional, default=False
+in the object attribute states_train_.</p></td>
+        <td><em>required</em></td>
+      </tr>
+      <tr>
+        <td><code>store_states_pred</code></td>
+        <td></td>
+        <td><p>bool, optional, default=False
 If True, time series series of reservoir neurons during prediction are stored
-in the object attribute states_pred_.</p>
-</td>
-<td><em>required</em></td>
-</tr>
-</tbody>
-</table>
-<h3 id="attributes">Attributes:<a class="headerlink" href="#attributes" title="Permanent link">¶</a></h3>
-<div class="codehilite">
-<pre><span></span><code><span class="err">- W_out_ : array of shape (n_outputs, n_inputs + n_reservoir + 1)</span>
-<span class="err">     Outgoing weights after fitting linear regression model to predict outputs.</span>
-<span class="err">- training_prediction_: array of shape (n_samples, n_outputs)</span>
-<span class="err">     Predicted output on training data.</span>
-<span class="err">- states_train_: array of shape (n_samples, n_reservoir), default False.</span>
-<span class="err">     If store_states_train is True, states matrix is stored for visualizing</span>
-<span class="err">     reservoir neurons activity during training.</span>
-<span class="err">- states_pred_: array of shape (n_samples, n_reservoir), default False.</span>
-<span class="err">     If store_states_pred is True, states matrix is stored for visualizing</span>
-<span class="err">     reservoir neurons activity during prediction (test).</span>
-</code></pre>
-</div>
-<div class="doc doc-children">
-<div class="doc doc-object doc-method">
-<h2 class="doc doc-heading" id="echoes.esn._regressor.ESNRegressor.fit">
-<code class="highlight language-python">
-fit<span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span> </code>
-<a class="headerlink" href="#echoes.esn._regressor.ESNRegressor.fit" title="Permanent link">¶</a></h2>
-<div class="doc doc-contents">
-<p>Fit Echo State model, i.e., find outgoing weights matrix (W_out) for later
+in the object attribute states_pred_.</p></td>
+        <td><em>required</em></td>
+      </tr>
+  </tbody>
+</table>      <h4 id="echoes.esn._regressor.ESNRegressor--attributes">Attributes:<a class="headerlink" href="#echoes.esn._regressor.ESNRegressor--attributes" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="o">-</span> <span class="n">W_out_</span> <span class="o">:</span> <span class="n">array</span> <span class="n">of</span> <span class="n">shape</span> <span class="p">(</span><span class="n">n_outputs</span><span class="p">,</span> <span class="n">n_inputs</span> <span class="o">+</span> <span class="n">n_reservoir</span> <span class="o">+</span> <span class="mh">1</span><span class="p">)</span>
+     <span class="n">Outgoing</span> <span class="n">weights</span> <span class="n">after</span> <span class="n">fitting</span> <span class="n">linear</span> <span class="n">regression</span> <span class="n">model</span> <span class="n">to</span> <span class="n">predict</span> <span class="n">outputs</span><span class="p">.</span>
+<span class="o">-</span> <span class="nl">training_prediction_:</span> <span class="n">array</span> <span class="n">of</span> <span class="n">shape</span> <span class="p">(</span><span class="n">n_samples</span><span class="p">,</span> <span class="n">n_outputs</span><span class="p">)</span>
+     <span class="n">Predicted</span> <span class="k">output</span> <span class="n">on</span> <span class="n">training</span> <span class="n">data</span><span class="p">.</span>
+<span class="o">-</span> <span class="nl">states_train_:</span> <span class="n">array</span> <span class="n">of</span> <span class="n">shape</span> <span class="p">(</span><span class="n">n_samples</span><span class="p">,</span> <span class="n">n_reservoir</span><span class="p">),</span> <span class="k">default</span> <span class="n">False</span><span class="p">.</span>
+     <span class="n">If</span> <span class="n">store_states_train</span> <span class="n">is</span> <span class="n">True</span><span class="p">,</span> <span class="n">states</span> <span class="n">matrix</span> <span class="n">is</span> <span class="n">stored</span> <span class="k">for</span> <span class="n">visualizing</span>
+     <span class="n">reservoir</span> <span class="n">neurons</span> <span class="n">activity</span> <span class="n">during</span> <span class="n">training</span><span class="p">.</span>
+<span class="o">-</span> <span class="nl">states_pred_:</span> <span class="n">array</span> <span class="n">of</span> <span class="n">shape</span> <span class="p">(</span><span class="n">n_samples</span><span class="p">,</span> <span class="n">n_reservoir</span><span class="p">),</span> <span class="k">default</span> <span class="n">False</span><span class="p">.</span>
+     <span class="n">If</span> <span class="n">store_states_pred</span> <span class="n">is</span> <span class="n">True</span><span class="p">,</span> <span class="n">states</span> <span class="n">matrix</span> <span class="n">is</span> <span class="n">stored</span> <span class="k">for</span> <span class="n">visualizing</span>
+     <span class="n">reservoir</span> <span class="n">neurons</span> <span class="n">activity</span> <span class="n">during</span> <span class="n">prediction</span> <span class="p">(</span><span class="n">test</span><span class="p">).</span>
+</code></pre></div>
+
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+  <div class="doc doc-object doc-method">
+
+
+
+<h2 id="echoes.esn._regressor.ESNRegressor.fit" class="doc doc-heading">
+<code class="codehilite language-python"><span class="n">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span></code>
+
+
+<a href="#echoes.esn._regressor.ESNRegressor.fit" class="headerlink" title="Permanent link">&para;</a></h2>
+
+    <div class="doc doc-contents ">
+
+      <p>Fit Echo State model, i.e., find outgoing weights matrix (W_out) for later
 prediction.
 Bias is appended automatically to the inputs.</p>
+
 <p><strong>Parameters:</strong></p>
 <table>
-<thead>
-<tr>
-<th>Name</th>
-<th>Type</th>
-<th>Description</th>
-<th>Default</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>X</code></td>
-<td><code>ndarray</code></td>
-<td>
-<p>None or 2D np.ndarray of shape (n_samples, n_inputs)
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Description</th>
+      <th>Default</th>
+    </tr>
+  </thead>
+  <tbody>
+      <tr>
+        <td><code>X</code></td>
+        <td><code>ndarray</code></td>
+        <td><p>None or 2D np.ndarray of shape (n_samples, n_inputs)
 Training input, i.e., X, the features.
 If None, it is assumed that only the target sequence matters (outputs)
 and simply a sequence of zeros will be fed in - matching the len(outputs).
-This is to be used in the case of generative mode.</p>
-</td>
-<td><em>required</em></td>
-</tr>
-<tr>
-<td><code>y</code></td>
-<td><code>ndarray</code></td>
-<td>
-<p>2D np.ndarray of shape (n_samples,) or (n_samples, n_outputs)
-Training output, i.e., y, the target.</p>
-</td>
-<td><em>required</em></td>
-</tr>
-</tbody>
-</table>
-<p>Returns
+This is to be used in the case of generative mode.</p></td>
+        <td><em>required</em></td>
+      </tr>
+      <tr>
+        <td><code>y</code></td>
+        <td><code>ndarray</code></td>
+        <td><p>2D np.ndarray of shape (n_samples,) or (n_samples, n_outputs)
+Training output, i.e., y, the target.</p></td>
+        <td><em>required</em></td>
+      </tr>
+  </tbody>
+</table>      <p>Returns
     self: returns an instance of self.</p>
-<details class="quote">
-<summary>Source code in <code>echoes/esn/_regressor.py</code></summary>
-<table class="highlighttable">
-<tr>
-<td class="linenos">
-<div class="linenodiv">
-<pre><span></span>151
-152
-153
-154
-155
-156
-157
-158
-159
-160
-161
-162
-163
-164
-165
-166
-167
-168
-169
-170
-171
-172
-173
-174
-175
-176
-177
-178
-179
-180
-181
-182
-183
-184
-185
-186
-187
-188
-189
-190
-191
-192
-193
-194
-195
-196
-197
-198
-199
-200
-201
-202
-203
-204</pre>
-</div>
-</td>
-<td class="code">
-<div class="highlight">
-<pre><span></span><code><span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"ESNRegressor"</span><span class="p">:</span>
-    <span class="sd">"""</span>
+
+        <details class="quote">
+          <summary>Source code in <code>echoes/esn/_regressor.py</code></summary>
+          <div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;ESNRegressor&quot;</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Fit Echo State model, i.e., find outgoing weights matrix (W_out) for later</span>
 <span class="sd">    prediction.</span>
 <span class="sd">    Bias is appended automatically to the inputs.</span>
@@ -760,10 +927,13 @@ Training output, i.e., y, the target.</p>
 
 <span class="sd">    Returns</span>
 <span class="sd">        self: returns an instance of self.</span>
-<span class="sd">    """</span>
-    <span class="n">X</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">check_X_y</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">multi_output</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_dtype_</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">dtype</span>
+    <span class="n">X</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">check_X_y</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">multi_output</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_dtype_</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">y</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
         <span class="n">y</span> <span class="o">=</span> <span class="n">y</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="c1"># Check y again (enforcing 2D for multiple outputs)</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="n">check_array</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_dtype_</span><span class="p">)</span>
 
     <span class="c1"># Initialize matrices and random state</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">random_state_</span> <span class="o">=</span> <span class="n">check_random_state</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">random_state</span><span class="p">)</span>
@@ -776,11 +946,11 @@ Training output, i.e., y, the target.</p>
 
     <span class="n">check_model_params</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">)</span>
     <span class="n">X</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_scale_shift_inputs</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
-    <span class="c1">#  --  #</span>
+
     <span class="c1"># Initialize reservoir model</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">reservoir_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_init_reservoir_neurons</span><span class="p">()</span>
 
-    <span class="c1">#######--#####</span>
+    <span class="c1"># Run &quot;neuronal activity&quot;</span>
     <span class="n">states</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">reservoir_</span><span class="o">.</span><span class="n">harvest_states</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">initial_state</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
 
     <span class="c1"># Extend states matrix with inputs, except we only train based on states</span>
@@ -797,132 +967,73 @@ Training output, i.e., y, the target.</p>
     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">store_states_train</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">states_train_</span> <span class="o">=</span> <span class="n">states</span>
     <span class="k">return</span> <span class="bp">self</span>
-</code></pre>
-</div>
-</td>
-</tr>
-</table>
-</details>
-</div>
-</div>
-<div class="doc doc-object doc-method">
-<h2 class="doc doc-heading" id="echoes.esn._regressor.ESNRegressor.predict">
-<code class="highlight language-python">
-predict<span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">)</span> </code>
-<a class="headerlink" href="#echoes.esn._regressor.ESNRegressor.predict" title="Permanent link">¶</a></h2>
-<div class="doc doc-contents">
-<p>Predict outputs according to inputs.
+</code></pre></div>
+        </details>
+    </div>
+
+  </div>
+
+
+
+  <div class="doc doc-object doc-method">
+
+
+
+<h2 id="echoes.esn._regressor.ESNRegressor.predict" class="doc doc-heading">
+<code class="codehilite language-python"><span class="n">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">)</span></code>
+
+
+<a href="#echoes.esn._regressor.ESNRegressor.predict" class="headerlink" title="Permanent link">&para;</a></h2>
+
+    <div class="doc doc-contents ">
+
+      <p>Predict outputs according to inputs.
 State/output is reinitialized to predict test outputs from
 inputs as a typical predictive model. Since the reservoir states are
 reinitialized, an initial transient, unstable phase will occur, so you
 might want to cut off those steps to test performance (as done by the
 parameter n_transient during training).</p>
+
 <p><strong>Parameters:</strong></p>
 <table>
-<thead>
-<tr>
-<th>Name</th>
-<th>Type</th>
-<th>Description</th>
-<th>Default</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>X</code></td>
-<td><code>ndarray</code></td>
-<td>
-<p>2D np.ndarray of shape (n_samples, n_inputs)
-Input, i.e., X, the features.</p>
-</td>
-<td><em>required</em></td>
-</tr>
-</tbody>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Description</th>
+      <th>Default</th>
+    </tr>
+  </thead>
+  <tbody>
+      <tr>
+        <td><code>X</code></td>
+        <td><code>ndarray</code></td>
+        <td><p>2D np.ndarray of shape (n_samples, n_inputs)
+Input, i.e., X, the features.</p></td>
+        <td><em>required</em></td>
+      </tr>
+  </tbody>
 </table>
 <p><strong>Returns:</strong></p>
 <table>
-<thead>
-<tr>
-<th>Type</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>ndarray</code></td>
-<td>
-<p>y_pred: 2D np.ndarray of shape (n_samples, n_outputs)
-    Predicted outputs.</p>
-</td>
-</tr>
-</tbody>
+  <thead>
+    <tr>
+      <th>Type</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>y_pred</code></td>
+      <td><p>2D np.ndarray of shape (n_samples, n_outputs)
+    Predicted outputs.</p></td>
+    </tr>
+  </tbody>
 </table>
-<details class="quote">
-<summary>Source code in <code>echoes/esn/_regressor.py</code></summary>
-<table class="highlighttable">
-<tr>
-<td class="linenos">
-<div class="linenodiv">
-<pre><span></span>206
-207
-208
-209
-210
-211
-212
-213
-214
-215
-216
-217
-218
-219
-220
-221
-222
-223
-224
-225
-226
-227
-228
-229
-230
-231
-232
-233
-234
-235
-236
-237
-238
-239
-240
-241
-242
-243
-244
-245
-246
-247
-248
-249
-250
-251
-252
-253
-254
-255
-256
-257
-258
-259</pre>
-</div>
-</td>
-<td class="code">
-<div class="highlight">
-<pre><span></span><code><span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-    <span class="sd">"""</span>
+        <details class="quote">
+          <summary>Source code in <code>echoes/esn/_regressor.py</code></summary>
+          <div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Predict outputs according to inputs.</span>
 <span class="sd">    State/output is reinitialized to predict test outputs from</span>
 <span class="sd">    inputs as a typical predictive model. Since the reservoir states are</span>
@@ -937,28 +1048,25 @@ Input, i.e., X, the features.</p>
 <span class="sd">    Returns:</span>
 <span class="sd">        y_pred: 2D np.ndarray of shape (n_samples, n_outputs)</span>
 <span class="sd">            Predicted outputs.</span>
-<span class="sd">    """</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">check_is_fitted</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
-    <span class="n">X</span> <span class="o">=</span> <span class="n">check_array</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+    <span class="n">X</span> <span class="o">=</span> <span class="n">check_array</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_dtype_</span><span class="p">)</span>
 
-    <span class="n">inputs</span> <span class="o">=</span> <span class="n">X</span>
     <span class="n">n_time_steps</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
     <span class="c1"># Scale and shift inputs</span>
     <span class="n">X</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_scale_shift_inputs</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
 
     <span class="c1"># Initialize predictions</span>
-    <span class="n">states</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">n_time_steps</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_reservoir_</span><span class="p">))</span>
-    <span class="n">y_pred</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">n_time_steps</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_outputs_</span><span class="p">))</span>
+    <span class="n">states</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">n_time_steps</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_reservoir_</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_dtype_</span><span class="p">)</span>
+    <span class="n">y_pred</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">n_time_steps</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_outputs_</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_dtype_</span><span class="p">)</span>
 
     <span class="n">check_consistent_length</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">)</span>  <span class="c1"># sanity check</span>
 
     <span class="c1"># Go through samples (steps) and predict for each of them</span>
     <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">n_time_steps</span><span class="p">):</span>
         <span class="n">states</span><span class="p">[</span><span class="n">t</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">reservoir_</span><span class="o">.</span><span class="n">update_state</span><span class="p">(</span>
-            <span class="n">state_t</span><span class="o">=</span><span class="n">states</span><span class="p">[</span><span class="n">t</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="p">:],</span>
-            <span class="n">X_t</span><span class="o">=</span><span class="n">X</span><span class="p">[</span><span class="n">t</span><span class="p">,</span> <span class="p">:],</span>
-            <span class="n">y_t</span><span class="o">=</span><span class="n">y_pred</span><span class="p">[</span><span class="n">t</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="p">:],</span>
+            <span class="n">state_t</span><span class="o">=</span><span class="n">states</span><span class="p">[</span><span class="n">t</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="p">:],</span> <span class="n">X_t</span><span class="o">=</span><span class="n">X</span><span class="p">[</span><span class="n">t</span><span class="p">,</span> <span class="p">:],</span> <span class="n">y_t</span><span class="o">=</span><span class="n">y_pred</span><span class="p">[</span><span class="n">t</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="p">:],</span>
         <span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">fit_only_states</span><span class="p">:</span>
@@ -973,23 +1081,28 @@ Input, i.e., X, the features.</p>
         <span class="bp">self</span><span class="o">.</span><span class="n">states_pred_</span> <span class="o">=</span> <span class="n">states</span>
 
     <span class="c1"># Apply output non-linearity</span>
-    <span class="n">y_pred</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">activation_out</span><span class="p">(</span><span class="n">y_pred</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">y_pred</span>
-</code></pre>
-</div>
-</td>
-</tr>
-</table>
-</details>
-</div>
-</div>
-<div class="doc doc-object doc-method">
-<h2 class="doc doc-heading" id="echoes.esn._regressor.ESNRegressor.score">
-<code class="highlight language-python">
-score<span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> </code>
-<a class="headerlink" href="#echoes.esn._regressor.ESNRegressor.score" title="Permanent link">¶</a></h2>
-<div class="doc doc-contents">
-<p>R^2 (coefficient of determination) regression score function.</p>
+    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">activation_out</span><span class="p">(</span><span class="n">y_pred</span><span class="p">)</span>
+</code></pre></div>
+        </details>
+    </div>
+
+  </div>
+
+
+
+  <div class="doc doc-object doc-method">
+
+
+
+<h2 id="echoes.esn._regressor.ESNRegressor.score" class="doc doc-heading">
+<code class="codehilite language-python"><span class="n">score</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+
+
+<a href="#echoes.esn._regressor.ESNRegressor.score" class="headerlink" title="Permanent link">&para;</a></h2>
+
+    <div class="doc doc-contents ">
+
+      <p>R^2 (coefficient of determination) regression score function.</p>
 <p>By default, the initial transient period (n_transient steps) is not considered
 to compute the score - modify sample_weight to change that behaviour (see below).</p>
 <p>From sklearn:
@@ -997,40 +1110,36 @@ to compute the score - modify sample_weight to change that behaviour (see below)
   arbitrarily bad).
   A constant model that always predicts the expected value of y,
   disregarding the input features, would get a R^2 score of 0.0.</p>
+
 <p><strong>Parameters:</strong></p>
 <table>
-<thead>
-<tr>
-<th>Name</th>
-<th>Type</th>
-<th>Description</th>
-<th>Default</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>X</code></td>
-<td><code></code></td>
-<td>
-<p>2D np.ndarray of shape (n_samples, n_inputs)
-Test samples.</p>
-</td>
-<td><code>None</code></td>
-</tr>
-<tr>
-<td><code>y</code></td>
-<td><code></code></td>
-<td>
-<p>2D np.ndarray of shape (n_samples,) or (n_samples, n_outputs)
-Target sequence, true values of the outputs.</p>
-</td>
-<td><code>None</code></td>
-</tr>
-<tr>
-<td><code>sample_weight</code></td>
-<td><code></code></td>
-<td>
-<p>array-like of shape (n_samples,), default=None
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Description</th>
+      <th>Default</th>
+    </tr>
+  </thead>
+  <tbody>
+      <tr>
+        <td><code>X</code></td>
+        <td></td>
+        <td><p>2D np.ndarray of shape (n_samples, n_inputs)
+Test samples.</p></td>
+        <td><code>None</code></td>
+      </tr>
+      <tr>
+        <td><code>y</code></td>
+        <td></td>
+        <td><p>2D np.ndarray of shape (n_samples,) or (n_samples, n_outputs)
+Target sequence, true values of the outputs.</p></td>
+        <td><code>None</code></td>
+      </tr>
+      <tr>
+        <td><code>sample_weight</code></td>
+        <td></td>
+        <td><p>array-like of shape (n_samples,), default=None
 Sample weights.
 If None, the transient is left out.
 To consider all steps or leave out a different transient, pass a different
@@ -1043,82 +1152,31 @@ weights = np.ones(y_true.shape[0])
 weights[: n_steps_to_remove] = 0
 score(X, y_true, sample_weight=weights)</p>
 </blockquote>
-</blockquote>
-</td>
-<td><code>None</code></td>
-</tr>
-</tbody>
+</blockquote></td>
+        <td><code>None</code></td>
+      </tr>
+  </tbody>
 </table>
 <p><strong>Returns:</strong></p>
 <table>
-<thead>
-<tr>
-<th>Type</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>float</code></td>
-<td>
-<p>score: float
-    R2 score</p>
-</td>
-</tr>
-</tbody>
+  <thead>
+    <tr>
+      <th>Type</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>score</code></td>
+      <td><p>float
+    R2 score</p></td>
+    </tr>
+  </tbody>
 </table>
-<details class="quote">
-<summary>Source code in <code>echoes/esn/_regressor.py</code></summary>
-<table class="highlighttable">
-<tr>
-<td class="linenos">
-<div class="linenodiv">
-<pre><span></span>262
-263
-264
-265
-266
-267
-268
-269
-270
-271
-272
-273
-274
-275
-276
-277
-278
-279
-280
-281
-282
-283
-284
-285
-286
-287
-288
-289
-290
-291
-292
-293
-294
-295
-296
-297
-298
-299
-300
-301</pre>
-</div>
-</td>
-<td class="code">
-<div class="highlight">
-<pre><span></span><code><span class="k">def</span> <span class="nf">score</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-    <span class="sd">"""</span>
+        <details class="quote">
+          <summary>Source code in <code>echoes/esn/_regressor.py</code></summary>
+          <div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">score</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    R^2 (coefficient of determination) regression score function.</span>
 
 <span class="sd">    By default, the initial transient period (n_transient steps) is not considered</span>
@@ -1149,97 +1207,142 @@ score(X, y_true, sample_weight=weights)</p>
 <span class="sd">    Returns:</span>
 <span class="sd">        score: float</span>
 <span class="sd">            R2 score</span>
-<span class="sd">    """</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">y_pred</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+    <span class="c1"># If no sample_weight passed, compute the score without considering transient</span>
     <span class="k">if</span> <span class="n">sample_weight</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">weights</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">y</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
         <span class="n">weights</span><span class="p">[:</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_transient</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="k">return</span> <span class="n">r2_score</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="n">weights</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">r2_score</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="n">sample_weight</span><span class="p">)</span>
-</code></pre>
-</div>
-</td>
-</tr>
-</table>
-</details>
-</div>
-</div>
-</div>
-</div>
-</div>
-</article>
-</div>
-</div>
-</main>
+</code></pre></div>
+        </details>
+    </div>
+
+  </div>
+
+
+
+
+
+  </div>
+
+    </div>
+
+  </div>
+                
+              
+              
+                
+
+
+              
+            </article>
+          </div>
+        </div>
+        
+      </main>
+      
+        
 <footer class="md-footer">
-<div class="md-footer-nav">
-<nav aria-label="Footer" class="md-footer-nav__inner md-grid">
-<a class="md-footer-nav__link md-footer-nav__link--prev" href="../../examples/plot_reservoir_activity/" rel="prev" title="Plot Reservoir Activity">
-<div class="md-footer-nav__button md-icon">
-<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"></path></svg>
-</div>
-<div class="md-footer-nav__title">
-<div class="md-ellipsis">
-<span class="md-footer-nav__direction">
-                  Previous
-                </span>
-                Plot Reservoir Activity
-              </div>
-</div>
-</a>
-<a class="md-footer-nav__link md-footer-nav__link--next" href="../ESNGenerator/" rel="next" title="ESNGenerator">
-<div class="md-footer-nav__title">
-<div class="md-ellipsis">
-<span class="md-footer-nav__direction">
-                  Next
-                </span>
-                ESNGenerator
-              </div>
-</div>
-<div class="md-footer-nav__button md-icon">
-<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4z"></path></svg>
-</div>
-</a>
-</nav>
-</div>
-<div class="md-footer-meta md-typeset">
-<div class="md-footer-meta__inner md-grid">
-<div class="md-footer-copyright">
-<div class="md-footer-copyright__highlight">
-            Copyright © 2020 Maintained by <a href="https://twitter.com/fabridamicelli">Fabrizio</a>.
+  
+    <nav class="md-footer__inner md-grid" aria-label="Footer">
+      
+        
+        <a href="../../examples/plot_reservoir_activity/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Plot Reservoir Activity" rel="prev">
+          <div class="md-footer__button md-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
+          </div>
+          <div class="md-footer__title">
+            <div class="md-ellipsis">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              Plot Reservoir Activity
+            </div>
+          </div>
+        </a>
+      
+      
+        
+        <a href="../ESNGenerator/" class="md-footer__link md-footer__link--next" aria-label="Next: ESNGenerator" rel="next">
+          <div class="md-footer__title">
+            <div class="md-ellipsis">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              ESNGenerator
+            </div>
+          </div>
+          <div class="md-footer__button md-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4z"/></svg>
+          </div>
+        </a>
+      
+    </nav>
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-footer-copyright">
+        
+          <div class="md-footer-copyright__highlight">
+            Copyright &copy; 2020 Maintained by <a href="https://twitter.com/fabridamicelli">Fabrizio</a>.
           </div>
         
-        Made with
-        <a href="https://squidfunk.github.io/mkdocs-material/" rel="noopener" target="_blank">
-          Material for MkDocs
-        </a>
-</div>
-<div class="md-footer-social">
-<a class="md-footer-social__link" href="https://github.com/fabridamicelli" rel="noopener" target="_blank" title="github.com">
-<svg viewbox="0 0 480 512" xmlns="http://www.w3.org/2000/svg"><path d="M186.1 328.7c0 20.9-10.9 55.1-36.7 55.1s-36.7-34.2-36.7-55.1 10.9-55.1 36.7-55.1 36.7 34.2 36.7 55.1zM480 278.2c0 31.9-3.2 65.7-17.5 95-37.9 76.6-142.1 74.8-216.7 74.8-75.8 0-186.2 2.7-225.6-74.8-14.6-29-20.2-63.1-20.2-95 0-41.9 13.9-81.5 41.5-113.6-5.2-15.8-7.7-32.4-7.7-48.8 0-21.5 4.9-32.3 14.6-51.8 45.3 0 74.3 9 108.8 36 29-6.9 58.8-10 88.7-10 27 0 54.2 2.9 80.4 9.2 34-26.7 63-35.2 107.8-35.2 9.8 19.5 14.6 30.3 14.6 51.8 0 16.4-2.6 32.7-7.7 48.2 27.5 32.4 39 72.3 39 114.2zm-64.3 50.5c0-43.9-26.7-82.6-73.5-82.6-18.9 0-37 3.4-56 6-14.9 2.3-29.8 3.2-45.1 3.2-15.2 0-30.1-.9-45.1-3.2-18.7-2.6-37-6-56-6-46.8 0-73.5 38.7-73.5 82.6 0 87.8 80.4 101.3 150.4 101.3h48.2c70.3 0 150.6-13.4 150.6-101.3zm-82.6-55.1c-25.8 0-36.7 34.2-36.7 55.1s10.9 55.1 36.7 55.1 36.7-34.2 36.7-55.1-10.9-55.1-36.7-55.1z"></path></svg>
-</a>
-<a class="md-footer-social__link" href="https://twitter.com/fabridamicelli" rel="noopener" target="_blank" title="twitter.com">
-<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><path d="M459.37 151.716c.325 4.548.325 9.097.325 13.645 0 138.72-105.583 298.558-298.558 298.558-59.452 0-114.68-17.219-161.137-47.106 8.447.974 16.568 1.299 25.34 1.299 49.055 0 94.213-16.568 130.274-44.832-46.132-.975-84.792-31.188-98.112-72.772 6.498.974 12.995 1.624 19.818 1.624 9.421 0 18.843-1.3 27.614-3.573-48.081-9.747-84.143-51.98-84.143-102.985v-1.299c13.969 7.797 30.214 12.67 47.431 13.319-28.264-18.843-46.781-51.005-46.781-87.391 0-19.492 5.197-37.36 14.294-52.954 51.655 63.675 129.3 105.258 216.365 109.807-1.624-7.797-2.599-15.918-2.599-24.04 0-57.828 46.782-104.934 104.934-104.934 30.213 0 57.502 12.67 76.67 33.137 23.715-4.548 46.456-13.32 66.599-25.34-7.798 24.366-24.366 44.833-46.132 57.827 21.117-2.273 41.584-8.122 60.426-16.243-14.292 20.791-32.161 39.308-52.628 54.253z"></path></svg>
-</a>
-<a class="md-footer-social__link" href="https://linkedin.com/in/fabridamicelli" rel="noopener" target="_blank" title="linkedin.com">
-<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><path d="M416 32H31.9C14.3 32 0 46.5 0 64.3v383.4C0 465.5 14.3 480 31.9 480H416c17.6 0 32-14.5 32-32.3V64.3c0-17.8-14.4-32.3-32-32.3zM135.4 416H69V202.2h66.5V416zm-33.2-243c-21.3 0-38.5-17.3-38.5-38.5S80.9 96 102.2 96c21.2 0 38.5 17.3 38.5 38.5 0 21.3-17.2 38.5-38.5 38.5zm282.1 243h-66.4V312c0-24.8-.5-56.7-34.5-56.7-34.6 0-39.9 27-39.9 54.9V416h-66.4V202.2h63.7v29.2h.9c8.9-16.8 30.6-34.5 62.9-34.5 67.2 0 79.7 44.3 79.7 101.9V416z"></path></svg>
-</a>
-</div>
-</div>
-</div>
+        
+          Made with
+          <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+            Material for MkDocs
+          </a>
+        
+        
+      </div>
+      
+  <div class="md-footer-social">
+    
+      
+      
+        
+        
+      
+      <a href="https://github.com/fabridamicelli" target="_blank" rel="noopener" title="github.com" class="md-footer-social__link">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 512"><path d="M186.1 328.7c0 20.9-10.9 55.1-36.7 55.1s-36.7-34.2-36.7-55.1 10.9-55.1 36.7-55.1 36.7 34.2 36.7 55.1zM480 278.2c0 31.9-3.2 65.7-17.5 95-37.9 76.6-142.1 74.8-216.7 74.8-75.8 0-186.2 2.7-225.6-74.8-14.6-29-20.2-63.1-20.2-95 0-41.9 13.9-81.5 41.5-113.6-5.2-15.8-7.7-32.4-7.7-48.8 0-21.5 4.9-32.3 14.6-51.8 45.3 0 74.3 9 108.8 36 29-6.9 58.8-10 88.7-10 27 0 54.2 2.9 80.4 9.2 34-26.7 63-35.2 107.8-35.2 9.8 19.5 14.6 30.3 14.6 51.8 0 16.4-2.6 32.7-7.7 48.2 27.5 32.4 39 72.3 39 114.2zm-64.3 50.5c0-43.9-26.7-82.6-73.5-82.6-18.9 0-37 3.4-56 6-14.9 2.3-29.8 3.2-45.1 3.2-15.2 0-30.1-.9-45.1-3.2-18.7-2.6-37-6-56-6-46.8 0-73.5 38.7-73.5 82.6 0 87.8 80.4 101.3 150.4 101.3h48.2c70.3 0 150.6-13.4 150.6-101.3zm-82.6-55.1c-25.8 0-36.7 34.2-36.7 55.1s10.9 55.1 36.7 55.1 36.7-34.2 36.7-55.1-10.9-55.1-36.7-55.1z"/></svg>
+      </a>
+    
+      
+      
+        
+        
+      
+      <a href="https://twitter.com/fabridamicelli" target="_blank" rel="noopener" title="twitter.com" class="md-footer-social__link">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M459.37 151.716c.325 4.548.325 9.097.325 13.645 0 138.72-105.583 298.558-298.558 298.558-59.452 0-114.68-17.219-161.137-47.106 8.447.974 16.568 1.299 25.34 1.299 49.055 0 94.213-16.568 130.274-44.832-46.132-.975-84.792-31.188-98.112-72.772 6.498.974 12.995 1.624 19.818 1.624 9.421 0 18.843-1.3 27.614-3.573-48.081-9.747-84.143-51.98-84.143-102.985v-1.299c13.969 7.797 30.214 12.67 47.431 13.319-28.264-18.843-46.781-51.005-46.781-87.391 0-19.492 5.197-37.36 14.294-52.954 51.655 63.675 129.3 105.258 216.365 109.807-1.624-7.797-2.599-15.918-2.599-24.04 0-57.828 46.782-104.934 104.934-104.934 30.213 0 57.502 12.67 76.67 33.137 23.715-4.548 46.456-13.32 66.599-25.34-7.798 24.366-24.366 44.833-46.132 57.827 21.117-2.273 41.584-8.122 60.426-16.243-14.292 20.791-32.161 39.308-52.628 54.253z"/></svg>
+      </a>
+    
+      
+      
+        
+        
+      
+      <a href="https://linkedin.com/in/fabridamicelli" target="_blank" rel="noopener" title="linkedin.com" class="md-footer-social__link">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M416 32H31.9C14.3 32 0 46.5 0 64.3v383.4C0 465.5 14.3 480 31.9 480H416c17.6 0 32-14.5 32-32.3V64.3c0-17.8-14.4-32.3-32-32.3zM135.4 416H69V202.2h66.5V416zm-33.2-243c-21.3 0-38.5-17.3-38.5-38.5S80.9 96 102.2 96c21.2 0 38.5 17.3 38.5 38.5 0 21.3-17.2 38.5-38.5 38.5zm282.1 243h-66.4V312c0-24.8-.5-56.7-34.5-56.7-34.6 0-39.9 27-39.9 54.9V416h-66.4V202.2h63.7v29.2h.9c8.9-16.8 30.6-34.5 62.9-34.5 67.2 0 79.7 44.3 79.7 101.9V416z"/></svg>
+      </a>
+    
+  </div>
+
+    </div>
+  </div>
 </footer>
-</div>
-<script src="../../assets/javascripts/vendor.d710d30a.min.js"></script>
-<script src="../../assets/javascripts/bundle.5f27aba8.min.js"></script><script id="__lang" type="application/json">{"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents"}</script>
-<script>
-        app = initialize({
-          base: "../..",
-          features: [],
-          search: Object.assign({
-            worker: "../../assets/javascripts/worker/search.27c6a5e6.min.js"
-          }, typeof search !== "undefined" && search)
-        })
-      </script>
-</body>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    <script id="__config" type="application/json">{"base": "../..", "features": [], "translations": {"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "search": "../../assets/javascripts/workers/search.fcfe8b6d.min.js", "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.b1047164.min.js"></script>
+      
+    
+  </body>
 </html>
