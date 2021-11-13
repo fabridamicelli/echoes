@@ -5,7 +5,7 @@
 - [x] Follows `scikit-learn` design, eg `fit-predict` interface
 - [x] `scikit-learn` compatible, eg tools like `GridSearchCV` work out of the box
 
-Quick start: See [Documentation](https://fabridamicelli.github.io/echoes/) and examples.
+Quick start: See [Documentation](https://fabridamicelli.github.io/echoes/) and [examples](./examples).
 
 ## Installation
 ```bash
