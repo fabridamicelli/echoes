@@ -1,11 +1,14 @@
 # echoes 
 
-Scikit-learn compatible, high level API for machine learning with Echo State Networks(ESN).
+- [x] Machine learning with Echo State Networks(ESN)
+- [x] High level API
+- [x] Follows `scikit-learn` design, eg `fit-predict` interface
+- [x] `scikit-learn` compatible, eg tools like `GridSearchCV` work out of the box
 
 Quick start: See [Documentation](https://fabridamicelli.github.io/echoes/) and examples.
 
 ## Installation
-```sh
+```bash
 pip install echoes
 ```
 
@@ -39,9 +42,13 @@ The code has been tested with Python 3.8.12 and 3.9.7 on Ubuntu 20.04.3 LTS.
 
 ## Tests 
 Run tests with 
-```
+```bash
 make test
 ```
+
+## Contributing
+Any feedback on bugs, suggestions, problems? Just open an issue, I'll very soon back to you.
+
 
 ## References
   - [Reservoir computing approaches to recurrent neural network training, Mantas & Jaeger, 2009](https://www.sciencedirect.com/science/article/pii/S1574013709000173)

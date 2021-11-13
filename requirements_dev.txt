@@ -10,3 +10,4 @@ pandas
 pytest
 seaborn
 sklearn
+twine
