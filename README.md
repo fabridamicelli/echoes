@@ -47,7 +47,7 @@ make test
 ```
 
 ## Contributing
-Any feedback on bugs, suggestions, problems? Just open an issue, I'll very soon back to you.
+Any feedback on bugs, suggestions, problems? Just open an issue, I'll get back to you very soon.
 
 
 ## References
