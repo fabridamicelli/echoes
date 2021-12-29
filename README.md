@@ -1,3 +1,6 @@
+[![Downloads](https://static.pepy.tech/personalized-badge/echoes?period=total&units=international_system&left_color=black&right_color=orange&left_text=Downloads)](https://pepy.tech/project/echoes)
+
+
 # echoes 
 
 - [x] Machine learning with Echo State Networks(ESN)
