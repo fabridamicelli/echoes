@@ -170,12 +170,12 @@ def update_state(
 def harvest_states(
     X: np.ndarray,
     y: np.ndarray,
-    initial_state: Union[np.ndarray, None] = None,
-    W_in: np.ndarray = None,
-    W: np.ndarray = None,
-    W_fb: np.ndarray = None,
-    bias: np.ndarray = None,
-    activation: Callable = None,
+    initial_state: Optional[np.ndarray] = None,
+    W_in: Optional[np.ndarray] = None,
+    W: Optional[np.ndarray] = None,
+    W_fb: Optional[np.ndarray] = None,
+    bias: Optional[np.ndarray] = None,
+    activation: Optional[Callable] = None,
     noise: float = 0,
     leak_rate: float = 1,
 ) -> np.ndarray:
