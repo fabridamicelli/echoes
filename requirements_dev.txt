@@ -1,4 +1,4 @@
-numba==0.54.1
+numba==0.56.4
 numpy
 jupyterlab
 jupyterlab-vim
@@ -9,5 +9,5 @@ mypy
 pandas
 pytest
 seaborn
-sklearn
+scikit-learn
 twine

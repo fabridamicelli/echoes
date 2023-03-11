@@ -1,22 +1,25 @@
 [![Downloads](https://static.pepy.tech/personalized-badge/echoes?period=total&units=international_system&left_color=black&right_color=orange&left_text=Downloads)](https://pepy.tech/project/echoes)
 
+Like the package? Don't forget to give it a GitHub ⭐ to help others find and trust it!
 
 # echoes 
 
-- [x] Machine learning with Echo State Networks(ESN)
-- [x] High level API
-- [x] Follows `scikit-learn` design, eg `fit-predict` interface
-- [x] `scikit-learn` compatible, eg tools like `GridSearchCV` work out of the box
+- 🤖 Machine learning with Echo State Networks(ESN)
+- 🧱 High level API, `scikit-learn` compatible API, eg `fit-predict` interface 
+- ⚡️ Fast! (Thanks to numba ✨)
 
-Quick start: See [Documentation](https://fabridamicelli.github.io/echoes/) and [examples](./examples).
 
-## Installation
+## Installation and quick start
 ```bash
 pip install echoes
 ```
 
-## Citing
+See [Documentation](https://fabridamicelli.github.io/echoes/) and [example notebooks](https://github.com/fabridamicelli/echoes/tree/master/examples/notebooks).
 
+## Feedback
+Any bugs, suggestions, problems? Just [open an issue!](https://github.com/fabridamicelli/echoes/issues/new)
+
+## Citing
 If you find echoes useful for a publication, then please use the following BibTeX to cite it:
 
 ```
@@ -30,28 +33,11 @@ If you find echoes useful for a publication, then please use the following BibTe
 }
 ```
 
-## Dependencies 
- - numpy
- - sklearn
- - pandas
- - matplotlib
- - seaborn
- - numba
- - tests:
-   - mypy
-   - pytest 
-
-The code has been tested with Python 3.8.12 and 3.9.7 on Ubuntu 20.04.3 LTS.
-
 ## Tests 
 Run tests with 
 ```bash
 make test
 ```
-
-## Contributing
-Any feedback on bugs, suggestions, problems? Just open an issue, I'll get back to you very soon.
-
 
 ## References
   - [Reservoir computing approaches to recurrent neural network training, Mantas & Jaeger, 2009](https://www.sciencedirect.com/science/article/pii/S1574013709000173)
