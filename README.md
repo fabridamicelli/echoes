@@ -1,5 +1,5 @@
 [![Downloads](https://static.pepy.tech/personalized-badge/echoes?period=total&units=international_system&left_color=black&right_color=orange&left_text=Downloads)](https://pepy.tech/project/echoes)
-
+[![CI](https://github.com/fabridamicelli/echoes/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/fabridamicelli/echoes/actions/workflows/ci.yml)
 Like the package? Don't forget to give it a GitHub ⭐ to help others find and trust it!
 
 # echoes 
