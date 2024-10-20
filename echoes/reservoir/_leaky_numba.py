@@ -3,6 +3,7 @@ Reservoir of Leaky Neurons.
 
 Implementation accelerated with numba.
 """
+
 from typing import Callable, Optional, Union
 
 from numba import njit, jit
@@ -62,11 +63,12 @@ class ReservoirLeakyNeurons:
 
     def __init__(
         self,
-        W_in: np.ndarray = None,
-        W: np.ndarray = None,
-        W_fb: np.ndarray = None,
+        *,
+        W_in: np.ndarray,
+        W: np.ndarray,
+        W_fb: np.ndarray,
         bias: Union[np.ndarray, float] = 1,
-        activation: Callable = None,
+        activation: Callable,
         noise: float = 0,
         leak_rate: float = 1,
     ):
@@ -80,7 +82,7 @@ class ReservoirLeakyNeurons:
         self.leak_rate = np.array(leak_rate).astype(_dtype)
         self.n_reservoir = len(W)
 
-        types = [
+        types = set(
             param.dtype
             for param in (
                 self.W_in,
@@ -91,15 +93,16 @@ class ReservoirLeakyNeurons:
                 self.leak_rate,
             )
             if param is not None
-        ]
+        )
 
-        assert (len(np.unique(types)) == 1), "type inconsistency"
+        assert len(types) == 1, "type inconsistency"
 
     def update_state(
         self,
-        state_t: np.ndarray = None,
-        X_t: np.ndarray = None,
-        y_t: np.ndarray = None,
+        *,
+        state_t: np.ndarray,
+        X_t: np.ndarray,
+        y_t: np.ndarray,
     ) -> np.ndarray:
         new_state = update_state(
             state_t=state_t,
@@ -121,7 +124,6 @@ class ReservoirLeakyNeurons:
         y: np.ndarray,
         initial_state: Union[np.ndarray, None] = None,
     ) -> np.ndarray:
-
         states = harvest_states(
             X,
             y,
@@ -139,14 +141,14 @@ class ReservoirLeakyNeurons:
 
 @njit
 def update_state(
-    state_t: np.ndarray = None,
-    X_t: np.ndarray = None,
-    y_t: np.ndarray = None,
-    W_in: np.ndarray = None,
-    W: np.ndarray = None,
-    W_fb: np.ndarray = None,
-    bias: np.ndarray = None,
-    activation: Callable = None,
+    state_t: np.ndarray,
+    X_t: np.ndarray,
+    y_t: np.ndarray,
+    W_in: np.ndarray,
+    W: np.ndarray,
+    W_fb: np.ndarray,
+    bias: np.ndarray,
+    activation: Callable,
     noise: float = 0,
     leak_rate: float = 1,
 ) -> np.ndarray:
