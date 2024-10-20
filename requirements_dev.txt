@@ -12,3 +12,4 @@ pytest
 seaborn
 scikit-learn
 twine
+ipdb

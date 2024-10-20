@@ -166,10 +166,10 @@ class ESNGenerator(ESNBase, MultiOutputMixin, RegressorMixin):
         ridge_alpha: float = 1,
         ridge_fit_intercept: bool = False,
         ridge_normalize: bool = False,
-        ridge_max_iter: int = None,
+        ridge_max_iter: Union[int, None] = None,
         ridge_tol: float = 1e-3,
         ridge_solver: str = "auto",
-        ridge_sample_weight: Union[float, np.ndarray] = None,
+        ridge_sample_weight: Union[float, np.ndarray, None] = None,
         n_transient: int = 0,
         store_states_train: bool = False,
         store_states_pred: bool = False,
@@ -294,6 +294,7 @@ class ESNGenerator(ESNBase, MultiOutputMixin, RegressorMixin):
                 "The parameter is kept only for API consistency here."
             )
 
+        # TODO: add test
         assert self.n_steps >= 1, "n_steps must be >= 1"
         assert self.n_inputs_ == 1, "n_inputs must be == 1"
 
