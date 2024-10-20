@@ -9,6 +9,7 @@ import numpy as np
 from sklearn.utils.validation import (
     check_random_state,
     check_consistent_length,
+    check_is_fitted,
 )
 from sklearn.utils import check_array
 from sklearn.base import MultiOutputMixin, RegressorMixin
@@ -285,22 +286,27 @@ class ESNGenerator(ESNBase, MultiOutputMixin, RegressorMixin):
             outputs: 2D np.ndarray of shape (n_steps, n_outputs)
              Predicted outputs.
         """
+        check_is_fitted(self)
+        # TODO: add test
         if X is not None:
-            warnings.warn("X will be ignored – ESNGenerator takes no X for prediction")
+            raise ValueError(
+                "X must be None, ESNGenerator takes no X for prediction."
+                "The parameter is kept only for API consistency here."
+            )
 
         assert self.n_steps >= 1, "n_steps must be >= 1"
-        n_steps = self.n_steps  # shorthand
+        assert self.n_inputs_ == 1, "n_inputs must be == 1"
 
         # Initialize predictions: begin with last state as first state
-        inputs = np.zeros(shape=(n_steps, self.n_inputs_), dtype=self._dtype_)
+        inputs = np.zeros(shape=(self.n_steps, self.n_inputs_), dtype=self._dtype_)
         inputs = np.vstack([self.last_input_, inputs])
         states = np.vstack([
             self.last_state_,
-            np.zeros((n_steps, self.n_reservoir_), dtype=self._dtype_),
+            np.zeros((self.n_steps, self.n_reservoir_), dtype=self._dtype_),
         ])
         outputs = np.vstack([
             self.last_output_,
-            np.zeros((n_steps, self.n_outputs_), dtype=self._dtype_),
+            np.zeros((self.n_steps, self.n_outputs_), dtype=self._dtype_),
         ])
 
         check_consistent_length(inputs, outputs)  # sanity check
