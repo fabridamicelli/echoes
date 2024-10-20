@@ -1,6 +1,7 @@
 """
 Echo State Network Regressor.
 """
+
 import numpy as np
 from sklearn.utils.validation import (
     check_random_state,
@@ -13,7 +14,6 @@ from sklearn.metrics import r2_score
 
 from ._base import ESNBase
 from echoes.utils import check_model_params
-from echoes.reservoir import ReservoirLeakyNeurons
 
 
 class ESNRegressor(ESNBase, MultiOutputMixin, RegressorMixin):
@@ -36,7 +36,8 @@ class ESNRegressor(ESNBase, MultiOutputMixin, RegressorMixin):
         spectral_radius: float, default=.99
             Spectral radius of the reservoir weights matrix (W).
             Spectral radius will be adjusted in all cases (also with user specified W).
-        W_in: np.ndarray of shape (n_reservoir, 1+n_inputs) (1->bias), optional, default None.
+        W_in: np.ndarray of shape (n_reservoir, 1+n_inputs) (1->bias),
+            optional, default None.
             Input weights matrix by which input signal is multiplied.
             If None, random weights are used.
         W_fb: np.ndarray of shape(n_reservoir, n_outputs), optional, default None.
@@ -65,8 +66,8 @@ class ESNRegressor(ESNBase, MultiOutputMixin, RegressorMixin):
         input_shift: float or np.ndarray of length n_inputs, default=None
             Scalar to add to each input before feeding it to the network.
             If float, multiplied same value is added to all inputs.
-            If array, it must match n_inputs length (X.shape[1]), specifying the value to
-            add to each input.
+            If array, it must match n_inputs length (X.shape[1]), specifying the value
+            to add to each input.
         feedback: bool, optional, default=False
             If True, the reservoir also receives the outout signal as input.
         activation: function (numba jitted), optional, default=tanh
@@ -132,8 +133,8 @@ class ESNRegressor(ESNBase, MultiOutputMixin, RegressorMixin):
             If True, time series series of reservoir neurons during training are stored
             in the object attribute states_train_.
         store_states_pred: bool, optional, default=False
-            If True, time series series of reservoir neurons during prediction are stored
-            in the object attribute states_pred_.
+            If True, time series series of reservoir neurons during prediction are
+            stored in the object attribute states_pred_.
 
     ### Attributes:
         - W_out_ : array of shape (n_outputs, n_inputs + n_reservoir + 1)
@@ -158,7 +159,8 @@ class ESNRegressor(ESNBase, MultiOutputMixin, RegressorMixin):
             X: None or 2D np.ndarray of shape (n_samples, n_inputs)
                 Training input, i.e., X, the features.
                 If None, it is assumed that only the target sequence matters (outputs)
-                and simply a sequence of zeros will be fed in - matching the len(outputs).
+                and simply a sequence of zeros will be fed in - matching the
+                len(outputs).
                 This is to be used in the case of generative mode.
             y: 2D np.ndarray of shape (n_samples,) or (n_samples, n_outputs)
                 Training output, i.e., y, the target.
@@ -240,7 +242,9 @@ class ESNRegressor(ESNBase, MultiOutputMixin, RegressorMixin):
         # Go through samples (steps) and predict for each of them
         for t in range(1, n_time_steps):
             states[t, :] = self.reservoir_.update_state(
-                state_t=states[t - 1, :], X_t=X[t, :], y_t=y_pred[t - 1, :],
+                state_t=states[t - 1, :],
+                X_t=X[t, :],
+                y_t=y_pred[t - 1, :],
             )
 
             if self.fit_only_states:
@@ -262,7 +266,8 @@ class ESNRegressor(ESNBase, MultiOutputMixin, RegressorMixin):
         R^2 (coefficient of determination) regression score function.
 
         By default, the initial transient period (n_transient steps) is not considered
-        to compute the score - modify sample_weight to change that behaviour (see below).
+        to compute the score - modify sample_weight to change that behaviour
+        (see below).
 
         From sklearn:
           Best possible score is 1.0 and it can be negative (because the model can be
@@ -278,8 +283,8 @@ class ESNRegressor(ESNBase, MultiOutputMixin, RegressorMixin):
             sample_weight: array-like of shape (n_samples,), default=None
                 Sample weights.
                 If None, the transient is left out.
-                To consider all steps or leave out a different transient, pass a different
-                sample_weight array with same length as outputs 1 dimension.
+                To consider all steps or leave out a different transient, pass a
+                different sample_weight array with same length as outputs 1 dimension.
                 **Usage**
                   >> n_steps_to_remove = 10
                   >> weights = np.ones(y_true.shape[0])

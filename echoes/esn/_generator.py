@@ -210,7 +210,7 @@ class ESNGenerator(ESNBase, MultiOutputMixin, RegressorMixin):
         Bias is appended automatically to the inputs.
 
         Arguments:
-            X: None, always ignored, API consistency
+            X: None, always ignored. Argument kept only for API consistency.
                 It is ignored as only the target sequence matters (outputs).
                 A sequence of zeros will be fed in - matching the len(outputs) as
                 initial condition.
