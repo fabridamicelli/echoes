@@ -1,16 +1,16 @@
 """
 Echo State Network Generator (pattern generator).
 """
+
 from typing import Callable, Union
 import warnings
 
 import numpy as np
 from sklearn.utils.validation import (
     check_random_state,
-    check_is_fitted,
     check_consistent_length,
 )
-from sklearn.utils import check_X_y, check_array
+from sklearn.utils import check_array
 from sklearn.base import MultiOutputMixin, RegressorMixin
 from sklearn.metrics import r2_score
 
@@ -20,7 +20,8 @@ from echoes.utils import check_model_params, tanh, identity
 
 class ESNGenerator(ESNBase, MultiOutputMixin, RegressorMixin):
     """
-    The number of inputs (n_inputs) is always 1 and n_outputs is infered from passed data.
+    The number of inputs (n_inputs) is always 1 and n_outputs is infered from passed
+    data.
     It uses always feedback, so that is not a parameter anymore (always True).
 
     Arguments:
@@ -41,7 +42,8 @@ class ESNGenerator(ESNBase, MultiOutputMixin, RegressorMixin):
         spectral_radius: float, default=.99
             Spectral radius of the reservoir weights matrix (W).
             Spectral radius will be adjusted in all cases (also with user specified W).
-        W_in: np.ndarray of shape (n_reservoir, 1+n_inputs) (1->bias), optional, default None.
+        W_in: np.ndarray of shape (n_reservoir, 1+n_inputs) (1->bias), optional,
+            default None.
             Input weights matrix by which input signal is multiplied.
             If None, random weights are used.
         W_fb: np.ndarray of shape(n_reservoir, n_outputs), optional, default None.
@@ -125,8 +127,8 @@ class ESNGenerator(ESNBase, MultiOutputMixin, RegressorMixin):
             If True, time series series of reservoir neurons during training are stored
             in the object attribute states_train_.
         store_states_pred: bool, optional, default=False
-            If True, time series series of reservoir neurons during prediction are stored
-            in the object attribute states_pred_.
+            If True, time series series of reservoir neurons during prediction are
+            stored in the object attribute states_pred_.
 
     ### Attributes:
         - W_out_ : array of shape (n_outputs, n_inputs + n_reservoir + 1).
@@ -199,7 +201,7 @@ class ESNGenerator(ESNBase, MultiOutputMixin, RegressorMixin):
         self.ridge_solver = ridge_solver
         self.ridge_sample_weight = ridge_sample_weight
         self.random_state = random_state
-        self.feedback = True   # Generator uses feedback always
+        self.feedback = True  # Generator uses feedback always
 
     def fit(self, X=None, y=None) -> "ESNGenerator":
         """
@@ -210,9 +212,10 @@ class ESNGenerator(ESNBase, MultiOutputMixin, RegressorMixin):
         Arguments:
             X: None, always ignored, API consistency
                 It is ignored as only the target sequence matters (outputs).
-                A sequence of zeros will be fed in - matching the len(outputs) as initial
-                condition.
-            y: 2D np.ndarray of shape (n_samples,) or (n_samples, n_outputs), default=None
+                A sequence of zeros will be fed in - matching the len(outputs) as
+                initial condition.
+            y: 2D np.ndarray of shape (n_samples,) or (n_samples, n_outputs),
+                default=None.
                 Target variable.
 
         Returns:
@@ -292,10 +295,12 @@ class ESNGenerator(ESNBase, MultiOutputMixin, RegressorMixin):
         inputs = np.zeros(shape=(n_steps, self.n_inputs_), dtype=self._dtype_)
         inputs = np.vstack([self.last_input_, inputs])
         states = np.vstack([
-            self.last_state_, np.zeros((n_steps, self.n_reservoir_), dtype=self._dtype_)
+            self.last_state_,
+            np.zeros((n_steps, self.n_reservoir_), dtype=self._dtype_),
         ])
         outputs = np.vstack([
-            self.last_output_, np.zeros((n_steps, self.n_outputs_), dtype=self._dtype_)
+            self.last_output_,
+            np.zeros((n_steps, self.n_outputs_), dtype=self._dtype_),
         ])
 
         check_consistent_length(inputs, outputs)  # sanity check
@@ -303,7 +308,9 @@ class ESNGenerator(ESNBase, MultiOutputMixin, RegressorMixin):
         # Go through samples (steps) and predict for each of them
         for t in range(1, outputs.shape[0]):
             states[t, :] = self.reservoir_.update_state(
-                state_t=states[t - 1, :], X_t=inputs[t, :], y_t=outputs[t - 1, :],
+                state_t=states[t - 1, :],
+                X_t=inputs[t, :],
+                y_t=outputs[t - 1, :],
             )
             if self.fit_only_states:
                 full_states = states[t, :]

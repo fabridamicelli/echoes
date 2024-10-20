@@ -1,3 +1,4 @@
+-e .
 numba==0.56.4
 numpy
 jupyterlab
