@@ -6,7 +6,7 @@ Implementation accelerated with numba.
 
 from typing import Callable, Optional, Union
 
-from numba import njit, jit
+from numba import njit
 import numpy as np
 
 
@@ -67,10 +67,10 @@ class ReservoirLeakyNeurons:
         W_in: np.ndarray,
         W: np.ndarray,
         W_fb: np.ndarray,
-        bias: Union[np.ndarray, float] = 1,
+        bias: Union[np.ndarray, float] = 1.0,
         activation: Callable,
-        noise: float = 0,
-        leak_rate: float = 1,
+        noise: float = 0.0,
+        leak_rate: float = 1.0,
     ):
         _dtype = W.dtype
         self.W_in = W_in.astype(_dtype)
@@ -149,8 +149,8 @@ def update_state(
     W_fb: np.ndarray,
     bias: np.ndarray,
     activation: Callable,
-    noise: float = 0,
-    leak_rate: float = 1,
+    noise: float = 0.0,
+    leak_rate: float = 1.0,
 ) -> np.ndarray:
     """
     Return states vector after one time step.
@@ -178,8 +178,8 @@ def harvest_states(
     W_fb: Optional[np.ndarray] = None,
     bias: Optional[np.ndarray] = None,
     activation: Optional[Callable] = None,
-    noise: float = 0,
-    leak_rate: float = 1,
+    noise: float = 0.0,
+    leak_rate: float = 1.0,
 ) -> np.ndarray:
     """
     Given inputs/outputs X/y, run activity and harvest reservoir states.

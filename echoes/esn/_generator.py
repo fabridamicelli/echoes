@@ -3,7 +3,6 @@ Echo State Network Generator (pattern generator).
 """
 
 from typing import Callable, Union
-import warnings
 
 import numpy as np
 from sklearn.utils.validation import (
@@ -153,17 +152,17 @@ class ESNGenerator(ESNBase, MultiOutputMixin, RegressorMixin):
         spectral_radius: float = 0.99,
         W_in: Union[np.ndarray, None] = None,
         W_fb: Union[np.ndarray, None] = None,
-        sparsity: float = 0,
-        noise: float = 0,
-        leak_rate: float = 1,
-        bias: Union[int, float, np.ndarray] = 1,
+        sparsity: float = 0.0,
+        noise: float = 0.0,
+        leak_rate: float = 1.0,
+        bias: Union[int, float, np.ndarray] = 1.0,
         input_scaling: Union[float, np.ndarray, None] = None,
         input_shift: Union[float, np.ndarray, None] = None,
         activation: Callable = tanh,
         activation_out: Callable = identity,
         fit_only_states: bool = False,
         regression_method: str = "pinv",
-        ridge_alpha: float = 1,
+        ridge_alpha: float = 1.0,
         ridge_fit_intercept: bool = False,
         ridge_normalize: bool = False,
         ridge_max_iter: Union[int, None] = None,
@@ -222,9 +221,13 @@ class ESNGenerator(ESNBase, MultiOutputMixin, RegressorMixin):
         Returns:
             self: returns an instance of self.
         """
+        # TODO: add test
         if X is not None:
-            warnings.warn("X will be ignored – ESNGenerator only takes y for training")
-        y = check_array(y, ensure_2d=False, dtype=np.float64)
+            raise ValueError(
+                "X must be None, ESNGenerator takes no X for prediction."
+                "The parameter is kept only for API consistency here."
+            )
+        y = check_array(y, ensure_2d=False, dtype="numeric")
         self._dtype_ = y.dtype
         if y.ndim == 1:
             y = y.reshape(-1, 1)
@@ -336,7 +339,7 @@ class ESNGenerator(ESNBase, MultiOutputMixin, RegressorMixin):
         outputs = self.activation_out(outputs)
         return outputs[1:, :]  # discard initial step (comes from training)
 
-    def score(self, X=None, y=None, sample_weight=None) -> float:
+    def score(self, X=None, y=None, sample_weight=None):
         """
         Wrapper around sklearn r2_score with kwargs.
 
