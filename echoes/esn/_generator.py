@@ -235,8 +235,7 @@ class ESNGenerator(ESNBase, MultiOutputMixin, RegressorMixin):
 
         # Initialize matrices and random state
         self.random_state_ = check_random_state(self.random_state)
-        # Pattern generation takes no input, thus hardcode for later
-        # construction of matrices
+        # Pattern generation takes no input, so hardcode for later construct matrices
         self.n_inputs_ = 1
         self.n_reservoir_ = len(self.W) if self.W is not None else self.n_reservoir
         self.n_outputs_ = outputs.shape[1]
@@ -325,9 +324,9 @@ class ESNGenerator(ESNBase, MultiOutputMixin, RegressorMixin):
             if self.fit_only_states:
                 full_states = states[t, :]
             else:
-                full_states = np.concatenate([states[t, :], inputs[t, :]])
-            # Predict
-            outputs[t, :] = self.W_out_ @ full_states
+                full_states = np.hstack((states[t, :], inputs[t, :]))
+            # Predict and apply output non-linearity
+            outputs[t, :] = self.activation_out(self.W_out_ @ full_states)
 
             # TODO: Update last_{input, states, outputs}_
 
@@ -335,8 +334,7 @@ class ESNGenerator(ESNBase, MultiOutputMixin, RegressorMixin):
         if self.store_states_pred:
             self.states_pred_ = states[1:, :]  # discard first step (comes from fitting)
 
-        # Apply output non-linearity
-        outputs = self.activation_out(outputs)
+        # outputs = self.activation_out(outputs)
         return outputs[1:, :]  # discard initial step (comes from training)
 
     def score(self, X=None, y=None, sample_weight=None):
