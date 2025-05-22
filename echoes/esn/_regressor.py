@@ -97,11 +97,6 @@ class ESNRegressor(ESNBase, MultiOutputMixin, RegressorMixin):
         ridge_fit_intercept: bool, optional, default=False
             If True, intercept is fit in Ridge regression. Default False.
             See sklearn Ridge documentation for details.
-        ridge_normalize: bool, default=False
-            This parameter is ignored when fit_intercept is set to False.
-            If True, the regressors X will be normalized before regression by
-            subtracting the mean and dividing by the l2-norm.
-            See sklearn Ridge documentation for details.
         ridge_max_iter: int, default=None
             Maximum number of iterations for conjugate gradient solver.
             See sklearn Ridge documentation for details.

@@ -95,11 +95,6 @@ class ESNBase(BaseEstimator):
         ridge_fit_intercept: bool, optional, default=False
             If True, intercept is fit in Ridge regression. Default False.
             See sklearn Ridge documentation for details.
-        ridge_normalize: bool, default=False
-            This parameter is ignored when fit_intercept is set to False.
-            If True, the regressors X will be normalized before regression by
-            subtracting the mean and dividing by the l2-norm.
-            See sklearn Ridge documentation for details.
         ridge_max_iter: int, default=None
             Maximum number of iterations for conjugate gradient solver.
             See sklearn Ridge documentation for details.
@@ -168,7 +163,6 @@ class ESNBase(BaseEstimator):
         regression_method: str = "pinv",
         ridge_alpha: float = 1,
         ridge_fit_intercept: bool = False,
-        ridge_normalize: bool = False,
         ridge_max_iter: int | None = None,
         ridge_tol: float = 1e-3,
         ridge_solver: str = "auto",
@@ -200,7 +194,6 @@ class ESNBase(BaseEstimator):
         self.regression_method = regression_method
         self.ridge_alpha = ridge_alpha
         self.ridge_fit_intercept = ridge_fit_intercept
-        self.ridge_normalize = ridge_normalize
         self.ridge_max_iter = ridge_max_iter
         self.ridge_tol = ridge_tol
         self.ridge_solver = ridge_solver
