@@ -261,7 +261,7 @@ class ESNRegressor(ESNBase, MultiOutputMixin, RegressorMixin):
         # Apply output non-linearity
         return self.activation_out(y_pred)
 
-    def score(self, X=None, y=None, sample_weight=None) -> float:
+    def score(self, X: np.ndarray, y=np.ndarray, sample_weight=None) -> float:
         """
         R^2 (coefficient of determination) regression score function.
 

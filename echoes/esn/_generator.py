@@ -2,6 +2,7 @@
 Echo State Network Generator (pattern generator).
 """
 
+from __future__ import annotations  # TODO: Remove after dropping python 3.9
 from typing import Callable, Union
 
 import numpy as np
@@ -148,16 +149,16 @@ class ESNGenerator(ESNBase, MultiOutputMixin, RegressorMixin):
         *,
         n_steps: int = 100,
         n_reservoir: int = 100,
-        W: Union[np.ndarray, None] = None,
+        W: np.ndarray | None = None,
         spectral_radius: float = 0.99,
-        W_in: Union[np.ndarray, None] = None,
-        W_fb: Union[np.ndarray, None] = None,
+        W_in: np.ndarray | None = None,
+        W_fb: np.ndarray | None = None,
         sparsity: float = 0.0,
         noise: float = 0.0,
         leak_rate: float = 1.0,
-        bias: Union[int, float, np.ndarray] = 1.0,
-        input_scaling: Union[float, np.ndarray, None] = None,
-        input_shift: Union[float, np.ndarray, None] = None,
+        bias: float | np.ndarray = 1.0,
+        input_scaling: float | np.ndarray | None = None,
+        input_shift: float | np.ndarray | None = None,
         activation: Callable = tanh,
         activation_out: Callable = identity,
         fit_only_states: bool = False,
@@ -168,11 +169,11 @@ class ESNGenerator(ESNBase, MultiOutputMixin, RegressorMixin):
         ridge_max_iter: Union[int, None] = None,
         ridge_tol: float = 1e-3,
         ridge_solver: str = "auto",
-        ridge_sample_weight: Union[float, np.ndarray, None] = None,
+        ridge_sample_weight: float | np.ndarray | None = None,
         n_transient: int = 0,
         store_states_train: bool = False,
         store_states_pred: bool = False,
-        random_state: Union[int, np.random.RandomState, None] = None,
+        random_state: int | np.random.RandomState | None = None,
     ) -> None:
         self.n_steps = n_steps
         self.n_reservoir = n_reservoir
@@ -221,7 +222,6 @@ class ESNGenerator(ESNBase, MultiOutputMixin, RegressorMixin):
         Returns:
             self: returns an instance of self.
         """
-        # TODO: add test
         if X is not None:
             raise ValueError(
                 "X must be None, ESNGenerator takes no X for prediction."

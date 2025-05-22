@@ -2,7 +2,8 @@
 Auxiliar functions
 """
 
-from typing import Union, Callable, Mapping
+from __future__ import annotations  # TODO: Remove after dropping python 3.9
+from typing import Callable, Mapping
 import warnings
 
 from numba import njit
@@ -17,7 +18,7 @@ def set_spectral_radius(matrix: np.ndarray, target_radius: float) -> np.ndarray:
     return matrix
 
 
-def identity(x: Union[float, np.ndarray]) -> Union[float, np.ndarray]:
+def identity(x: float | np.ndarray) -> float | np.ndarray:
     return x
 
 
@@ -102,19 +103,19 @@ def check_model_params(
 
 
 @njit
-def tanh(x: Union[float, int, np.ndarray]) -> Union[float, np.ndarray]:
+def tanh(x: float | np.ndarray) -> float | np.ndarray:
     """Numba jitted tanh function. Return tanh(x)"""
     return np.tanh(x)
 
 
 @njit
-def relu(x: Union[float, int, np.ndarray]) -> Union[float, np.ndarray]:
+def relu(x: float | np.ndarray) -> float | np.ndarray:
     """Numba jitted ReLu (rectified linear unit) function. Return ReLu(x)"""
     return np.maximum(0, x)
 
 
 @njit
-def sigmoid(x: Union[float, int, np.ndarray], a: float = 1) -> Union[float, np.ndarray]:
+def sigmoid(x: float | np.ndarray, a: float = 1) -> float | np.ndarray:
     """
     Return  f(x) = 1 / (1 + np.exp(-x * a)). Numba jitted sigmoid function.
     """

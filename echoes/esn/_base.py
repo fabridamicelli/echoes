@@ -4,6 +4,7 @@ It implements common code for ESN estimators (ESNRegressor, ESNGenerator).
 It should not be instanciated.
 """
 
+from __future__ import annotations  # TODO: Remove after dropping python 3.9
 from typing import Union, Callable
 
 import numpy as np
@@ -150,16 +151,16 @@ class ESNBase(BaseEstimator):
         self,
         *,
         n_reservoir: int = 100,
-        W: np.ndarray = None,
+        W: np.ndarray | None = None,
         spectral_radius: float = 0.99,
-        W_in: np.ndarray = None,
-        W_fb: np.ndarray = None,
+        W_in: np.ndarray | None = None,
+        W_fb: np.ndarray | None = None,
         sparsity: float = 0,
         noise: float = 0,
         leak_rate: float = 1,
-        bias: Union[int, float, np.ndarray] = 1,
-        input_scaling: Union[float, np.ndarray] = None,
-        input_shift: Union[float, np.ndarray] = None,
+        bias: float | np.ndarray = 1,
+        input_scaling: float | np.ndarray | None = None,
+        input_shift: float | np.ndarray | None = None,
         feedback: bool = False,
         activation: Callable = tanh,
         activation_out: Callable = identity,
@@ -168,14 +169,14 @@ class ESNBase(BaseEstimator):
         ridge_alpha: float = 1,
         ridge_fit_intercept: bool = False,
         ridge_normalize: bool = False,
-        ridge_max_iter: int = None,
+        ridge_max_iter: int | None = None,
         ridge_tol: float = 1e-3,
         ridge_solver: str = "auto",
-        ridge_sample_weight: Union[float, np.ndarray] = None,
+        ridge_sample_weight: float | np.ndarray | None = None,
         n_transient: int = 0,
         store_states_train: bool = False,
         store_states_pred: bool = False,
-        random_state: Union[int, np.random.RandomState, None] = None,
+        random_state: int | np.random.RandomState | None = None,
     ) -> None:
 
         self.n_reservoir = n_reservoir
