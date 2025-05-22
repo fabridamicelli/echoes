@@ -91,7 +91,7 @@ def plot_reservoir_activity(
     pred: bool = True,
     start: int | None = None,
     end: int | None = None,
-    figsize: Tuple = (15, 9),
+    figsize: tuple = (15, 9),
     **kwargs,
 ):
     """
