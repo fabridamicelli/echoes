@@ -15,7 +15,7 @@ from echoes.esn import ESNGenerator, ESNRegressor
 
 def set_mystyle():
     """Set context and a couple of defaults for nicer plots."""
-    sns.set(
+    sns.set_theme(
         context="paper",
         style="whitegrid",
         font_scale=1.4,
@@ -28,11 +28,11 @@ def plot_predicted_ts(
     ts_pred: np.ndarray | list | pd.Series,
     start: int | None = None,
     end: int | None = None,
-    ax: plt.Axes = None,
+    ax: plt.Axes | None = None,
     title: str = "",
     figsize: tuple = (6, 2),
     legend: bool = True,
-) -> None:
+):
     """
     Arguments:
         ts_true: np.ndarray, List, pd.Series
