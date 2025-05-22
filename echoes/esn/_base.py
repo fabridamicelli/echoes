@@ -3,6 +3,7 @@ Echo State Network (ESN) estimator base class.
 It implements common code for ESN estimators (ESNRegressor, ESNGenerator).
 It should not be instanciated.
 """
+
 from typing import Union, Callable
 
 import numpy as np
@@ -319,7 +320,6 @@ class ESNBase(BaseEstimator):
             linreg = Ridge(
                 alpha=self.ridge_alpha,
                 fit_intercept=self.ridge_fit_intercept,
-                normalize=self.ridge_normalize,
                 max_iter=self.ridge_max_iter,
                 tol=self.ridge_tol,
                 solver=self.ridge_solver,
