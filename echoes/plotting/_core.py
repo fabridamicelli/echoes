@@ -4,7 +4,6 @@ Not extremely well polished, rather a tool for quick visualization.
 """
 
 from __future__ import annotations  # TODO: Remove after dropping python 3.9
-from typing import List, Union, Tuple
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -25,13 +24,13 @@ def set_mystyle():
 
 
 def plot_predicted_ts(
-    ts_true: np.ndarray | List | pd.Series,
-    ts_pred: np.ndarray | List | pd.Series,
+    ts_true: np.ndarray | list | pd.Series,
+    ts_pred: np.ndarray | list | pd.Series,
     start: int | None = None,
     end: int | None = None,
     ax: plt.Axes = None,
     title: str = "",
-    figsize: Tuple = (6, 2),
+    figsize: tuple = (6, 2),
     legend: bool = True,
 ) -> None:
     """
@@ -86,8 +85,8 @@ def plot_predicted_ts(
 
 
 def plot_reservoir_activity(
-    esn: Union[ESNRegressor, ESNGenerator],
-    neurons: Union[np.ndarray, List],
+    esn: ESNRegressor | ESNGenerator,
+    neurons: np.ndarray | list,
     train: bool = False,
     pred: bool = True,
     start: int | None = None,

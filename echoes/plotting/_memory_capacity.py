@@ -11,7 +11,7 @@ from ._core import plot_predicted_ts
 
 
 def plot_forgetting_curve(
-    lags: List | np.ndarray,
+    lags: list | np.ndarray,
     forgetting_curve: np.ndarray,
     ax: plt.Axes = None,
     **kwargs,
