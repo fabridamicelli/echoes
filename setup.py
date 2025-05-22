@@ -1,13 +1,13 @@
 from setuptools import setup, find_packages
 
 
-DESCRIPTION = 'Machine Learning with Echo State Networks in Python'
-with open('README.md', encoding='utf-8') as f:
+DESCRIPTION = "Machine Learning with Echo State Networks in Python"
+with open("README.md", encoding="utf-8") as f:
     LONG_DESCRIPTION = f.read()
 
 base_packages = [
     "numpy>=1.23.5",
-    "scikit-learn>=1.0.0",
+    "scikit-learn>=1.2.0",
     "pandas>=1.0.3",
     "matplotlib>=3.2.0",
     "seaborn>=0.10.1",
@@ -21,15 +21,15 @@ test_packages = [
 
 
 setup(
-    name='echoes',
-    version='0.0.8',
+    name="echoes",
+    version="0.0.8",
     description=DESCRIPTION,
     long_description=LONG_DESCRIPTION,
-    long_description_content_type='text/markdown',
-    author='Fabrizio Damicelli',
-    author_email='fabridamicelli@gmail.com',
+    long_description_content_type="text/markdown",
+    author="Fabrizio Damicelli",
+    author_email="fabridamicelli@gmail.com",
     url="https://github.com/fabridamicelli/echoes",
-    packages=find_packages(exclude=['notebooks', 'docs']),
+    packages=find_packages(exclude=["notebooks", "docs"]),
     classifiers=[
         "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3.7",
@@ -41,7 +41,7 @@ setup(
         "Topic :: Scientific/Engineering",
         "Topic :: Scientific/Engineering :: Artificial Intelligence",
     ],
-    python_requires='>=3.7',
+    python_requires=">=3.7",
     install_requires=base_packages,
-    include_package_data=True
+    include_package_data=True,
 )
