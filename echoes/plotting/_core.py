@@ -2,6 +2,7 @@
 Plotting functions often needed.
 Not extremely well polished, rather a tool for quick visualization.
 """
+
 from typing import List, Union, Tuple, Mapping
 
 import matplotlib.pyplot as plt

@@ -1,6 +1,7 @@
 """
 Plain Python implementation reservoir of leaky neurons.
 """
+
 from typing import Callable, Optional, Union
 
 import numpy as np
@@ -124,7 +125,9 @@ class ReservoirLeakyNeurons:
 
         for t in range(1, n_time_steps):
             states[t, :] = self.update_state(
-                state_t=states[t - 1], X_t=X[t, :], y_t=y[t - 1, :],
+                state_t=states[t - 1],
+                X_t=X[t, :],
+                y_t=y[t - 1, :],
             )
         return states
 

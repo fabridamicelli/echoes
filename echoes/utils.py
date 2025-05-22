@@ -1,6 +1,7 @@
 """
 Auxiliar functions
 """
+
 from typing import Union, Callable, Mapping
 import warnings
 
@@ -67,7 +68,9 @@ def check_sparsity(sparsity):
     assert 0 <= sparsity < 1, "sparsity must be in [0-1)"
 
 
-def check_model_params(params: Mapping,) -> None:
+def check_model_params(
+    params: Mapping,
+) -> None:
     """check consistency of parameters, shapes, sensible warnings"""
     W_in = params["W_in_"]
     W = params["W_"]

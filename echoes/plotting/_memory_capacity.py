@@ -1,6 +1,7 @@
 """
 Plotting functions related to the Memory Capacity task.
 """
+
 from typing import List, Union
 
 import numpy as np

@@ -304,14 +304,18 @@ class ESNGenerator(ESNBase, MultiOutputMixin, RegressorMixin):
         # Initialize predictions: begin with last state as first state
         inputs = np.zeros(shape=(self.n_steps, self.n_inputs_), dtype=self._dtype_)
         inputs = np.vstack([self.last_input_, inputs])
-        states = np.vstack([
-            self.last_state_,
-            np.zeros((self.n_steps, self.n_reservoir_), dtype=self._dtype_),
-        ])
-        outputs = np.vstack([
-            self.last_output_,
-            np.zeros((self.n_steps, self.n_outputs_), dtype=self._dtype_),
-        ])
+        states = np.vstack(
+            [
+                self.last_state_,
+                np.zeros((self.n_steps, self.n_reservoir_), dtype=self._dtype_),
+            ]
+        )
+        outputs = np.vstack(
+            [
+                self.last_output_,
+                np.zeros((self.n_steps, self.n_outputs_), dtype=self._dtype_),
+            ]
+        )
 
         check_consistent_length(inputs, outputs)  # sanity check
 
