@@ -19,6 +19,7 @@ authors = [
 
 urls.Changelog = "https://github.com/fabridamicelli/echoes/blob/main/CHANGELOG.md"
 urls.Repository = "https://github.com/fabridamicelli/echoes" 
+urls.Documentation = "https://fabridamicelli.github.io/echoes"
 
 readme = "README.md"
 keywords = [
