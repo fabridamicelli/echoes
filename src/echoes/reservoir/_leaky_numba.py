@@ -4,7 +4,8 @@ Reservoir of Leaky Neurons.
 Implementation accelerated with numba.
 """
 
-from typing import Callable, Optional, Union
+from __future__ import annotations  # TODO: Remove after dropping python 3.9
+from typing import Callable
 
 from numba import njit
 import numpy as np
@@ -67,11 +68,12 @@ class ReservoirLeakyNeurons:
         W_in: np.ndarray,
         W: np.ndarray,
         W_fb: np.ndarray,
-        bias: Union[np.ndarray, float] = 1.0,
+        bias: np.ndarray | float = 1.0,
         activation: Callable,
         noise: float = 0.0,
         leak_rate: float = 1.0,
     ):
+        # Cast all types for numba
         _dtype = W.dtype
         self.W_in = W_in.astype(_dtype)
         self.W = W
@@ -122,11 +124,11 @@ class ReservoirLeakyNeurons:
         self,
         X: np.ndarray,
         y: np.ndarray,
-        initial_state: Union[np.ndarray, None] = None,
+        initial_state: np.ndarray | None = None,
     ) -> np.ndarray:
         states = harvest_states(
-            X,
-            y,
+            X=X,
+            y=y,
             initial_state=initial_state,
             W_in=self.W_in,
             W=self.W,
@@ -149,17 +151,16 @@ def update_state(
     W_fb: np.ndarray,
     bias: np.ndarray,
     activation: Callable,
-    noise: float = 0.0,
-    leak_rate: float = 1.0,
+    noise: np.ndarray,  # Must be already casted, so it's array with 1 value
+    leak_rate: np.ndarray,  # same here
 ) -> np.ndarray:
     """
     Return states vector after one time step.
     """
     new_state = activation(W_in @ X_t + W @ state_t + W_fb @ y_t + bias)
 
-    # TODO: check noise: is -0.5 shift necessary?
     if noise > 0:
-        new_state += noise * (np.random.rand(W.shape[0]) - 0.5)
+        new_state += noise * np.random.rand(W.shape[0])
 
     # Apply leakage
     if leak_rate < 1:
@@ -170,16 +171,17 @@ def update_state(
 
 @njit
 def harvest_states(
+    *,
     X: np.ndarray,
     y: np.ndarray,
-    initial_state: Optional[np.ndarray] = None,
-    W_in: Optional[np.ndarray] = None,
-    W: Optional[np.ndarray] = None,
-    W_fb: Optional[np.ndarray] = None,
-    bias: Optional[np.ndarray] = None,
-    activation: Optional[Callable] = None,
-    noise: float = 0.0,
-    leak_rate: float = 1.0,
+    initial_state: np.ndarray | None = None,
+    W_in: np.ndarray,
+    W: np.ndarray,
+    W_fb: np.ndarray,
+    bias: np.ndarray,
+    activation: Callable,
+    noise: np.ndarray,
+    leak_rate: np.ndarray,
 ) -> np.ndarray:
     """
     Given inputs/outputs X/y, run activity and harvest reservoir states.

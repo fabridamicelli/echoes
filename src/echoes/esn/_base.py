@@ -3,6 +3,8 @@ Echo State Network (ESN) estimator base class.
 It implements common code for ESN estimators (ESNRegressor, ESNGenerator).
 It should not be instanciated.
 """
+
+from __future__ import annotations  # TODO: Remove after dropping python 3.9
 from typing import Union, Callable
 
 import numpy as np
@@ -93,11 +95,6 @@ class ESNBase(BaseEstimator):
         ridge_fit_intercept: bool, optional, default=False
             If True, intercept is fit in Ridge regression. Default False.
             See sklearn Ridge documentation for details.
-        ridge_normalize: bool, default=False
-            This parameter is ignored when fit_intercept is set to False.
-            If True, the regressors X will be normalized before regression by
-            subtracting the mean and dividing by the l2-norm.
-            See sklearn Ridge documentation for details.
         ridge_max_iter: int, default=None
             Maximum number of iterations for conjugate gradient solver.
             See sklearn Ridge documentation for details.
@@ -149,16 +146,16 @@ class ESNBase(BaseEstimator):
         self,
         *,
         n_reservoir: int = 100,
-        W: np.ndarray = None,
+        W: np.ndarray | None = None,
         spectral_radius: float = 0.99,
-        W_in: np.ndarray = None,
-        W_fb: np.ndarray = None,
+        W_in: np.ndarray | None = None,
+        W_fb: np.ndarray | None = None,
         sparsity: float = 0,
         noise: float = 0,
         leak_rate: float = 1,
-        bias: Union[int, float, np.ndarray] = 1,
-        input_scaling: Union[float, np.ndarray] = None,
-        input_shift: Union[float, np.ndarray] = None,
+        bias: float | np.ndarray = 1,
+        input_scaling: float | np.ndarray | None = None,
+        input_shift: float | np.ndarray | None = None,
         feedback: bool = False,
         activation: Callable = tanh,
         activation_out: Callable = identity,
@@ -166,15 +163,14 @@ class ESNBase(BaseEstimator):
         regression_method: str = "pinv",
         ridge_alpha: float = 1,
         ridge_fit_intercept: bool = False,
-        ridge_normalize: bool = False,
-        ridge_max_iter: int = None,
+        ridge_max_iter: int | None = None,
         ridge_tol: float = 1e-3,
         ridge_solver: str = "auto",
-        ridge_sample_weight: Union[float, np.ndarray] = None,
+        ridge_sample_weight: float | np.ndarray | None = None,
         n_transient: int = 0,
         store_states_train: bool = False,
         store_states_pred: bool = False,
-        random_state: Union[int, np.random.RandomState, None] = None,
+        random_state: int | np.random.RandomState | None = None,
     ) -> None:
 
         self.n_reservoir = n_reservoir
@@ -198,7 +194,6 @@ class ESNBase(BaseEstimator):
         self.regression_method = regression_method
         self.ridge_alpha = ridge_alpha
         self.ridge_fit_intercept = ridge_fit_intercept
-        self.ridge_normalize = ridge_normalize
         self.ridge_max_iter = ridge_max_iter
         self.ridge_tol = ridge_tol
         self.ridge_solver = ridge_solver
@@ -319,7 +314,6 @@ class ESNBase(BaseEstimator):
             linreg = Ridge(
                 alpha=self.ridge_alpha,
                 fit_intercept=self.ridge_fit_intercept,
-                normalize=self.ridge_normalize,
                 max_iter=self.ridge_max_iter,
                 tol=self.ridge_tol,
                 solver=self.ridge_solver,

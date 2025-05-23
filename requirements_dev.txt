@@ -1,11 +1,7 @@
 -e .
-numba==0.56.4
-numpy
 jupyterlab
 jupyterlab-vim
 matplotlib
-mkdocs-material
-mkdocstrings
 mypy
 pandas
 pytest

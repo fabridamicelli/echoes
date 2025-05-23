@@ -1,5 +1,3 @@
-import numpy as np
-
 from echoes import ESNGenerator
 from echoes.datasets import load_mackeyglasst17
 

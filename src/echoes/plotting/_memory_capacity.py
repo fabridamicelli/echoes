@@ -1,7 +1,8 @@
 """
 Plotting functions related to the Memory Capacity task.
 """
-from typing import List, Union
+
+from __future__ import annotations  # TODO: Remove after dropping python 3.9
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -10,7 +11,7 @@ from ._core import plot_predicted_ts
 
 
 def plot_forgetting_curve(
-    lags: Union[List, np.ndarray],
+    lags: list | np.ndarray,
     forgetting_curve: np.ndarray,
     ax: plt.Axes = None,
     **kwargs,
@@ -36,11 +37,11 @@ def plot_forgetting_curve(
 
 
 def plot_mc_predicted_ts(
-    lags: Union[List, np.ndarray],
+    lags: list | np.ndarray,
     outputs_true: np.ndarray,
     outputs_pred: np.ndarray,
-    start: int = None,
-    end: int = None,
+    start: int | None = None,
+    end: int | None = None,
 ) -> None:
     """
     Plot true and predicted time series coming from memory capacity

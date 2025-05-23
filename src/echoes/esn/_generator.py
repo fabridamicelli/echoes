@@ -2,6 +2,7 @@
 Echo State Network Generator (pattern generator).
 """
 
+from __future__ import annotations  # TODO: Remove after dropping python 3.9
 from typing import Callable, Union
 
 import numpy as np
@@ -91,11 +92,6 @@ class ESNGenerator(ESNBase, MultiOutputMixin, RegressorMixin):
         ridge_fit_intercept: bool, optional, default=False
             If True, intercept is fit in Ridge regression. Default False.
             See sklearn Ridge documentation for details.
-        ridge_normalize: bool, default=False
-            This parameter is ignored when fit_intercept is set to False.
-            If True, the regressors X will be normalized before regression by
-            subtracting the mean and dividing by the l2-norm.
-            See sklearn Ridge documentation for details.
         ridge_max_iter: int, default=None
             Maximum number of iterations for conjugate gradient solver.
             See sklearn Ridge documentation for details.
@@ -148,31 +144,30 @@ class ESNGenerator(ESNBase, MultiOutputMixin, RegressorMixin):
         *,
         n_steps: int = 100,
         n_reservoir: int = 100,
-        W: Union[np.ndarray, None] = None,
+        W: np.ndarray | None = None,
         spectral_radius: float = 0.99,
-        W_in: Union[np.ndarray, None] = None,
-        W_fb: Union[np.ndarray, None] = None,
+        W_in: np.ndarray | None = None,
+        W_fb: np.ndarray | None = None,
         sparsity: float = 0.0,
         noise: float = 0.0,
         leak_rate: float = 1.0,
-        bias: Union[int, float, np.ndarray] = 1.0,
-        input_scaling: Union[float, np.ndarray, None] = None,
-        input_shift: Union[float, np.ndarray, None] = None,
+        bias: float | np.ndarray = 1.0,
+        input_scaling: float | np.ndarray | None = None,
+        input_shift: float | np.ndarray | None = None,
         activation: Callable = tanh,
         activation_out: Callable = identity,
         fit_only_states: bool = False,
         regression_method: str = "pinv",
         ridge_alpha: float = 1.0,
         ridge_fit_intercept: bool = False,
-        ridge_normalize: bool = False,
         ridge_max_iter: Union[int, None] = None,
         ridge_tol: float = 1e-3,
         ridge_solver: str = "auto",
-        ridge_sample_weight: Union[float, np.ndarray, None] = None,
+        ridge_sample_weight: float | np.ndarray | None = None,
         n_transient: int = 0,
         store_states_train: bool = False,
         store_states_pred: bool = False,
-        random_state: Union[int, np.random.RandomState, None] = None,
+        random_state: int | np.random.RandomState | None = None,
     ) -> None:
         self.n_steps = n_steps
         self.n_reservoir = n_reservoir
@@ -195,7 +190,6 @@ class ESNGenerator(ESNBase, MultiOutputMixin, RegressorMixin):
         self.regression_method = regression_method
         self.ridge_alpha = ridge_alpha
         self.ridge_fit_intercept = ridge_fit_intercept
-        self.ridge_normalize = ridge_normalize
         self.ridge_max_iter = ridge_max_iter
         self.ridge_tol = ridge_tol
         self.ridge_solver = ridge_solver
@@ -221,7 +215,6 @@ class ESNGenerator(ESNBase, MultiOutputMixin, RegressorMixin):
         Returns:
             self: returns an instance of self.
         """
-        # TODO: add test
         if X is not None:
             raise ValueError(
                 "X must be None, ESNGenerator takes no X for prediction."
@@ -290,7 +283,6 @@ class ESNGenerator(ESNBase, MultiOutputMixin, RegressorMixin):
              Predicted outputs.
         """
         check_is_fitted(self)
-        # TODO: add test
         if X is not None:
             raise ValueError(
                 "X must be None, ESNGenerator takes no X for prediction."
@@ -304,14 +296,18 @@ class ESNGenerator(ESNBase, MultiOutputMixin, RegressorMixin):
         # Initialize predictions: begin with last state as first state
         inputs = np.zeros(shape=(self.n_steps, self.n_inputs_), dtype=self._dtype_)
         inputs = np.vstack([self.last_input_, inputs])
-        states = np.vstack([
-            self.last_state_,
-            np.zeros((self.n_steps, self.n_reservoir_), dtype=self._dtype_),
-        ])
-        outputs = np.vstack([
-            self.last_output_,
-            np.zeros((self.n_steps, self.n_outputs_), dtype=self._dtype_),
-        ])
+        states = np.vstack(
+            [
+                self.last_state_,
+                np.zeros((self.n_steps, self.n_reservoir_), dtype=self._dtype_),
+            ]
+        )
+        outputs = np.vstack(
+            [
+                self.last_output_,
+                np.zeros((self.n_steps, self.n_outputs_), dtype=self._dtype_),
+            ]
+        )
 
         check_consistent_length(inputs, outputs)  # sanity check
 
@@ -327,16 +323,20 @@ class ESNGenerator(ESNBase, MultiOutputMixin, RegressorMixin):
             else:
                 full_states = np.concatenate([states[t, :], inputs[t, :]])
             # Predict
-            outputs[t, :] = self.W_out_ @ full_states
+            outputs[t, :] = self.activation_out(self.W_out_ @ full_states)
 
-            # TODO: Update last_{input, states, outputs}_
+            # TODO: check: shoud we Update last_{input, states, outputs}_?
+            # That would imply that succesively calls predict() render potentially
+            # different results because we are updating the inner state.
+            # Keep last state for later
+            self.last_state_ = states[-1, :]
+            self.last_input_ = inputs[-1, :]
+            self.last_output_ = outputs[-1, :]
 
         # Store reservoir activity
         if self.store_states_pred:
             self.states_pred_ = states[1:, :]  # discard first step (comes from fitting)
 
-        # Apply output non-linearity
-        outputs = self.activation_out(outputs)
         return outputs[1:, :]  # discard initial step (comes from training)
 
     def score(self, X=None, y=None, sample_weight=None):

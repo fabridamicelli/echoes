@@ -97,11 +97,6 @@ class ESNRegressor(ESNBase, MultiOutputMixin, RegressorMixin):
         ridge_fit_intercept: bool, optional, default=False
             If True, intercept is fit in Ridge regression. Default False.
             See sklearn Ridge documentation for details.
-        ridge_normalize: bool, default=False
-            This parameter is ignored when fit_intercept is set to False.
-            If True, the regressors X will be normalized before regression by
-            subtracting the mean and dividing by the l2-norm.
-            See sklearn Ridge documentation for details.
         ridge_max_iter: int, default=None
             Maximum number of iterations for conjugate gradient solver.
             See sklearn Ridge documentation for details.
@@ -252,16 +247,15 @@ class ESNRegressor(ESNBase, MultiOutputMixin, RegressorMixin):
             else:
                 full_states = np.concatenate([states[t, :], X[t, :]])
             # Predict
-            y_pred[t, :] = self.W_out_ @ full_states
+            y_pred[t, :] = self.activation_out(self.W_out_ @ full_states)
 
         # Store reservoir activity
         if self.store_states_pred:
             self.states_pred_ = states
 
-        # Apply output non-linearity
-        return self.activation_out(y_pred)
+        return y_pred
 
-    def score(self, X=None, y=None, sample_weight=None) -> float:
+    def score(self, X: np.ndarray, y=np.ndarray, sample_weight=None) -> float:
         """
         R^2 (coefficient of determination) regression score function.
 
