@@ -323,16 +323,20 @@ class ESNGenerator(ESNBase, MultiOutputMixin, RegressorMixin):
             else:
                 full_states = np.concatenate([states[t, :], inputs[t, :]])
             # Predict
-            outputs[t, :] = self.W_out_ @ full_states
+            outputs[t, :] = self.activation_out(self.W_out_ @ full_states)
 
-            # TODO: Update last_{input, states, outputs}_
+            # TODO: check: shoud we Update last_{input, states, outputs}_?
+            # That would imply that succesively calls predict() render potentially
+            # different results because we are updating the inner state.
+            # Keep last state for later
+            self.last_state_ = states[-1, :]
+            self.last_input_ = inputs[-1, :]
+            self.last_output_ = outputs[-1, :]
 
         # Store reservoir activity
         if self.store_states_pred:
             self.states_pred_ = states[1:, :]  # discard first step (comes from fitting)
 
-        # Apply output non-linearity
-        outputs = self.activation_out(outputs)
         return outputs[1:, :]  # discard initial step (comes from training)
 
     def score(self, X=None, y=None, sample_weight=None):

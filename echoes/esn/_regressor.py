@@ -247,14 +247,13 @@ class ESNRegressor(ESNBase, MultiOutputMixin, RegressorMixin):
             else:
                 full_states = np.concatenate([states[t, :], X[t, :]])
             # Predict
-            y_pred[t, :] = self.W_out_ @ full_states
+            y_pred[t, :] = self.activation_out(self.W_out_ @ full_states)
 
         # Store reservoir activity
         if self.store_states_pred:
             self.states_pred_ = states
 
-        # Apply output non-linearity
-        return self.activation_out(y_pred)
+        return y_pred
 
     def score(self, X: np.ndarray, y=np.ndarray, sample_weight=None) -> float:
         """
