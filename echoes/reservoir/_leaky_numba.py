@@ -73,6 +73,7 @@ class ReservoirLeakyNeurons:
         noise: float = 0.0,
         leak_rate: float = 1.0,
     ):
+        # Cast all types for numba
         _dtype = W.dtype
         self.W_in = W_in.astype(_dtype)
         self.W = W
@@ -150,17 +151,16 @@ def update_state(
     W_fb: np.ndarray,
     bias: np.ndarray,
     activation: Callable,
-    noise: float = 0.0,
-    leak_rate: float = 1.0,
+    noise: np.ndarray,  # Must be already casted, so it's array with 1 value
+    leak_rate: np.ndarray,  # same here
 ) -> np.ndarray:
     """
     Return states vector after one time step.
     """
     new_state = activation(W_in @ X_t + W @ state_t + W_fb @ y_t + bias)
 
-    # TODO: check noise: is -0.5 shift necessary?
     if noise > 0:
-        new_state += noise * (np.random.rand(W.shape[0]) - 0.5)
+        new_state += noise * np.random.rand(W.shape[0])
 
     # Apply leakage
     if leak_rate < 1:
@@ -180,8 +180,8 @@ def harvest_states(
     W_fb: np.ndarray,
     bias: np.ndarray,
     activation: Callable,
-    noise: float = 0.0,
-    leak_rate: float = 1.0,
+    noise: np.ndarray,
+    leak_rate: np.ndarray,
 ) -> np.ndarray:
     """
     Given inputs/outputs X/y, run activity and harvest reservoir states.

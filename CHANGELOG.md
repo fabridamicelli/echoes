@@ -5,5 +5,6 @@
 - Remove parameter `ridge_normalize` in all estimators to follow the scikit-learn deprecation 
 
 ### Refactor
+- Remove magic shift factor 0.5 in `update_states`
 - Improve test coverage and documentation.
 - Fix type annotations

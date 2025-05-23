@@ -283,7 +283,6 @@ class ESNGenerator(ESNBase, MultiOutputMixin, RegressorMixin):
              Predicted outputs.
         """
         check_is_fitted(self)
-        # TODO: add test
         if X is not None:
             raise ValueError(
                 "X must be None, ESNGenerator takes no X for prediction."
