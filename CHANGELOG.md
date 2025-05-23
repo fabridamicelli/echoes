@@ -11,3 +11,5 @@
 - Remove magic shift factor 0.5 in `update_states`
 - Improve test coverage and documentation.
 - Fix type annotations
+- Adopt `pyproject.toml`
+- Migrate to `uv`
