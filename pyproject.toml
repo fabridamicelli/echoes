@@ -7,6 +7,9 @@ requires = [
 [tool.setuptools]
 include-package-data = true
 
+[tool.setuptools.package-data]
+echoes = ["data/*"]
+
 [project]
 name = "echoes"
 version = "1.0.0"
