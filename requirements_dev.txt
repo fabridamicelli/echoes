@@ -2,8 +2,6 @@
 jupyterlab
 jupyterlab-vim
 matplotlib
-mkdocs-material
-mkdocstrings
 mypy
 pandas
 pytest
