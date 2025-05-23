@@ -1,2 +1,2 @@
 recursive-include examples *
-recursive-include echoes/data *.npy
+recursive-include src/echoes/data *.npy
