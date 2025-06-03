@@ -9,7 +9,7 @@ from sklearn.utils.validation import (
     check_consistent_length,
     validate_data,
 )
-from sklearn.utils import check_X_y, check_array
+from sklearn.utils import check_array
 from sklearn.base import MultiOutputMixin, RegressorMixin
 from sklearn.metrics import r2_score
 
@@ -175,7 +175,7 @@ class ESNRegressor(MultiOutputMixin, RegressorMixin, ESNBase):
         """
         # Handle corner cases for sklearn compatibility
         if y is None:
-            # This error message has to be *exaclty* like this for check_estimator test
+            # This error message has to be *exactly* like this for check_estimator test
             raise ValueError("requires y to be passed, but the target y is None")
 
         # TODO: Try to get this of this check redundancy.
