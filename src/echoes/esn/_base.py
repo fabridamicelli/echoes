@@ -64,8 +64,8 @@ class ESNBase(BaseEstimator):
         input_shift: float or np.ndarray of length n_inputs, default=None
             Scalar to add to each input before feeding it to the network.
             If float, multiplied same value is added to all inputs.
-            If array, it must match n_inputs length (X.shape[1]), specifying the value to
-            add to each input.
+            If array, it must match n_inputs length (X.shape[1]), specifying the value
+            to add to each input.
         feedback: bool, optional, default=False
             If True, the reservoir also receives the outout signal as input.
         activation: function (numba jitted), optional, default=tanh
@@ -126,8 +126,8 @@ class ESNBase(BaseEstimator):
             If True, time series series of reservoir neurons during training are stored
             in the object attribute states_train_.
         store_states_pred: bool, optional, default=False
-            If True, time series series of reservoir neurons during prediction are stored
-            in the object attribute states_pred_.
+            If True, time series series of reservoir neurons during prediction are
+            stored in the object attribute states_pred_.
 
     Attributes:
         W_out_ : array of shape (n_outputs, n_inputs + n_reservoir + 1)

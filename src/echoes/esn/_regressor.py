@@ -7,6 +7,7 @@ from sklearn.utils.validation import (
     check_random_state,
     check_is_fitted,
     check_consistent_length,
+    validate_data,
 )
 from sklearn.utils import check_X_y, check_array
 from sklearn.base import MultiOutputMixin, RegressorMixin
@@ -16,7 +17,7 @@ from ._base import ESNBase
 from echoes.utils import check_model_params
 
 
-class ESNRegressor(ESNBase, MultiOutputMixin, RegressorMixin):
+class ESNRegressor(MultiOutputMixin, RegressorMixin, ESNBase):
     """
     Number of input and output neurons are infered from passed data.
 
@@ -144,6 +145,15 @@ class ESNRegressor(ESNBase, MultiOutputMixin, RegressorMixin):
              reservoir neurons activity during prediction (test).
     """
 
+    def __sklearn_tags__(self):
+        tags = super().__sklearn_tags__()
+        # Allow multi-output since we can have several outputs
+        tags.target_tags.single_output = False
+        # The output depends on reservoir state and thus is order-dependant, so we mark
+        # it as non-determinstic
+        tags.non_deterministic = True
+        return tags
+
     def fit(self, X: np.ndarray, y: np.ndarray) -> "ESNRegressor":
         """
         Fit Echo State model, i.e., find outgoing weights matrix (W_out) for later
@@ -163,8 +173,31 @@ class ESNRegressor(ESNBase, MultiOutputMixin, RegressorMixin):
         Returns
             self: returns an instance of self.
         """
+        # Handle corner cases for sklearn compatibility
+        if y is None:
+            # This error message has to be *exaclty* like this for check_estimator test
+            raise ValueError("requires y to be passed, but the target y is None")
+
+        # TODO: Try to get this of this check redundancy.
+        # For now we need it to make sure we fail early in check_estimator
+        check_array(X, dtype="numeric", accept_sparse=False)  # Error on sparse input
+        check_array(y, ensure_2d=False, accept_sparse=False)  # Error on sparse input
+        # Try the array conversion in case of other input, eg list
+        if not isinstance(X, np.ndarray):
+            X = np.array(X, dtype=np.float64)
+        if isinstance(y, np.ndarray):
+            y = np.array(y, dtype=np.float64)
+
         self._dtype_ = X.dtype
-        X, y = check_X_y(X, y, multi_output=True, dtype=self._dtype_)
+        # Recast for numba
+        if self._dtype_ in (np.int32, np.int64, np.object_):
+            self._dtype_ = np.float64
+
+        # Set for sklearn compatibility
+        X, y = validate_data(
+            self, X, y, dtype=self._dtype_, multi_output=True, y_numeric=True
+        )
+
         if y.ndim == 1:
             y = y.reshape(-1, 1)
         # Check y again (enforcing 2D for multiple outputs)
@@ -221,7 +254,7 @@ class ESNRegressor(ESNBase, MultiOutputMixin, RegressorMixin):
                 Predicted outputs.
         """
         check_is_fitted(self)
-        X = check_array(X, dtype=self._dtype_)
+        X = validate_data(self, X, reset=False, dtype=self._dtype_, accept_sparse=False)
 
         n_time_steps = X.shape[0]
 
