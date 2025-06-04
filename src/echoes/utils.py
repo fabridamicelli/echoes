@@ -86,7 +86,7 @@ def check_model_params(
     check_matrices_shapes(W_in, W, W_fb, n_inputs, n_reservoir, n_outputs, feedback)
     check_sparsity(params["sparsity"])
     check_input_scaling(input_scaling, n_inputs)
-    check_input_shift(input_scaling, n_inputs)
+    check_input_shift(input_shift, n_inputs)
 
     # Warnings
     if params["leak_rate"] == 0:

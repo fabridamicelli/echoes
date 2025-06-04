@@ -1,3 +1,15 @@
+## 1.0.2 (2025-06-04)
+### Refactor
+- Add sklearn tags and refactor `ESNRegressor` fit/predict methods to make it pass the `check_estimator` check for scikit-learn (v1.6) compatibility.
+- Add test `check_estimator`
+
+### Documentation
+- Add notebook examples using scikit-learn `GridSearchCV` and `Pipeline`
+
+## 1.0.1 (2025-05-22)
+### Fix
+- Add missing data
+
 ## 1.0.0 (2025-05-22)
 ### Breaking changes
 - Drop support for python 3.7 and 3.8

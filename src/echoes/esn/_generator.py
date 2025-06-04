@@ -19,7 +19,7 @@ from ._base import ESNBase
 from echoes.utils import check_model_params, tanh, identity
 
 
-class ESNGenerator(ESNBase, MultiOutputMixin, RegressorMixin):
+class ESNGenerator(MultiOutputMixin, RegressorMixin, ESNBase):
     """
     The number of inputs (n_inputs) is always 1 and n_outputs is infered from passed
     data.
@@ -197,6 +197,15 @@ class ESNGenerator(ESNBase, MultiOutputMixin, RegressorMixin):
         self.random_state = random_state
         self.feedback = True  # Generator uses feedback always
 
+    def __sklearn_tags__(self):
+        tags = super().__sklearn_tags__()
+        # Allow multi-output since we can have several outputs
+        tags.target_tags.single_output = False
+        # The output depends on reservoir state and thus is order-dependant, so we mark
+        # it as non-determinstic
+        tags.non_deterministic = True
+        return tags
+
     def fit(self, X=None, y=None) -> "ESNGenerator":
         """
         Fit Echo State model, i.e., find outgoing weights matrix (W_out) for later
@@ -215,6 +224,11 @@ class ESNGenerator(ESNBase, MultiOutputMixin, RegressorMixin):
         Returns:
             self: returns an instance of self.
         """
+        # Handle corner cases for sklearn compatibility
+        if y is None:
+            # This error message has to be *exactly* like this for check_estimator test
+            raise ValueError("requires y to be passed, but the target y is None")
+
         if X is not None:
             raise ValueError(
                 "X must be None, ESNGenerator takes no X for prediction."
