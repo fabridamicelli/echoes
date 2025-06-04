@@ -12,7 +12,7 @@ echoes = ["data/*"]
 
 [project]
 name = "echoes"
-version = "1.0.1"
+version = "1.0.2"
 license = "MIT"
 license-files = [ "LICENSE" ]
 description = "Machine Learning with Echo State Networks in Python"
