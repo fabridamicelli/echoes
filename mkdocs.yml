@@ -11,11 +11,11 @@ nav:
   - Home: index.md
   - What are Echo State Networks?: tutorial/index.md
   - Examples:
-    - ESNRegressor (sin-cos): examples/notebooks/plot_regressor_sincos.ipynb
-    - ESNGenerator (Mackey-Glass): examples/notebooks/plot_generator_mackeyglass17.ipynb 
-    - Plot Reservoir Activity: examples/notebooks/plot_reservoir_activity.ipynb
-    - ESNRegressor GridSearchCV: examples/notebooks/plot_regressor-gridsearch.ipynb
-    - ESNRegressor, GridSearchCV, Pipeline: examples/notebooks/plot_regressor-pipeline-and-gridsearch.ipynb
+    - ESNRegressor (sin-cos):               examples/notebooks/regressor-sincos.ipynb
+    - ESNGenerator (Mackey-Glass):          examples/notebooks/generator-mackeyglass17.ipynb 
+    - Plot Reservoir Activity:              examples/notebooks/reservoir-activity.ipynb
+    - ESNRegressor GridSearchCV:            examples/notebooks/regressor-gridsearch.ipynb
+    - ESNRegressor, GridSearchCV, Pipeline: examples/notebooks/regressor-pipeline-and-gridsearch.ipynb
   - API:
     - ESNRegressor: api/ESNRegressor.md
     - ESNGenerator: api/ESNGenerator.md
