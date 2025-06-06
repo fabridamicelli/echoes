@@ -17,7 +17,7 @@ Like the package? Don't forget to give it a GitHub ⭐ to help others find and t
 pip install echoes
 ```
 
-See [Documentation](https://fabridamicelli.github.io/echoes/) and [example notebooks](https://github.com/fabridamicelli/echoes/tree/master/examples/notebooks).
+See [Documentation](https://fabridamicelli.github.io/echoes/) and [example notebooks](https://github.com/fabridamicelli/echoes/tree/master/docs/examples/notebooks).
 
 ## Feedback
 Any bugs, suggestions, problems? Just [open an issue!](https://github.com/fabridamicelli/echoes/issues/new)
