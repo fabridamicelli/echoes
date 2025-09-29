@@ -22,6 +22,13 @@ See [Documentation](https://fabridamicelli.github.io/echoes/) and [example noteb
 ## Feedback
 Any bugs, suggestions, problems? Just [open an issue!](https://github.com/fabridamicelli/echoes/issues/new)
 
+## `echoes` in the wild
+Here's a selection of scientific publications using this package to investigate a number of scientific topics:
+
+- [Memory-augmented hybrid quantum reservoir computing](https://journals.aps.org/prapplied/abstract/10.1103/wzwv-7rk2)
+- [Brain Connectivity meets Reservoir Computing](https://doi.org/10.1371/journal.pcbi.1010639)
+- [A Computational Perspective on the No-Strong-Loops Principle in Brain Networks](https://www.biorxiv.org/content/10.1101/2025.09.24.678310v1)
+
 ## Citing
 If you find echoes useful for a publication, then please use the following BibTeX to cite it:
 
